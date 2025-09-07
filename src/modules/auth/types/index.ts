@@ -1,18 +1,36 @@
-import { User } from "@/core/types/user";
-
-export interface LoginEmailDto {
-  email: string;
-  password: string;
+export interface SendSmsRequest {
+  phoneNumber: string;
+  isDev?: boolean;
 }
 
-export interface RegisterEmailDto {
-  email: string;
-  password: string;
-  name: string;
+export interface VerifySmsRequest {
+  phoneNumber: string;
+  code: string;
 }
 
-export interface AuthResponseDto {
+export interface AuthResponse {
+  user: {
+    id: string;
+    name: string;
+    phone: string;
+    email?: string;
+    role: string;
+    isPhoneVerified: boolean;
+    isEmailVerified: boolean;
+    lastLoginAt: string;
+    createdAt: string;
+    updatedAt: string;
+  };
   accessToken: string;
   refreshToken: string;
-  user: Omit<User, 'createdAt' | 'updatedAt' | 'lastLoginAt' | 'isEmailVerified' | 'isPhoneVerified' | 'lastLoginAt'> 
+}
+
+export interface RefreshTokensRequest {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface RefreshTokensResponse {
+  accessToken: string;
+  refreshToken: string;
 }

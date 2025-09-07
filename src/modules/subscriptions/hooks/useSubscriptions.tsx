@@ -1,0 +1,191 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { subscriptionApi } from '../api';
+import { CreateSubscriptionRequest } from '../types';
+import { useAuthStore } from '@/modules/auth/store/authStore';
+import { useGetMe } from '@/modules/auth/hooks/useGetMe';
+import { toast } from 'sonner';
+
+export const useUserSubscription = () => {
+    const { data: user } = useGetMe();
+
+    return useQuery({
+        queryKey: ['user-subscription', user?.userId],
+        queryFn: async () => {
+            console.log('Getting user subscription for user:', user);
+            const result = await subscriptionApi.getUserSubscriptionByUserId(user!.userId);
+            console.log('API returned:', result);
+            return result;
+        },
+        enabled: !!user?.userId, // Выполнять запрос только если есть пользователь
+        staleTime: 2 * 60 * 1000, // 2 минуты
+        gcTime: 5 * 60 * 1000, // 5 минут
+        refetchOnWindowFocus: false, // не перезагружать при фокусе окна
+        refetchOnMount: false, // не перезагружать при монтировании
+        retry: (failureCount, error: any) => {
+            // Не повторять запрос при 401 ошибке (неавторизован)
+            if (error?.response?.status === 401) {
+                return false;
+            }
+            // Повторить максимум 2 раза для других ошибок
+            return failureCount < 2;
+        },
+    });
+};
+
+export const useCreateSubscription = () => {
+    const queryClient = useQueryClient();
+    const { data: user, isLoading: isLoadingUser } = useGetMe();
+
+    return useMutation({
+        mutationFn: (data: { type: "monthly" | "yearly"; price: number }) => {
+            if (isLoadingUser) {
+                throw new Error('Загрузка данных пользователя...');
+            }
+
+            if (!user?.userId) {
+                throw new Error('Пользователь не найден');
+            }
+
+            console.log('User data:', user);
+            console.log('User ID:', user.userId, 'Type:', typeof user.userId);
+
+            // Проверяем формат UUID
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            if (!uuidRegex.test(user.userId)) {
+                console.error('Invalid UUID format:', user.userId);
+                throw new Error(`Неверный формат ID пользователя: ${user.userId}`);
+            }
+
+            const now = new Date();
+            const startDate = now.toISOString();
+
+            // Вычисляем дату окончания в зависимости от типа подписки
+            const endDate = new Date(now);
+            if (data.type === 'monthly') {
+                endDate.setMonth(endDate.getMonth() + 1);
+            } else {
+                endDate.setFullYear(endDate.getFullYear() + 1);
+            }
+
+            const requestData = {
+                userId: user.userId,
+                type: data.type,
+                price: data.price,
+                startDate,
+                endDate: endDate.toISOString()
+            };
+
+            console.log('Creating subscription with data:', requestData);
+            return subscriptionApi.createSubscription(requestData);
+        },
+        onSuccess: (data) => {
+            toast.success('Подписка создана!', {
+                description: data.message || 'Подписка успешно создана',
+                duration: 4000,
+            });
+            // Обновляем подписку пользователя
+            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
+        },
+        onError: (error: any) => {
+            console.error('Subscription creation error:', error);
+
+            let errorMessage = 'Ошибка создания подписки';
+
+            if (error?.response?.data?.message) {
+                if (Array.isArray(error.response.data.message)) {
+                    errorMessage = error.response.data.message.join(', ');
+                } else {
+                    errorMessage = error.response.data.message;
+                }
+            }
+
+            toast.error('Ошибка создания подписки', {
+                description: errorMessage,
+                duration: 5000,
+            });
+        },
+    });
+};
+
+export const useCreatePaymentLink = () => {
+    const { data: user } = useGetMe();
+
+    return useMutation({
+        mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; amount: number }) =>
+            subscriptionApi.createPaymentLink({
+                subscriptionId: data.subscriptionId,
+                subscriptionType: data.subscriptionType,
+                amount: data.amount
+            }),
+        onSuccess: (data) => {
+            toast.success('Ссылка на оплату создана!', {
+                description: data.message,
+                duration: 4000,
+            });
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message || 'Ошибка создания ссылки на оплату';
+            toast.error('Ошибка', {
+                description: errorMessage,
+                duration: 5000,
+            });
+        },
+    });
+};
+
+export const useSimulatePayment = () => {
+    const queryClient = useQueryClient();
+    const { data: user } = useGetMe();
+
+    return useMutation({
+        mutationFn: (paymentId: string) =>
+            subscriptionApi.simulatePayment(paymentId),
+        onSuccess: (data) => {
+            if (data.success) {
+                toast.success('Оплата успешна!', {
+                    description: data.message,
+                    duration: 4000,
+                });
+            } else {
+                toast.error('Ошибка оплаты', {
+                    description: data.message,
+                    duration: 5000,
+                });
+            }
+            // Обновляем подписку пользователя
+            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message || 'Ошибка симуляции оплаты';
+            toast.error('Ошибка', {
+                description: errorMessage,
+                duration: 5000,
+            });
+        },
+    });
+};
+
+export const useDeleteSubscription = () => {
+    const queryClient = useQueryClient();
+    const { data: user } = useGetMe();
+
+    return useMutation({
+        mutationFn: (subscriptionId: string) =>
+            subscriptionApi.deleteSubscription(subscriptionId),
+        onSuccess: (data) => {
+            toast.success('Подписка удалена!', {
+                description: data.message,
+                duration: 4000,
+            });
+            // Обновляем подписку пользователя
+            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message || 'Ошибка удаления подписки';
+            toast.error('Ошибка', {
+                description: errorMessage,
+                duration: 5000,
+            });
+        },
+    });
+};

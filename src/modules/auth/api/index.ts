@@ -1,27 +1,41 @@
-import { axiosInstance } from "@/core/config/axios";
-import { AuthResponseDto, LoginEmailDto, RegisterEmailDto } from "../types";
-import { AxiosResponse } from "axios";
+import { axiosPublic, axiosInstance } from "@/core/config/axios";
+import {
+  SendSmsRequest,
+  VerifySmsRequest,
+  AuthResponse,
+  RefreshTokensRequest,
+  RefreshTokensResponse,
+} from "../types";
 import { User } from "@/core/types/user";
 
 export const authApi = {
-  register: (data: RegisterEmailDto) =>
-    axiosInstance
-      .post<RegisterEmailDto, AxiosResponse<AuthResponseDto>>("/auth/email/register", data)
-      .then((res) => {
-        console.log(res.data, "res.data");
-        return res.data;
-      }),
-  login: (data: LoginEmailDto) =>
-    axiosInstance
-      .post<LoginEmailDto, AxiosResponse<AuthResponseDto>>("/auth/email/login", data)
-      .then((res) => {
-        console.log(res.data, "res.data");
-        return res.data;
-      }),
-  getMe: () =>
-    axiosInstance
-      .get<User>("/auth/me")
-      .then((res) => {
-        return res.data;
-      }),
+  // Отправка SMS кода
+  sendSms: async (data: SendSmsRequest): Promise<{ message: string }> => {
+    const payload = {
+      phoneNumber: data.phoneNumber,
+      ...(data.isDev && { isDev: data.isDev }),
+    };
+    const response = await axiosPublic.post("/auth/sms/send", payload);
+    return response.data;
+  },
+
+  // Верификация SMS кода и авторизация
+  verifySms: async (data: VerifySmsRequest): Promise<AuthResponse> => {
+    const response = await axiosPublic.post("/auth/sms/verify", data);
+    return response.data;
+  },
+
+  // Обновление токенов
+  refreshTokens: async (
+    data: RefreshTokensRequest
+  ): Promise<RefreshTokensResponse> => {
+    const response = await axiosPublic.post("/auth/refresh", data);
+    return response.data;
+  },
+
+  // Получение данных текущего пользователя
+  getMe: async (): Promise<User> => {
+    const response = await axiosInstance.get("/auth/me");
+    return response.data;
+  },
 };

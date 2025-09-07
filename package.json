@@ -21,6 +21,7 @@
     "@radix-ui/react-slider": "^1.2.4",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.14",
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
@@ -37,9 +38,11 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.56.4",
     "react-router-dom": "^7.1.1",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.6",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "workbox-window": "^7.3.0",
     "zod": "^3.25.23",
     "zustand": "^5.0.3"
   },
@@ -60,7 +63,8 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vite-plugin-pwa": "^1.0.3"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
