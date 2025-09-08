@@ -173,9 +173,9 @@ export const Header = () => {
                 {isMobileMenuOpen && (
                     <div className="md:hidden border-t border-border bg-card">
                         <div className="px-2 pt-2 pb-3 space-y-1">
-                            <div className="flex justify-center mb-2">
+                            {/* <div className="flex justify-center mb-2">
                                 <LanguageSwitcher />
-                            </div>
+                            </div> */}
                             {!user ? (
                                 // Неавторизованный пользователь
                                 <Button
