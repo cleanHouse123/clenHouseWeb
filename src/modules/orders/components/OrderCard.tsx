@@ -12,11 +12,10 @@ import {
     MoreHorizontal,
     CheckCircle,
     XCircle,
-    PlayCircle,
-    PauseCircle
+    PlayCircle
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { useLocale } from '@/core/feauture/locale/useLocale';
+import { formatDateTime, formatDateRelativeLocal } from '@/core/utils/dateUtils';
 
 export const OrderCard = ({
     order,
@@ -24,32 +23,7 @@ export const OrderCard = ({
     onCancel,
     showActions = false
 }: OrderCardProps) => {
-    const formatDate = (dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            return formatDistanceToNow(date, {
-                addSuffix: true,
-                locale: ru
-            });
-        } catch (error) {
-            return 'Неверная дата';
-        }
-    };
-
-    const formatDateTime = (dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        } catch (error) {
-            return 'Неверная дата';
-        }
-    };
+    const { locale } = useLocale();
 
     const getStatusActions = () => {
         if (!showActions) return null;
@@ -181,8 +155,7 @@ export const OrderCard = ({
                             {order.payments.map((payment) => (
                                 <div key={payment.id} className="flex items-center justify-between text-sm">
                                     <span className="text-muted-foreground">
-                                        {payment.method === 'cash' ? 'Наличные' :
-                                            payment.method === 'card' ? 'Карта' : 'Онлайн'}
+                                        {payment.method === 'subscription' ? 'По подписке' : 'Онлайн'}
                                     </span>
                                     <div className="flex items-center gap-2">
                                         <span className="font-medium">{payment.amount}₽</span>
@@ -204,7 +177,7 @@ export const OrderCard = ({
                 {/* Время создания */}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
-                    <span>Создан {formatDate(order.createdAt)}</span>
+                    <span>Создан {formatDateRelativeLocal(order.createdAt, locale)}</span>
                 </div>
 
                 {/* Действия */}

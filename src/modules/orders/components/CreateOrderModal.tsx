@@ -10,19 +10,22 @@ import { Textarea } from '@/core/components/ui/inputs/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
 import { Calendar } from '@/core/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
-import { CalendarIcon, Plus, MapPin, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { TimePicker } from '@/core/components/ui/time-picker';
+import { CalendarIcon, Plus, MapPin, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
+import { SubscriptionStatusCard } from './SubscriptionStatusCard';
 
 const createOrderSchema = z.object({
     address: z.string().min(1, 'Адрес обязателен').max(500, 'Адрес слишком длинный'),
     description: z.string().max(1000, 'Описание слишком длинное').optional(),
-    scheduledAt: z.date().optional(),
+    scheduledDate: z.date().optional(),
+    scheduledTime: z.string().optional(),
     notes: z.string().max(500, 'Заметки слишком длинные').optional(),
-    paymentMethod: z.enum(['subscription', 'card'] as const),
+    paymentMethod: z.enum(['subscription', 'online'] as const),
 });
 
 type CreateOrderFormData = z.infer<typeof createOrderSchema>;
@@ -48,17 +51,36 @@ export const CreateOrderModal = ({
         defaultValues: {
             address: '',
             description: '',
-            scheduledAt: undefined,
+            scheduledDate: undefined,
+            scheduledTime: '',
             notes: '',
-            paymentMethod: 'subscription',
+            paymentMethod: userSubscription?.status === 'active' ? 'subscription' : 'online',
         },
     });
 
     const handleSubmit = (data: CreateOrderFormData) => {
+        let scheduledAt: string | undefined;
+
+        if (data.scheduledDate && data.scheduledTime) {
+            const [hours, minutes] = data.scheduledTime.split(':');
+            const scheduledDateTime = new Date(data.scheduledDate);
+            scheduledDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            // Создаем строку в локальном формате без суффикса Z
+            const year = scheduledDateTime.getFullYear();
+            const month = String(scheduledDateTime.getMonth() + 1).padStart(2, '0');
+            const day = String(scheduledDateTime.getDate()).padStart(2, '0');
+            const hour = String(scheduledDateTime.getHours()).padStart(2, '0');
+            const minute = String(scheduledDateTime.getMinutes()).padStart(2, '0');
+            const second = String(scheduledDateTime.getSeconds()).padStart(2, '0');
+            scheduledAt = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
+        } else if (data.scheduledDate) {
+            scheduledAt = data.scheduledDate.toISOString();
+        }
+
         const orderData: OrderFormData = {
             address: data.address,
             description: data.description,
-            scheduledAt: data.scheduledAt ? data.scheduledAt.toISOString() : undefined,
+            scheduledAt,
             notes: data.notes,
             paymentMethod: data.paymentMethod,
         };
@@ -71,8 +93,7 @@ export const CreateOrderModal = ({
     const paymentMethodOptions = hasActiveSubscription
         ? [{ value: 'subscription', label: 'По подписке', icon: '📋' }]
         : [
-            //{ value: 'subscription', label: 'Оформить подписку', icon: '📋' },
-            { value: 'card', label: 'Оплата картой', icon: '💳' },
+            { value: 'online', label: 'Оплата онлайн', icon: '💳' },
         ];
 
     return (
@@ -86,19 +107,7 @@ export const CreateOrderModal = ({
                 </DialogHeader>
 
                 {/* Статус подписки */}
-                <div className="mb-4 p-3 rounded-lg border">
-                    {hasActiveSubscription ? (
-                        <div className="flex items-center gap-2 text-green-700">
-                            <CheckCircle className="h-4 w-4" />
-                            <span className="text-sm font-medium">У вас активная подписка</span>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 text-amber-700">
-                            <AlertTriangle className="h-4 w-4" />
-                            <span className="text-sm font-medium">Нет активной подписки</span>
-                        </div>
-                    )}
-                </div>
+                <SubscriptionStatusCard hasActiveSubscription={hasActiveSubscription} />
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -143,15 +152,15 @@ export const CreateOrderModal = ({
                         />
 
 
-                        {/* Запланированное время */}
+                        {/* Запланированная дата */}
                         <FormField
                             control={form.control}
-                            name="scheduledAt"
+                            name="scheduledDate"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2">
-                                        <Clock className="h-4 w-4" />
-                                        Запланированное время
+                                        <CalendarIcon className="h-4 w-4" />
+                                        Запланированная дата
                                     </FormLabel>
                                     <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                         <PopoverTrigger asChild>
@@ -167,7 +176,7 @@ export const CreateOrderModal = ({
                                                     {field.value ? (
                                                         format(field.value, 'PPP', { locale: ru })
                                                     ) : (
-                                                        <span>Выберите дату и время</span>
+                                                        <span>Выберите дату</span>
                                                     )}
                                                 </Button>
                                             </FormControl>
@@ -180,12 +189,37 @@ export const CreateOrderModal = ({
                                                     field.onChange(date);
                                                     setCalendarOpen(false);
                                                 }}
-                                                disabled={(date) => date < new Date()}
-                                                initialFocus
+                                                disabled={(date) => {
+                                                    const today = new Date();
+                                                    today.setHours(0, 0, 0, 0);
+                                                    return date < today;
+                                                }}
                                                 className="rounded-md border bg-background"
                                             />
                                         </PopoverContent>
                                     </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Запланированное время */}
+                        <FormField
+                            control={form.control}
+                            name="scheduledTime"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                        <Clock className="h-4 w-4" />
+                                        Запланированное время
+                                    </FormLabel>
+                                    <FormControl>
+                                        <TimePicker
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            placeholder="Выберите время"
+                                        />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -211,33 +245,50 @@ export const CreateOrderModal = ({
                         />
 
                         {/* Способ оплаты */}
-                        <FormField
-                            control={form.control}
-                            name="paymentMethod"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Способ оплаты *</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Выберите способ оплаты" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {paymentMethodOptions.map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>
-                                                    <div className="flex items-center gap-2">
-                                                        <span>{option.icon}</span>
-                                                        <span>{option.label}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {userSubscription?.status === 'active' ? (
+                            <FormItem>
+                                <FormLabel>Способ оплаты *</FormLabel>
+                                <div className="flex items-center gap-2 p-3 rounded-lg border bg-green-50 border-green-200">
+                                    <span className="text-green-700 font-medium">
+                                        Подписка активна до {userSubscription.endDate ? new Date(userSubscription.endDate).toLocaleDateString('ru-RU', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        }) : 'неизвестно'}
+                                    </span>
+                                </div>
+                                {/* Скрытое поле для формы */}
+                                <input type="hidden" {...form.register('paymentMethod')} value="subscription" />
+                            </FormItem>
+                        ) : (
+                            <FormField
+                                control={form.control}
+                                name="paymentMethod"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Способ оплаты *</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Выберите способ оплаты" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {paymentMethodOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        <div className="flex items-center gap-2">
+                                                            <span>{option.icon}</span>
+                                                            <span>{option.label}</span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
 
                         {/* Кнопки */}
                         <div className="flex gap-3 pt-4">

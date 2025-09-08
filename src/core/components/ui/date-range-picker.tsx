@@ -12,7 +12,7 @@ interface DateRangePickerProps {
   locale?: string
 }
 
-export function DateRangePicker({ date, onSelect, locale = 'en' }: DateRangePickerProps) {
+export function DateRangePicker({ date, onSelect, locale = 'ru' }: DateRangePickerProps) {
   const getLocale = () => {
     switch (locale) {
       case 'ru':

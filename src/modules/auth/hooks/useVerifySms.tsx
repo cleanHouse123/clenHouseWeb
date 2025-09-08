@@ -1,22 +1,22 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { authApi } from '../api';
 import { VerifySmsRequest } from '../types';
-import { useAuthStore } from '../store/authStore';
-import { User } from '@/core/types/user';
 
 export const useVerifySms = () => {
     const navigate = useNavigate();
-    const { setUser, setAccessToken, setRefreshToken } = useAuthStore();
+    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (data: VerifySmsRequest) => authApi.verifySms(data),
         onSuccess: (data) => {
-            // Сохраняем данные пользователя и токены
-            setUser(data.user as unknown as User);
-            setAccessToken(data.accessToken);
-            setRefreshToken(data.refreshToken);
+            // Сохраняем токены в localStorage
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+            // Инвалидируем кэш пользователя для обновления данных
+            queryClient.invalidateQueries({ queryKey: ['me'] });
 
             toast.success('Добро пожаловать!', {
                 description: `Привет, ${data.user.name}! Вы успешно вошли в систему`,

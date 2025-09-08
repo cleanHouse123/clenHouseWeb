@@ -1,12 +1,13 @@
 // Enums
 export type OrderStatus =
   | "new"
+  | "paid"
   | "assigned"
   | "in_progress"
   | "done"
   | "canceled";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
-export type PaymentMethod = "subscription" | "card";
+export type PaymentMethod = "subscription" | "online";
 
 // User Response DTO (упрощенная версия)
 export interface UserResponseDto {

@@ -113,12 +113,12 @@ export const SubscriptionsPage = () => {
                             {isConnected ? (
                                 <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                                     <Wifi className="h-3 w-3 mr-1" />
-                                    WebSocket подключен
+
                                 </Badge>
                             ) : (
                                 <Badge variant="outline" className="text-orange-600 border-orange-200">
                                     <WifiOff className="h-3 w-3 mr-1" />
-                                    WebSocket отключен
+
                                 </Badge>
                             )}
                         </div>

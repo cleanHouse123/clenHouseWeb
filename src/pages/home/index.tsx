@@ -8,7 +8,11 @@ export const HomePage = () => {
   const navigate = useNavigate();
 
   const handleSmsLogin = () => {
-    navigate("/sms-login");
+    // Открываем модальное окно SMS логина через Header
+    const loginButton = document.querySelector('[data-testid="sms-login-button"]') as HTMLButtonElement;
+    if (loginButton) {
+      loginButton.click();
+    }
   };
 
   return (
@@ -33,7 +37,7 @@ export const HomePage = () => {
             </motion.div>
 
             <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-              Clean House
+              ЧистоДом
             </h1>
 
             <motion.div

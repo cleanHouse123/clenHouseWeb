@@ -9,8 +9,8 @@ import {
     CreditCard,
     ChevronRight
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { useLocale } from '@/core/feauture/locale/useLocale';
+import { formatDateRelative, formatDateNumeric, formatDateRelativeLocal } from '@/core/utils/dateUtils';
 
 interface OrderListItemProps extends OrderCardProps {
     onClick: () => void;
@@ -20,32 +20,7 @@ export const OrderListItem = ({
     order,
     onClick
 }: OrderListItemProps) => {
-    const formatDate = (dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            return formatDistanceToNow(date, {
-                addSuffix: true,
-                locale: ru
-            });
-        } catch (error) {
-            return 'Неверная дата';
-        }
-    };
-
-    const formatDateTime = (dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        } catch (error) {
-            return 'Неверная дата';
-        }
-    };
+    const { locale } = useLocale();
 
     const hasPendingPayment = order.payments.some(payment => payment.status === 'pending');
 
@@ -79,13 +54,13 @@ export const OrderListItem = ({
                             {order.scheduledAt && (
                                 <div className="flex items-center gap-1">
                                     <Calendar className="h-3 w-3" />
-                                    <span>{formatDateTime(order.scheduledAt)}</span>
+                                    <span>{formatDateNumeric(order.scheduledAt, locale)}</span>
                                 </div>
                             )}
 
                             <div className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
-                                <span>{formatDate(order.createdAt)}</span>
+                                <span>{formatDateRelativeLocal(order.createdAt, locale)}</span>
                             </div>
                         </div>
                     </div>

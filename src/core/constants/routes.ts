@@ -18,5 +18,5 @@ export const ROUTES = {
   },
   DASHBOARD: "/dashboard",
   HOME: "/",
-  SMS_LOGIN: "/sms-login",
+  SMS_LOGIN: "/login",
 } as const;

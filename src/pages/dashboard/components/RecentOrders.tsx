@@ -4,6 +4,9 @@ import { Badge } from '@/core/components/ui/badge';
 import { Package, Calendar, MapPin, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { OrderResponseDto } from '@/modules/orders/types';
+import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
+import { useLocale } from '@/core/feauture/locale/useLocale';
+import { formatDateShort } from '@/core/utils/dateUtils';
 
 interface RecentOrdersProps {
     orders: OrderResponseDto[];
@@ -12,11 +15,15 @@ interface RecentOrdersProps {
 
 export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
     const navigate = useNavigate();
+    const { openCreateOrderModal } = useCreateOrderModal();
+    const { locale } = useLocale();
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
             case 'new':
                 return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'paid':
+                return 'bg-green-100 text-green-800 border-green-200';
             case 'assigned':
                 return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'in_progress':
@@ -34,6 +41,8 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
         switch (status.toLowerCase()) {
             case 'new':
                 return 'Новый';
+            case 'paid':
+                return 'Оплачен';
             case 'assigned':
                 return 'Назначен';
             case 'in_progress':
@@ -47,14 +56,6 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
         }
     };
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('ru-RU', {
-            day: 'numeric',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
 
     if (isLoading) {
         return (
@@ -96,7 +97,7 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
                         <p className="text-sm text-muted-foreground mb-4">
                             Создайте свой первый заказ на вынос мусора
                         </p>
-                        <Button onClick={() => navigate('/orders')}>
+                        <Button onClick={openCreateOrderModal}>
                             <Package className="h-4 w-4 mr-2" />
                             Создать заказ
                         </Button>
@@ -153,7 +154,7 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
                                 {order.scheduledAt && (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Calendar className="h-3 w-3" />
-                                        <span>{formatDate(order.scheduledAt.toString())}</span>
+                                        <span>{formatDateShort(order.scheduledAt.toString(), locale)}</span>
                                     </div>
                                 )}
 
@@ -162,7 +163,7 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
                                         {order.price} ₽
                                     </span>
                                     <span className="text-xs text-muted-foreground">
-                                        {formatDate(order.createdAt.toString())}
+                                        {formatDateShort(order.createdAt.toString(), locale)}
                                     </span>
                                 </div>
                             </div>

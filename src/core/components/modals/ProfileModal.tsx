@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button';
 import { Card, CardContent } from '@/core/components/ui/card';
-import { User, Phone, Mail, Calendar, Settings, X } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ProfileModalProps {
@@ -14,16 +14,17 @@ interface ProfileModalProps {
         email?: string;
         isPhoneVerified?: boolean;
         isEmailVerified?: boolean;
-        lastLoginAt?: string;
-        createdAt?: string;
+        lastLoginAt?: string | Date;
+        createdAt?: string | Date;
     };
 }
 
 export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
     const navigate = useNavigate();
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('ru-RU', {
+    const formatDate = (dateString: string | Date) => {
+        const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+        return date.toLocaleDateString('ru-RU', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -46,14 +47,14 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                             <User className="h-5 w-5" />
                             Информация о профиле
                         </DialogTitle>
-                        <Button
+                        {/* <Button
                             variant="ghost"
                             size="sm"
                             onClick={onClose}
                             className="h-8 w-8 p-0"
                         >
                             <X className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                     </div>
                 </DialogHeader>
 

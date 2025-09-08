@@ -13,11 +13,10 @@ import {
     User,
     CreditCard,
     MoreHorizontal,
-    X,
     ExternalLink
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { useLocale } from '@/core/feauture/locale/useLocale';
+import { formatDateTime, formatDateTimeLocal, formatDateRelativeLocal } from '@/core/utils/dateUtils';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -34,38 +33,12 @@ export const OrderDetailsModal = ({
     userId,
     onPaymentSuccess
 }: OrderDetailsModalProps) => {
+    const { locale } = useLocale();
     const [isPaymentIframeOpen, setIsPaymentIframeOpen] = useState(false);
     const [paymentUrl, setPaymentUrl] = useState('');
     const [paymentId, setPaymentId] = useState('');
 
     if (!order) return null;
-
-    const formatDate = (dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            return formatDistanceToNow(date, {
-                addSuffix: true,
-                locale: ru
-            });
-        } catch (error) {
-            return 'Неверная дата';
-        }
-    };
-
-    const formatDateTime = (dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        } catch (error) {
-            return 'Неверная дата';
-        }
-    };
 
     const handleOpenPayment = async () => {
         try {
@@ -88,7 +61,7 @@ export const OrderDetailsModal = ({
         setIsPaymentIframeOpen(false);
     };
 
-    const hasPendingPayment = order.payments.some(payment => payment.status === 'pending');
+    const hasPendingPayment = order.status !== 'paid' && order.payments.some(payment => payment.status === 'pending');
 
     return (
         <>
@@ -151,7 +124,7 @@ export const OrderDetailsModal = ({
                                 <div>
                                     <p className="font-medium">Запланировано</p>
                                     <p className="text-muted-foreground">
-                                        {formatDateTime(order.scheduledAt)}
+                                        {formatDateTime(order.scheduledAt, locale)}
                                     </p>
                                 </div>
                             </div>
@@ -189,11 +162,10 @@ export const OrderDetailsModal = ({
                                                 <CreditCard className="h-4 w-4 text-muted-foreground" />
                                                 <div>
                                                     <p className="font-medium">
-                                                        {payment.method === 'subscription' ? 'По подписке' :
-                                                            payment.method === 'card' ? 'Карта' : 'Онлайн'}
+                                                        {payment.method === 'subscription' ? 'По подписке' : 'Онлайн'}
                                                     </p>
                                                     <p className="text-sm text-muted-foreground">
-                                                        {formatDateTime(payment.createdAt)}
+                                                        {formatDateTimeLocal(payment.createdAt, locale)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -218,7 +190,7 @@ export const OrderDetailsModal = ({
                         {/* Время создания */}
                         <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-4">
                             <Clock className="h-4 w-4" />
-                            <span>Создан {formatDate(order.createdAt)}</span>
+                            <span>Создан {formatDateRelativeLocal(order.createdAt, locale)}</span>
                         </div>
 
                         {/* Кнопка оплаты для ожидающих платежей */}

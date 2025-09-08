@@ -4,8 +4,9 @@ import { Header } from '@/core/components/layout/Header';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { QuickActions } from './components/QuickActions';
 import { RecentOrders } from './components/RecentOrders';
+import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext';
 
-export const DashboardPage = () => {
+const DashboardContent = () => {
     const { data: user, isLoading: isLoadingUser, error } = useGetMe();
     const { data: customerOrders, isLoading: isLoadingOrders } = useCustomerOrders();
 
@@ -85,5 +86,13 @@ export const DashboardPage = () => {
                 </div>
             </main>
         </div>
+    );
+};
+
+export const DashboardPage = () => {
+    return (
+        <CreateOrderProvider onOrderCreated={() => window.location.reload()}>
+            <DashboardContent />
+        </CreateOrderProvider>
     );
 };

@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { subscriptionApi } from '../api';
 import { CreateSubscriptionRequest } from '../types';
-import { useAuthStore } from '@/modules/auth/store/authStore';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { toast } from 'sonner';
 
@@ -57,7 +56,15 @@ export const useCreateSubscription = () => {
             }
 
             const now = new Date();
-            const startDate = now.toISOString();
+
+            // Создаем строку в локальном формате без суффикса Z
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            const second = String(now.getSeconds()).padStart(2, '0');
+            const startDate = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
 
             // Вычисляем дату окончания в зависимости от типа подписки
             const endDate = new Date(now);
@@ -67,12 +74,20 @@ export const useCreateSubscription = () => {
                 endDate.setFullYear(endDate.getFullYear() + 1);
             }
 
+            const endYear = endDate.getFullYear();
+            const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+            const endDay = String(endDate.getDate()).padStart(2, '0');
+            const endHour = String(endDate.getHours()).padStart(2, '0');
+            const endMinute = String(endDate.getMinutes()).padStart(2, '0');
+            const endSecond = String(endDate.getSeconds()).padStart(2, '0');
+            const endDateString = `${endYear}-${endMonth}-${endDay}T${endHour}:${endMinute}:${endSecond}.000`;
+
             const requestData = {
                 userId: user.userId,
                 type: data.type,
                 price: data.price,
                 startDate,
-                endDate: endDate.toISOString()
+                endDate: endDateString
             };
 
             console.log('Creating subscription with data:', requestData);

@@ -1,6 +1,5 @@
 import { AdminLayout } from "@/core/components/layout/AdminLayout";
 import { HomePage } from "@/pages/home";
-import { SmsLoginPage } from "@/pages/sms-login";
 import { DashboardPage } from "@/pages/dashboard";
 import { SubscriptionsPage } from "@/pages/subscriptions";
 import { LoginPage } from "@/pages/login";
@@ -11,19 +10,11 @@ import { createBrowserRouter } from "react-router-dom";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <HomePage />
-      </ProtectedRoute>
-    ),
+    element: <HomePage />,
   },
   {
     path: "login",
     element: <LoginPage />,
-  },
-  {
-    path: "sms-login",
-    element: <SmsLoginPage />,
   },
   {
     path: "dashboard",

@@ -1,33 +1,40 @@
 import { useState } from 'react';
-import { useAuthStore } from '@/modules/auth/store/authStore';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { Button } from '@/core/components/ui/button';
-import { User, LogOut, Smartphone, Menu, X } from 'lucide-react';
+import { LogOut, Smartphone, Menu, X, User, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { ProfileModal } from '@/core/components/modals/ProfileModal';
+import { LanguageSwitcher } from '@/core/components/ui/language-switcher';
+import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 
 export const Header = () => {
-    const { accessToken, clearUser } = useAuthStore();
     const { data: user, isLoading } = useGetMe();
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isSmsLoginModalOpen, setIsSmsLoginModalOpen] = useState(false);
 
     const handleLogout = () => {
-        clearUser();
+        // Очищаем токены из localStorage
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+
         setIsMobileMenuOpen(false);
         toast.success('До свидания!', {
             description: 'Вы успешно вышли из системы',
             duration: 3000,
         });
         navigate('/');
+
+        // Перезагружаем страницу для очистки кэша React Query
+        window.location.reload();
     };
 
     const handleLogin = () => {
         setIsMobileMenuOpen(false);
-        navigate('/sms-login');
+        setIsSmsLoginModalOpen(true);
     };
 
     const handleDashboard = () => {
@@ -48,24 +55,26 @@ export const Header = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Логотип */}
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center">
-                            <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
-                        </div>
-                        <div>
-                            <h1 className="text-base sm:text-lg font-semibold text-foreground">
-                                Clean House
-                            </h1>
-                        </div>
-                    </div>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                    >
+                        <img
+                            src="/icons/logo.png"
+                            alt="ЧистоДом"
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                        />
+                    </button>
 
                     {/* Десктопная навигация */}
                     <div className="hidden md:flex items-center gap-2">
-                        {!accessToken ? (
+
+                        {!user ? (
                             // Неавторизованный пользователь
                             <Button
                                 onClick={handleLogin}
                                 className="flex items-center gap-2"
+                                data-testid="sms-login-button"
                             >
                                 <Smartphone className="h-4 w-4" />
                                 Войти
@@ -104,7 +113,7 @@ export const Header = () => {
                                     onClick={handleDashboard}
                                     className="flex items-center gap-2"
                                 >
-                                    <User className="h-4 w-4" />
+                                    <Home className="h-4 w-4" />
                                     Личный кабинет
                                 </Button>
 
@@ -112,7 +121,7 @@ export const Header = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={handleLogout}
-                                    className="flex items-center gap-2 text-destructive hover:text-destructive/80"
+                                    className="flex items-center gap-2 "
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Выйти
@@ -164,7 +173,10 @@ export const Header = () => {
                 {isMobileMenuOpen && (
                     <div className="md:hidden border-t border-border bg-card">
                         <div className="px-2 pt-2 pb-3 space-y-1">
-                            {!accessToken ? (
+                            <div className="flex justify-center mb-2">
+                                <LanguageSwitcher />
+                            </div>
+                            {!user ? (
                                 // Неавторизованный пользователь
                                 <Button
                                     onClick={handleLogin}
@@ -207,7 +219,7 @@ export const Header = () => {
                                         className="w-full justify-start flex items-center gap-2"
                                         variant="ghost"
                                     >
-                                        <User className="h-4 w-4" />
+                                        <Home className="h-4 w-4" />
                                         Личный кабинет
                                     </Button>
 
@@ -254,6 +266,12 @@ export const Header = () => {
                     user={user}
                 />
             )}
+
+            {/* SMS Login Modal */}
+            <SmsLoginModal
+                isOpen={isSmsLoginModalOpen}
+                onClose={() => setIsSmsLoginModalOpen(false)}
+            />
         </header>
     );
 };

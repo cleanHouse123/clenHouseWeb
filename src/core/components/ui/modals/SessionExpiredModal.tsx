@@ -7,18 +7,20 @@ import {
     DialogTitle,
 } from '@/core/components/ui/dialog'
 import { Button } from '@/core/components/ui/button';
-import { useAuthStore } from '@/modules/auth/store/authStore';
 
-export const SessionExpiredModal = () => {
-    const { sessionExpired, setSessionExpired } = useAuthStore()
+interface SessionExpiredModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
 
+export const SessionExpiredModal = ({ isOpen, onClose }: SessionExpiredModalProps) => {
     const handleLoginRedirect = () => {
-        setSessionExpired(false)
-        window.open('/admin/login', '_blank')
+        onClose();
+        window.open('/admin/login', '_blank');
     }
 
     return (
-        <Dialog open={sessionExpired} onOpenChange={setSessionExpired}>
+        <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Сессия истекла</DialogTitle>

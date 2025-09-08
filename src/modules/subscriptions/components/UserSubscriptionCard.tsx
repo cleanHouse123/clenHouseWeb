@@ -66,17 +66,25 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
         console.log('Formatting date:', dateString, 'Type:', typeof dateString);
         if (!dateString) return 'Не указано';
 
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
+        try {
+            // Парсим дату и извлекаем компоненты без конвертации часового пояса
+            const date = new Date(dateString);
+            const year = date.getUTCFullYear();
+            const month = date.getUTCMonth();
+            const day = date.getUTCDate();
+
+            // Создаем локальную дату без конвертации часового пояса
+            const localDate = new Date(year, month, day);
+
+            return localDate.toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            });
+        } catch (error) {
             console.error('Invalid date:', dateString);
             return 'Неверная дата';
         }
-
-        return date.toLocaleDateString('ru-RU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
     };
 
     const isExpiringSoon = () => {

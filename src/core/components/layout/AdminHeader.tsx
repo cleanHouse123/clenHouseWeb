@@ -8,17 +8,23 @@ import {
 } from "@/core/components/ui/popover";
 import { ROUTES } from "@/core/constants/routes";
 import { Menu, X, User, LogOut } from "lucide-react";
-import { useAuthStore } from "@/modules/auth/store/authStore";
+import { useGetMe } from "@/modules/auth/hooks/useGetMe";
 import { ThemeToggle } from "@/core/feauture/theme/theme-toggle";
 
 export const AdminHeader = () => {
-  const { clearUser, user } = useAuthStore();
+  const { data: user } = useGetMe();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    clearUser();
+    // Очищаем токены из localStorage
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+
     navigate(ROUTES.ADMIN.LOGIN);
+
+    // Перезагружаем страницу для очистки кэша React Query
+    window.location.reload();
   };
 
 

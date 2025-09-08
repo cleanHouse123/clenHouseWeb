@@ -2,16 +2,13 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { authApi } from '../api';
 import { RefreshTokensRequest } from '../types';
-import { useAuthStore } from '../store/authStore';
 
 export const useRefreshTokens = () => {
-    const { setAccessToken, setRefreshToken } = useAuthStore();
-
     return useMutation({
         mutationFn: (data: RefreshTokensRequest) => authApi.refreshTokens(data),
         onSuccess: (data) => {
-            setAccessToken(data.accessToken);
-            setRefreshToken(data.refreshToken);
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
         },
         onError: (error: any) => {
             console.error('Ошибка обновления токенов:', error);
@@ -21,8 +18,9 @@ export const useRefreshTokens = () => {
                 duration: 5000,
             });
 
-            // При ошибке обновления токенов очищаем пользователя
-            useAuthStore.getState().clearUser();
+            // При ошибке обновления токенов очищаем токены
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
         },
     });
 };

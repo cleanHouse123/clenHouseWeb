@@ -1,4 +1,3 @@
-import { useAuthStore } from "@/modules/auth/store/authStore";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -14,12 +13,12 @@ export const axiosPublic = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const authState = useAuthStore.getState();
+    const accessToken = localStorage.getItem("accessToken");
 
-    console.log(authState.accessToken, "authState.accessToken");
+    console.log(accessToken, "accessToken from localStorage");
 
-    if (authState?.accessToken) {
-      config.headers.Authorization = `Bearer ${authState.accessToken}`;
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -78,31 +77,36 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const authState = useAuthStore.getState();
-        if (!authState?.refreshToken) {
-          useAuthStore.getState().clearUser();
+        const refreshToken = localStorage.getItem("refreshToken");
+        const accessToken = localStorage.getItem("accessToken");
+
+        if (!refreshToken || !accessToken) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
           return Promise.reject(error);
         }
 
         const { data } = await axiosPublic.post("/auth/refresh", {
-          accessToken: authState.accessToken,
-          refreshToken: authState.refreshToken,
+          accessToken,
+          refreshToken,
         });
 
-        const { accessToken, refreshToken } = data;
-        useAuthStore.getState().setAccessToken(accessToken);
-        useAuthStore.getState().setRefreshToken(refreshToken);
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+          data;
+        localStorage.setItem("accessToken", newAccessToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
 
         axiosInstance.defaults.headers.common[
           "Authorization"
-        ] = `Bearer ${accessToken}`;
-        originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+        ] = `Bearer ${newAccessToken}`;
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
-        processQueue(null, accessToken);
+        processQueue(null, newAccessToken);
         return axiosInstance(originalRequest);
       } catch (refreshError: unknown) {
         processQueue(refreshError as Error, null);
-        useAuthStore.getState().clearUser();
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

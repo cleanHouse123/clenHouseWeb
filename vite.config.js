@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Clean House - Система управления',
-        short_name: 'Clean House',
+        name: 'ЧистоДом - Система управления',
+        short_name: 'ЧистоДом',
         description: 'Эффективное решение для управления вашим бизнесом',
         theme_color: '#000000',
         background_color: '#ffffff',

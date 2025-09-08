@@ -9,7 +9,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #d6d6d692;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -22,7 +22,7 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 240 5% 24%;
-    --card: 0 0% 100%;
+    --card: 0 0% 100% / 0.5;
     --card-foreground: 240 5% 24%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 5% 24%;
@@ -171,4 +171,18 @@
 .full-height {
   height: calc(var(--vh, 1vh) * 100);
   width: 100%;
+}
+
+.rdp-selected {
+  .rdp-day_button {
+    border: 1px solid green;
+    color: green;
+  }
+
+}
+.rdp-today{
+  color: rgb(0, 128, 73)!important;
+}
+.rdp-chevron{
+  fill: green!important;
 }

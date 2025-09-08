@@ -112,7 +112,7 @@ export const PWAInstallPrompt: React.FC = () => {
 
             <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                    Установите Clean House для быстрого доступа и работы офлайн
+                    Установите ЧистоДом для быстрого доступа и работы офлайн
                 </p>
                 <div className="flex gap-2">
                     <Button
