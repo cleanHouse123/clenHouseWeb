@@ -11,7 +11,6 @@ export const ROUTES = {
   },
   ORDERS: {
     BASE: "/orders",
-    CREATE: "/orders/create",
     DETAILS: (id: string) => `/orders/${id}`,
   },
   SUBSCRIPTIONS: {

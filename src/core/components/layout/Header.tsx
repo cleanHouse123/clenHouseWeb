@@ -6,12 +6,14 @@ import { User, LogOut, Smartphone, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
+import { ProfileModal } from '@/core/components/modals/ProfileModal';
 
 export const Header = () => {
     const { accessToken, clearUser } = useAuthStore();
     const { data: user, isLoading } = useGetMe();
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     const handleLogout = () => {
         clearUser();
@@ -35,6 +37,10 @@ export const Header = () => {
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const handleProfileClick = () => {
+        setIsProfileModalOpen(true);
     };
 
     return (
@@ -73,7 +79,10 @@ export const Header = () => {
                         ) : user ? (
                             // Авторизованный пользователь
                             <>
-                                <div className="flex items-center gap-3 mr-4">
+                                <button
+                                    onClick={handleProfileClick}
+                                    className="flex items-center gap-3 mr-4 hover:bg-muted/50 rounded-lg p-2 transition-colors"
+                                >
                                     <div className="text-right">
                                         <p className="text-sm font-medium text-foreground">
                                             {user.name}
@@ -87,7 +96,7 @@ export const Header = () => {
                                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                                         <User className="h-4 w-4 text-primary-foreground" />
                                     </div>
-                                </div>
+                                </button>
 
                                 <Button
                                     variant="outline"
@@ -174,11 +183,14 @@ export const Header = () => {
                             ) : user ? (
                                 // Авторизованный пользователь
                                 <>
-                                    <div className="flex items-center gap-3 px-3 py-2 border-b border-border mb-2">
+                                    <button
+                                        onClick={handleProfileClick}
+                                        className="flex items-center gap-3 px-3 py-2 border-b border-border mb-2 w-full hover:bg-muted/50 rounded-lg transition-colors"
+                                    >
                                         <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                                             <User className="h-5 w-5 text-primary-foreground" />
                                         </div>
-                                        <div>
+                                        <div className="text-left">
                                             <p className="text-sm font-medium text-foreground">
                                                 {user.name}
                                             </p>
@@ -188,7 +200,7 @@ export const Header = () => {
                                                         user.role === 'admin' ? 'Администратор' : user.role}
                                             </p>
                                         </div>
-                                    </div>
+                                    </button>
 
                                     <Button
                                         onClick={handleDashboard}
@@ -233,6 +245,15 @@ export const Header = () => {
                     </div>
                 )}
             </div>
+
+            {/* Profile Modal */}
+            {user && (
+                <ProfileModal
+                    isOpen={isProfileModalOpen}
+                    onClose={() => setIsProfileModalOpen(false)}
+                    user={user}
+                />
+            )}
         </header>
     );
 };

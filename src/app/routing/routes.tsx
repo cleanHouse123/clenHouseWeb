@@ -5,7 +5,6 @@ import { DashboardPage } from "@/pages/dashboard";
 import { SubscriptionsPage } from "@/pages/subscriptions";
 import { LoginPage } from "@/pages/login";
 import { OrdersPage } from "@/pages/orders";
-import { CreateOrderPage } from "@/pages/orders/create";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { createBrowserRouter } from "react-router-dom";
 
@@ -47,14 +46,6 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <OrdersPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "orders/create",
-    element: (
-      <ProtectedRoute>
-        <CreateOrderPage />
       </ProtectedRoute>
     ),
   },

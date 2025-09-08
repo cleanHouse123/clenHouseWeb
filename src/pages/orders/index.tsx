@@ -4,10 +4,10 @@ import { Header } from '@/core/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
-import { OrderList, OrderDetailsModal } from '@/modules/orders/components';
-import { useCustomerOrders, useUpdateOrderStatus, useCancelOrder } from '@/modules/orders/hooks/useOrders';
+import { OrderList, OrderDetailsModal, CreateOrderModal } from '@/modules/orders/components';
+import { useCustomerOrders, useUpdateOrderStatus, useCancelOrder, useCreateOrder } from '@/modules/orders/hooks/useOrders';
 import { usePendingPayment } from '@/modules/orders/hooks/usePendingPayment';
-import { OrderStatus, OrderResponseDto } from '@/modules/orders/types';
+import { OrderStatus, OrderResponseDto, OrderFormData } from '@/modules/orders/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import {
     Plus,
@@ -22,6 +22,7 @@ export const OrdersPage = () => {
     const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [selectedOrder, setSelectedOrder] = useState<OrderResponseDto | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const {
         data: customerOrders,
@@ -33,6 +34,7 @@ export const OrdersPage = () => {
 
     const { mutateAsync: updateOrderStatus } = useUpdateOrderStatus();
     const { mutateAsync: cancelOrder } = useCancelOrder();
+    const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder();
     const { data: user } = useGetMe();
     const { hasPendingPayment } = usePendingPayment();
 
@@ -73,6 +75,22 @@ export const OrdersPage = () => {
         refetchOrders();
     };
 
+    const handleCreateOrder = async (data: OrderFormData) => {
+        if (!user?.userId) return;
+
+        try {
+            await createOrder({
+                customerId: user.userId,
+                ...data,
+            });
+            setIsCreateModalOpen(false);
+            // Обновляем список заказов
+            refetchOrders();
+        } catch (error) {
+            console.error('Ошибка создания заказа:', error);
+        }
+    };
+
     const statusOptions = [
         { value: 'all', label: 'Все заказы' },
         { value: 'new', label: 'Новые' },
@@ -106,7 +124,7 @@ export const OrdersPage = () => {
                                 Обновить
                             </Button>
                             <Button
-                                onClick={() => navigate(ROUTES.ORDERS.CREATE)}
+                                onClick={() => setIsCreateModalOpen(true)}
                                 className="bg-primary hover:bg-primary/90"
                             >
                                 <Plus className="h-4 w-4 mr-2" />
@@ -249,6 +267,14 @@ export const OrdersPage = () => {
                 order={selectedOrder}
                 userId={user?.userId}
                 onPaymentSuccess={handlePaymentSuccess}
+            />
+
+            {/* Модальное окно создания заказа */}
+            <CreateOrderModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onSubmit={handleCreateOrder}
+                isLoading={isCreatingOrder}
             />
         </div>
     );
