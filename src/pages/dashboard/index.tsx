@@ -203,7 +203,7 @@ export const DashboardPage = () => {
                                 <Button
                                     variant="outline"
                                     className="w-full justify-start"
-                                    onClick={() => navigate('/orders/new')}
+                                    onClick={() => navigate('/orders/create')}
                                 >
                                     <Package className="h-4 w-4 mr-2" />
                                     Создать заказ
