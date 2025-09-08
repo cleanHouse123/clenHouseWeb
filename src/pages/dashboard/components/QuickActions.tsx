@@ -29,13 +29,6 @@ export const QuickActions = () => {
             icon: CreditCard,
             onClick: () => navigate('/subscriptions'),
             isPrimary: false
-        },
-        {
-            title: 'Настройки',
-            description: '',
-            icon: Settings,
-            onClick: () => navigate('/dashboard'),
-            isPrimary: false
         }
     ];
 

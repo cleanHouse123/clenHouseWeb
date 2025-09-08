@@ -40,11 +40,11 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
+            <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
+                <DialogHeader className="pb-4">
                     <div className="flex items-center justify-between">
-                        <DialogTitle className="flex items-center gap-2">
-                            <User className="h-5 w-5" />
+                        <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                            <User className="h-4 w-4 sm:h-5 sm:w-5" />
                             Информация о профиле
                         </DialogTitle>
                         {/* <Button
@@ -58,28 +58,28 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                     </div>
                 </DialogHeader>
 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                     {/* Основная информация */}
                     <Card>
-                        <CardContent className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <CardContent className="p-4 sm:p-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-muted-foreground">
+                                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">
                                         Имя
                                     </label>
-                                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                                        <User className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-foreground">{user.name}</span>
+                                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-lg">
+                                        <User className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                        <span className="text-foreground text-sm sm:text-base truncate">{user.name}</span>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-muted-foreground">
+                                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">
                                         Роль
                                     </label>
-                                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                                        <Settings className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-foreground capitalize">
+                                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-lg">
+                                        <Settings className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                        <span className="text-foreground text-sm sm:text-base capitalize">
                                             {user.role === 'customer' ? 'Клиент' :
                                                 user.role === 'currier' ? 'Курьер' :
                                                     user.role === 'admin' ? 'Администратор' : user.role}
@@ -89,14 +89,14 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
 
                                 {user.phone && (
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground">
+                                        <label className="text-xs sm:text-sm font-medium text-muted-foreground">
                                             Телефон
                                         </label>
-                                        <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                                            <Phone className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-foreground">{user.phone}</span>
+                                        <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-lg">
+                                            <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                            <span className="text-foreground text-sm sm:text-base">{user.phone}</span>
                                             {user.isPhoneVerified && (
-                                                <span className="text-green-600 text-xs">✓ Подтвержден</span>
+                                                <span className="text-green-600 text-xs ml-auto">✓ Подтвержден</span>
                                             )}
                                         </div>
                                     </div>
@@ -104,14 +104,14 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
 
                                 {user.email && (
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground">
+                                        <label className="text-xs sm:text-sm font-medium text-muted-foreground">
                                             Email
                                         </label>
-                                        <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                                            <Mail className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-foreground">{user.email}</span>
+                                        <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-lg">
+                                            <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                            <span className="text-foreground text-sm sm:text-base truncate">{user.email}</span>
                                             {user.isEmailVerified && (
-                                                <span className="text-green-600 text-xs">✓ Подтвержден</span>
+                                                <span className="text-green-600 text-xs ml-auto">✓ Подтвержден</span>
                                             )}
                                         </div>
                                     </div>
@@ -122,27 +122,27 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
 
                     {/* Дополнительная информация */}
                     <Card>
-                        <CardContent className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <CardContent className="p-4 sm:p-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-muted-foreground">
+                                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">
                                         Последний вход
                                     </label>
-                                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-foreground">
+                                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-lg">
+                                        <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                        <span className="text-foreground text-xs sm:text-sm">
                                             {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Неизвестно'}
                                         </span>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-muted-foreground">
+                                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">
                                         Дата регистрации
                                     </label>
-                                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-foreground">
+                                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-lg">
+                                        <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                        <span className="text-foreground text-xs sm:text-sm">
                                             {user.createdAt ? formatDate(user.createdAt) : 'Неизвестно'}
                                         </span>
                                     </div>
@@ -152,13 +152,14 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
                     </Card>
 
                     {/* Действия */}
-                    <div className="flex justify-end gap-3">
-                        <Button variant="outline" onClick={onClose}>
+                    <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+                        <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">
                             Закрыть
                         </Button>
-                        <Button onClick={handleEditProfile}>
-                            <Settings className="h-4 w-4 mr-2" />
-                            Редактировать профиль
+                        <Button onClick={handleEditProfile} className="w-full sm:w-auto">
+                            <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                            <span className="hidden sm:inline">Редактировать профиль</span>
+                            <span className="sm:hidden">Редактировать</span>
                         </Button>
                     </div>
                 </div>

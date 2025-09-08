@@ -66,11 +66,11 @@ export const OrderDetailsModal = ({
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto z-[9999]">
-                    <DialogHeader>
+                <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto z-[9999] mx-4 sm:mx-auto">
+                    <DialogHeader className="pb-4">
                         <div className="flex items-center justify-between">
-                            <DialogTitle className="flex items-center gap-2">
-                                <CreditCard className="h-5 w-5" />
+                            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                                 Заказ #{order.id.slice(-8)}
                             </DialogTitle>
                             {/* <Button
@@ -84,35 +84,35 @@ export const OrderDetailsModal = ({
                         </div>
                     </DialogHeader>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                         {/* Статус и цена */}
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
                             <div className="flex items-center gap-3">
                                 <OrderStatusBadge status={order.status} />
-                                <span className="text-sm text-gray-600">Статус заказа</span>
+                                <span className="text-xs sm:text-sm text-gray-600">Статус заказа</span>
                             </div>
-                            <div className="text-right">
-                                <div className="text-2xl font-bold text-primary">{order.price}₽</div>
-                                <div className="text-sm text-gray-600">Стоимость</div>
+                            <div className="text-left sm:text-right">
+                                <div className="text-xl sm:text-2xl font-bold text-primary">{order.price}₽</div>
+                                <div className="text-xs sm:text-sm text-gray-600">Стоимость</div>
                             </div>
                         </div>
 
                         {/* Адрес */}
                         <div className="flex items-start gap-3">
-                            <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                            <div>
-                                <p className="font-medium">Адрес</p>
-                                <p className="text-muted-foreground">{order.address}</p>
+                            <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="font-medium text-sm sm:text-base">Адрес</p>
+                                <p className="text-muted-foreground text-sm sm:text-base break-words">{order.address}</p>
                             </div>
                         </div>
 
                         {/* Описание */}
                         {order.description && (
                             <div className="flex items-start gap-3">
-                                <MoreHorizontal className="h-5 w-5 text-muted-foreground mt-0.5" />
-                                <div>
-                                    <p className="font-medium">Описание</p>
-                                    <p className="text-muted-foreground">{order.description}</p>
+                                <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="font-medium text-sm sm:text-base">Описание</p>
+                                    <p className="text-muted-foreground text-sm sm:text-base break-words">{order.description}</p>
                                 </div>
                             </div>
                         )}
@@ -120,10 +120,10 @@ export const OrderDetailsModal = ({
                         {/* Запланированное время */}
                         {order.scheduledAt && (
                             <div className="flex items-center gap-3">
-                                <Calendar className="h-5 w-5 text-muted-foreground" />
-                                <div>
-                                    <p className="font-medium">Запланировано</p>
-                                    <p className="text-muted-foreground">
+                                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="font-medium text-sm sm:text-base">Запланировано</p>
+                                    <p className="text-muted-foreground text-sm sm:text-base">
                                         {formatDateTime(order.scheduledAt, locale)}
                                     </p>
                                 </div>
@@ -133,10 +133,10 @@ export const OrderDetailsModal = ({
                         {/* Курьер */}
                         {order.currier && (
                             <div className="flex items-center gap-3">
-                                <User className="h-5 w-5 text-muted-foreground" />
-                                <div>
-                                    <p className="font-medium">Курьер</p>
-                                    <p className="text-muted-foreground">
+                                <User className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="font-medium text-sm sm:text-base">Курьер</p>
+                                    <p className="text-muted-foreground text-sm sm:text-base break-words">
                                         {order.currier.name} ({order.currier.phone})
                                     </p>
                                 </div>
@@ -145,36 +145,36 @@ export const OrderDetailsModal = ({
 
                         {/* Заметки */}
                         {order.notes && (
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <p className="font-medium text-gray-700 mb-2">Заметки</p>
-                                <p className="text-gray-600">{order.notes}</p>
+                            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                                <p className="font-medium text-gray-700 mb-2 text-sm sm:text-base">Заметки</p>
+                                <p className="text-gray-600 text-sm sm:text-base break-words">{order.notes}</p>
                             </div>
                         )}
 
                         {/* Платежи */}
                         {order.payments.length > 0 && (
                             <div className="border-t pt-4">
-                                <p className="font-medium mb-3">Платежи</p>
+                                <p className="font-medium mb-3 text-sm sm:text-base">Платежи</p>
                                 <div className="space-y-3">
                                     {order.payments.map((payment) => (
-                                        <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg">
                                             <div className="flex items-center gap-3">
-                                                <CreditCard className="h-4 w-4 text-muted-foreground" />
-                                                <div>
-                                                    <p className="font-medium">
+                                                <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 text-black flex-shrink-0" />
+                                                <div className="min-w-0">
+                                                    <p className="font-medium text-sm sm:text-base text-black">
                                                         {payment.method === 'subscription' ? 'По подписке' : 'Онлайн'}
                                                     </p>
-                                                    <p className="text-sm text-muted-foreground">
+                                                    <p className="text-xs sm:text-sm text-black">
                                                         {formatDateTimeLocal(payment.createdAt, locale)}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className="font-bold text-lg">{payment.amount}₽</span>
+                                            <div className="flex items-center justify-between sm:justify-end gap-3">
+                                                <span className="font-bold text-base sm:text-lg text-black">{payment.amount}₽</span>
                                                 <Badge
                                                     variant={payment.status === 'paid' ? 'default' :
                                                         payment.status === 'pending' ? 'secondary' : 'destructive'}
-                                                    className="text-xs"
+                                                    className="text-xs "
                                                 >
                                                     {payment.status === 'paid' ? 'Оплачен' :
                                                         payment.status === 'pending' ? 'Ожидает' :
@@ -188,8 +188,8 @@ export const OrderDetailsModal = ({
                         )}
 
                         {/* Время создания */}
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-4">
-                            <Clock className="h-4 w-4" />
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground border-t pt-4">
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             <span>Создан {formatDateRelativeLocal(order.createdAt, locale)}</span>
                         </div>
 
@@ -201,8 +201,9 @@ export const OrderDetailsModal = ({
                                     className="w-full"
                                     size="lg"
                                 >
-                                    <ExternalLink className="h-4 w-4 mr-2" />
-                                    Оплатить заказ
+                                    <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                                    <span className="hidden sm:inline">Оплатить заказ</span>
+                                    <span className="sm:hidden">Оплатить</span>
                                 </Button>
                             </div>
                         )}

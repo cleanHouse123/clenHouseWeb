@@ -78,11 +78,11 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                             </div>
                         )}
 
-                        <CardHeader className="text-center pb-4">
+                        <CardHeader className="text-center pb-4 gap-4">
                             <div className="flex justify-center mb-3">
                                 {subscription.icon}
                             </div>
-                            <CardTitle className="text-xl font-bold">{subscription.name}</CardTitle>
+                            <CardTitle className="text-xl text-center font-bold">{subscription.name}</CardTitle>
                             <Badge className={`w-fit mx-auto ${subscription.badgeColor}`}>
                                 {subscription.duration}
                             </Badge>

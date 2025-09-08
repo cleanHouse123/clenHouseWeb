@@ -86,40 +86,43 @@ const OrdersContent = () => {
         <div className="min-h-screen bg-gray-50">
             <Header />
 
-            <main className="container mx-auto px-4 py-8">
-                <div className="max-w-6xl mx-auto space-y-6">
+            <main className="container mx-auto px-4 py-4 sm:py-8">
+                <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
                     {/* Заголовок и действия */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Мои заказы</h1>
-                            <p className="text-gray-600 mt-1">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Мои заказы</h1>
+                            <p className="text-gray-600 mt-1 text-sm sm:text-base">
                                 Управление заказами на вынос мусора
                             </p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <Button
                                 variant="outline"
                                 onClick={handleRefresh}
                                 disabled={isLoadingOrders}
+                                className="w-full sm:w-auto"
                             >
                                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingOrders ? 'animate-spin' : ''}`} />
-                                Обновить
+                                <span className="hidden sm:inline">Обновить</span>
+                                <span className="sm:hidden">Обновить</span>
                             </Button>
                             <Button
                                 onClick={openCreateOrderModal}
-                                className="bg-primary hover:bg-primary/90"
+                                className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
                             >
                                 <Plus className="h-4 w-4 mr-2" />
-                                Создать заказ
+                                <span className="hidden sm:inline">Создать заказ</span>
+                                <span className="sm:hidden">Создать</span>
                             </Button>
                         </div>
                     </div>
 
 
                     {/* Фильтры и статистика */}
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                         {/* Фильтр по статусу */}
-                        <Card>
+                        <Card className="sm:col-span-2 lg:col-span-1">
                             <CardHeader className="pb-3">
                                 <CardTitle className="flex items-center gap-2 text-sm">
                                     <Filter className="h-4 w-4" />
@@ -144,44 +147,44 @@ const OrdersContent = () => {
 
                         {/* Статистика */}
                         <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-sm">Всего заказов</CardTitle>
+                            <CardHeader className="pb-2 sm:pb-3">
+                                <CardTitle className="text-xs sm:text-sm">Всего заказов</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-primary">
+                            <CardContent className="pt-0">
+                                <div className="text-xl sm:text-2xl font-bold text-primary">
                                     {customerOrders?.total || 0}
                                 </div>
-                                <p className="text-xs text-gray-600 mt-1">
+                                <p className="text-xs text-white mt-1">
                                     Всего создано
                                 </p>
                             </CardContent>
                         </Card>
 
                         <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-sm">Активные</CardTitle>
+                            <CardHeader className="pb-2 sm:pb-3">
+                                <CardTitle className="text-xs sm:text-sm">Активные</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-orange-600">
+                            <CardContent className="pt-0">
+                                <div className="text-xl sm:text-2xl font-bold text-orange-600">
                                     {customerOrders?.orders?.filter(order =>
                                         ['new', 'assigned', 'in_progress'].includes(order.status)
                                     ).length || 0}
                                 </div>
-                                <p className="text-xs text-gray-600 mt-1">
+                                <p className="text-xs text-white mt-1">
                                     В работе
                                 </p>
                             </CardContent>
                         </Card>
 
                         <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-sm">Завершенные</CardTitle>
+                            <CardHeader className="pb-2 sm:pb-3">
+                                <CardTitle className="text-xs sm:text-sm">Завершенные</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-green-600">
+                            <CardContent className="pt-0">
+                                <div className="text-xl sm:text-2xl font-bold text-green-600">
                                     {customerOrders?.orders?.filter(order => order.status === 'done').length || 0}
                                 </div>
-                                <p className="text-xs text-gray-600 mt-1">
+                                <p className="text-xs text-white mt-1">
                                     Выполнено
                                 </p>
                             </CardContent>
@@ -191,17 +194,17 @@ const OrdersContent = () => {
                     {/* Список заказов */}
                     <Card>
                         <CardHeader className="pb-3">
-                            <CardTitle className="flex items-center gap-2">
-                                <Package className="h-5 w-5" />
+                            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                                <Package className="h-4 w-4 sm:h-5 sm:w-5" />
                                 Заказы
                                 {statusFilter !== 'all' && (
-                                    <span className="text-sm text-gray-600">
+                                    <span className="text-xs sm:text-sm text-gray-600">
                                         ({statusOptions.find(opt => opt.value === statusFilter)?.label})
                                     </span>
                                 )}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="p-2 sm:p-6">
                             <OrderList
                                 orders={customerOrders?.orders || []}
                                 isLoading={isLoadingOrders}
