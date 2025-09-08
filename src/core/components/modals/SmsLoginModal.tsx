@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/compone
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { useSendSms } from '@/modules/auth/hooks/useSendSms';
 import { useVerifySms } from '@/modules/auth/hooks/useVerifySms';
-import { Phone, ArrowLeft, Shield } from 'lucide-react';
+import { Phone, ArrowLeft, Shield, Link } from 'lucide-react';
 
 // Схема валидации для номера телефона
 const phoneSchema = z.object({
@@ -347,6 +347,14 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                 codeForm.setValue('code', devCode);
                                                 codeForm.trigger('code');
                                                 setHasError(false);
+
+                                                // Автоматически отправляем форму после заполнения
+                                                setTimeout(() => {
+                                                    if (!isLoading && !isVerifyingSms && !isSubmitting) {
+                                                        setIsSubmitting(true);
+                                                        handleCodeSubmit({ code: devCode });
+                                                    }
+                                                }, 100);
                                             }}
                                             className="w-full"
                                             disabled={isLoading || isVerifyingSms || isSubmitting}
@@ -367,7 +375,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                     </Button>
 
                                     <p className="text-xs text-muted-foreground text-center">
-                                        Код отправится автоматически при заполнении всех полей
+                                        Вы соглашаетесь с политикой конфиденциальности и условиями использования
                                     </p>
                                 </div>
                             </div>
