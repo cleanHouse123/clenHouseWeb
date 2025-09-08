@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/compone
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { useSendSms } from '@/modules/auth/hooks/useSendSms';
 import { useVerifySms } from '@/modules/auth/hooks/useVerifySms';
-import { Phone, ArrowLeft, Shield, X } from 'lucide-react';
+import { Phone, ArrowLeft, Shield } from 'lucide-react';
 
 // Схема валидации для номера телефона
 const phoneSchema = z.object({
@@ -40,6 +40,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [devCode, setDevCode] = useState<string>('');
     const codeInputRef = useRef<HTMLInputElement>(null);
 
     const { mutateAsync: sendSms, isPending: isSendingSms } = useSendSms();
@@ -58,13 +59,13 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             code: '',
         },
     });
-
+    const isDev = true
+    //import.meta.env.DEV || window.location.hostname === 'localhost';
     const handlePhoneSubmit = async (data: PhoneFormData) => {
-        console.log('Отправка SMS для номера:', data.phoneNumber);
+
         setIsLoading(true);
         try {
             // Определяем режим разработки по URL или переменной окружения
-            const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
 
             const result = await sendSms({
                 phoneNumber: data.phoneNumber,
@@ -72,8 +73,14 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             });
             console.log('SMS отправлен успешно:', result);
 
-            // Обновляем состояние
+
             setPhoneNumber(data.phoneNumber);
+
+            // Сохраняем код для режима разработки
+            if (isDev && result?.code) {
+                setDevCode(result.code);
+                console.log('🔧 DEV MODE: Код с сервера:', result.code);
+            }
 
             // Переходим на следующий шаг
             setStep('code');
@@ -141,6 +148,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
         setPhoneNumber('');
         setHasError(false);
         setIsSubmitting(false);
+        setDevCode('');
         phoneForm.reset();
         codeForm.reset();
         onClose();
@@ -191,6 +199,13 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                             <p className="text-sm text-yellow-800 font-medium">
                                 Режим разработки
                             </p>
+                            {devCode && (
+                                <div className="mt-2 p-2 bg-yellow-200 rounded border border-yellow-400">
+                                    <p className="text-xs text-yellow-900 font-mono">
+                                        Код с сервера: <span className="font-bold text-lg">{devCode}</span>
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </DialogHeader>
@@ -321,6 +336,23 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
                                             <span className="text-sm text-muted-foreground">Проверка кода...</span>
                                         </div>
+                                    )}
+
+                                    {/* Кнопка для автоматического заполнения кода в режиме разработки */}
+                                    {isDev && devCode && (
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            onClick={() => {
+                                                codeForm.setValue('code', devCode);
+                                                codeForm.trigger('code');
+                                                setHasError(false);
+                                            }}
+                                            className="w-full"
+                                            disabled={isLoading || isVerifyingSms || isSubmitting}
+                                        >
+                                            Использовать код с сервера
+                                        </Button>
                                     )}
 
                                     <Button

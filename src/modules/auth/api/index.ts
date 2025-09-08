@@ -1,6 +1,7 @@
 import { axiosPublic, axiosInstance } from "@/core/config/axios";
 import {
   SendSmsRequest,
+  SendSmsResponse,
   VerifySmsRequest,
   AuthResponse,
   RefreshTokensRequest,
@@ -10,7 +11,7 @@ import { User } from "@/core/types/user";
 
 export const authApi = {
   // Отправка SMS кода
-  sendSms: async (data: SendSmsRequest): Promise<{ message: string }> => {
+  sendSms: async (data: SendSmsRequest): Promise<SendSmsResponse> => {
     const payload = {
       phoneNumber: data.phoneNumber,
       ...(data.isDev && { isDev: data.isDev }),

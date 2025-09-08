@@ -3,6 +3,11 @@ export interface SendSmsRequest {
   isDev?: boolean;
 }
 
+export interface SendSmsResponse {
+  message: string;
+  code?: string; // Код для режима разработки
+}
+
 export interface VerifySmsRequest {
   phoneNumber: string;
   code: string;
