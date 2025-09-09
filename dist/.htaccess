@@ -1,0 +1,10 @@
+# TimeWeb SPA Configuration
+RewriteEngine On
+
+# Handle Angular and React Router - все маршруты идут на index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+# Error pages
+ErrorDocument 404 /index.html

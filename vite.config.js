@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: process.env.VITE_APP_TITLE || 'ЧистоДом - Система управления',
+        name: 'ЧистоДом - Система управления',
         short_name: 'ЧистоДом',
-        description: process.env.VITE_APP_DESCRIPTION || 'Эффективное решение для управления вашим бизнесом',
+        description: 'Эффективное решение для управления вашим бизнесом',
         theme_color: '#000000',
         background_color: '#ffffff',
         display: 'standalone',
