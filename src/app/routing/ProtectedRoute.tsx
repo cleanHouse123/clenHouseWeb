@@ -1,5 +1,4 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { ROUTES } from "@/core/constants/routes.ts";
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 
@@ -10,7 +9,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     // Если нет токена, сразу редиректим на логин
     if (!accessToken) {
 
-        return <Navigate to={ROUTES.ADMIN.LOGIN} state={{ from: location }} replace />
+        return <Navigate to={'/'} state={{ from: location }} replace />
     }
 
     // Только если есть токен, вызываем useGetMe
@@ -23,7 +22,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     // Если ошибка или нет пользователя, редиректим на логин
     if (error || !user) {
-        return <Navigate to={ROUTES.ADMIN.LOGIN} state={{ from: location }} replace />
+        return <Navigate to={'/'} state={{ from: location }} replace />
     }
 
     return children
