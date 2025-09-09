@@ -89,7 +89,7 @@ export const HomePage = () => {
                 ) : (
                   <>
                     <Smartphone className="h-5 w-5 mr-3" />
-                    Войти по SMS
+                    Войти
                     <ArrowRight className="h-5 w-5 ml-3" />
                   </>
                 )}
@@ -98,6 +98,99 @@ export const HomePage = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Дополнительные анимированные элементы */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 0.8 }}
+        className="py-16 bg-gradient-to-r from-blue-50 to-green-50"
+      >
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
+                Присоединяйтесь к тысячам довольных клиентов
+              </h2>
+            </motion.div>
+
+            <div className="flex flex-wrap justify-center items-center gap-8 text-gray-600">
+              <motion.div
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, 5, 0]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="flex items-center gap-2"
+              >
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span className="text-sm font-medium">Быстро</span>
+              </motion.div>
+
+              <motion.div
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, -5, 0]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1
+                }}
+                className="flex items-center gap-2"
+              >
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-medium">Безопасно</span>
+              </motion.div>
+
+              <motion.div
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, 5, 0]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 2
+                }}
+                className="flex items-center gap-2"
+              >
+                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <span className="text-sm font-medium">Удобно</span>
+              </motion.div>
+
+              <motion.div
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, -5, 0]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 3
+                }}
+                className="flex items-center gap-2"
+              >
+                <Star className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm font-medium">Качественно</span>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Информационные блоки */}
       <div className="container mx-auto px-6 py-16">
@@ -235,98 +328,6 @@ export const HomePage = () => {
         </div>
       </div>
 
-      {/* Дополнительные анимированные элементы */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.8 }}
-        className="py-16 bg-gradient-to-r from-blue-50 to-green-50"
-      >
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="mb-12"
-            >
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
-                Присоединяйтесь к тысячам довольных клиентов
-              </h2>
-            </motion.div>
-
-            <div className="flex flex-wrap justify-center items-center gap-8 text-gray-600">
-              <motion.div
-                animate={{
-                  y: [0, -10, 0],
-                  rotate: [0, 5, 0]
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="flex items-center gap-2"
-              >
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium">Быстро</span>
-              </motion.div>
-
-              <motion.div
-                animate={{
-                  y: [0, -10, 0],
-                  rotate: [0, -5, 0]
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 1
-                }}
-                className="flex items-center gap-2"
-              >
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span className="text-sm font-medium">Безопасно</span>
-              </motion.div>
-
-              <motion.div
-                animate={{
-                  y: [0, -10, 0],
-                  rotate: [0, 5, 0]
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 2
-                }}
-                className="flex items-center gap-2"
-              >
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                <span className="text-sm font-medium">Удобно</span>
-              </motion.div>
-
-              <motion.div
-                animate={{
-                  y: [0, -10, 0],
-                  rotate: [0, -5, 0]
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 3
-                }}
-                className="flex items-center gap-2"
-              >
-                <Star className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-medium">Качественно</span>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
     </div>
   );
 };

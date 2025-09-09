@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { ProfileModal } from '@/core/components/modals/ProfileModal';
-import { LanguageSwitcher } from '@/core/components/ui/language-switcher';
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 
 export const Header = () => {
@@ -173,9 +172,7 @@ export const Header = () => {
                 {isMobileMenuOpen && (
                     <div className="md:hidden border-t border-border bg-card">
                         <div className="px-2 pt-2 pb-3 space-y-1">
-                            {/* <div className="flex justify-center mb-2">
-                                <LanguageSwitcher />
-                            </div> */}
+
                             {!user ? (
                                 // Неавторизованный пользователь
                                 <Button

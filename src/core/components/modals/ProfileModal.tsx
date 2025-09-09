@@ -34,8 +34,8 @@ export const ProfileModal = ({ isOpen, onClose, user }: ProfileModalProps) => {
     };
 
     const handleEditProfile = () => {
-        onClose();
-        navigate('/profile/edit');
+        //onClose();
+        //navigate('/profile/edit');
     };
 
     return (
