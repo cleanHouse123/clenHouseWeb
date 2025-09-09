@@ -17,15 +17,25 @@ npm error The `npm ci` command can only install with an existing package-lock.js
 Dockerfile уже исправлен для использования yarn:
 
 ```dockerfile
-# Install yarn
-RUN npm install -g yarn
+# Copy package files
+COPY package*.json ./
+COPY yarn.lock ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile --production
+RUN yarn install --frozen-lockfile
 
 # Build the application
 RUN yarn build
 ```
+
+### Вариант 1.1: Упрощенная версия
+Используйте `Dockerfile.simple`:
+
+```bash
+mv Dockerfile.simple Dockerfile
+```
+
+Эта версия копирует все файлы сразу и не устанавливает yarn отдельно.
 
 ### Вариант 2: Использовать npm
 
