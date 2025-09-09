@@ -25,6 +25,7 @@ export const PaymentModal = ({
     const { data: user } = useGetMe();
     const queryClient = useQueryClient();
     const statusCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const paymentIdRef = useRef<string | null>(null);
 
     // Извлекаем paymentId из URL
@@ -34,79 +35,92 @@ export const PaymentModal = ({
 
     // Подключение к WebSocket комнате платежа
     const joinPaymentRoom = (paymentId: string) => {
-        if (!user?.userId) return;
+        console.log('Подключение к WebSocket комнате платежа подписки:', paymentId);
 
-        console.log('Подключение к WebSocket комнате платежа:', { userId: user.userId, paymentId });
+        if (user?.userId) {
+            // Подключаемся к WebSocket подписок
+            webSocketService.connectSubscription();
 
-        // Подключаемся к комнате payment_{paymentId}
-        webSocketService.joinPaymentRoom({
-            userId: user.userId,
-            paymentId: paymentId
-        });
+            // Подключаемся к комнате payment_{paymentId}
+            webSocketService.joinPaymentRoom({
+                paymentId: paymentId,
+                userId: user.userId
+            });
 
-        setIsWebSocketConnected(true);
+            setIsWebSocketConnected(true);
+        }
     };
 
     // Отключение от WebSocket комнаты
     const leavePaymentRoom = (paymentId: string) => {
-        if (!user?.userId) return;
+        console.log('Отключение от WebSocket комнаты платежа подписки:', paymentId);
 
-        console.log('Отключение от WebSocket комнаты платежа:', { userId: user.userId, paymentId });
+        if (user?.userId) {
+            webSocketService.leavePaymentRoom({
+                paymentId: paymentId,
+                userId: user.userId
+            });
 
-        webSocketService.leavePaymentRoom({
-            userId: user.userId,
-            paymentId: paymentId
-        });
-
-        setIsWebSocketConnected(false);
-    };
-
-    // Обработка обновлений статуса платежа
-    const handlePaymentStatusUpdate = (data: any) => {
-        console.log('Получено обновление статуса платежа:', data);
-        setPaymentStatus(data.status);
-
-        if (data.status === 'success' || data.status === 'failed') {
-            // Останавливаем проверку статуса при завершении
-            stopStatusCheck();
-
-            // Показываем уведомление
-            if (data.status === 'success') {
-                toast.success('Платеж успешно обработан!', {
-                    description: 'Ваша подписка активирована',
-                    duration: 5000,
-                });
-
-                // Обновляем кэш подписок для получения актуальных данных
-                if (user?.userId) {
-                    console.log('Обновление кэша подписок после успешной оплаты');
-                    queryClient.invalidateQueries({
-                        queryKey: ['user-subscription', user.userId]
-                    });
-                }
-
-                // Закрываем модальное окно при успехе
-                setTimeout(() => {
-                    onClose();
-                }, 2000);
-            } else {
-                toast.error('Ошибка обработки платежа', {
-                    description: data.message || 'Платеж не был обработан',
-                    duration: 5000,
-                });
-            }
+            setIsWebSocketConnected(false);
         }
     };
 
-    // Запуск проверки статуса каждые 2 секунды
-    const startStatusCheck = (paymentId: string) => {
-        console.log('Запуск проверки статуса платежа:', paymentId);
+    // Обработка успешной оплаты
+    const handlePaymentSuccess = (data: any) => {
+        console.log('Получено уведомление об успешной оплате:', data);
+        setPaymentStatus('success');
 
-        statusCheckIntervalRef.current = setInterval(() => {
-            console.log('Проверка статуса платежа:', paymentId);
-            // Здесь можно добавить API запрос для проверки статуса
-            // или полагаться только на WebSocket уведомления
+        // Останавливаем проверку статуса при завершении
+        stopStatusCheck();
+
+        const amount = data.amount || 'неизвестную';
+        toast.success('Подписка успешно оплачена!', {
+            description: `Подписка на сумму ${amount}₽ активирована`,
+            duration: 5000,
+        });
+
+        // Обновляем кэш подписок для получения актуальных данных
+        if (user?.userId) {
+            console.log('Обновление кэша подписок после успешной оплаты');
+            queryClient.invalidateQueries({
+                queryKey: ['user-subscription', user.userId]
+            });
+        }
+
+        // Закрываем модальное окно при успехе
+        setTimeout(() => {
+            onClose();
         }, 2000);
+    };
+
+    // Обработка ошибки оплаты
+    const handlePaymentError = (data: any) => {
+        console.log('Получено уведомление об ошибке оплаты:', data);
+        setPaymentStatus('failed');
+
+        // Останавливаем проверку статуса при завершении
+        stopStatusCheck();
+
+        toast.error('Ошибка обработки платежа', {
+            description: data.message || 'Платеж не был обработан',
+            duration: 5000,
+        });
+    };
+
+    // Запуск проверки статуса каждые 5 секунд через API
+    const startStatusCheck = (paymentId: string) => {
+        console.log('Запуск проверки статуса платежа через API:', paymentId);
+
+        // Используем новый API для проверки статуса
+        webSocketService.startPaymentStatusCheck(paymentId, (status) => {
+            console.log('Статус платежа обновлен через API:', status);
+
+            if (status.status === 'paid' || status.status === 'success') {
+                handlePaymentSuccess(status);
+            } else if (status.status === 'failed') {
+                handlePaymentError({ error: 'Платеж не прошел', message: 'Ошибка обработки платежа' });
+            }
+        }, 5000);
     };
 
     // Остановка проверки статуса
@@ -116,11 +130,20 @@ export const PaymentModal = ({
             statusCheckIntervalRef.current = null;
             console.log('Проверка статуса платежа остановлена');
         }
+
+        // Останавливаем проверку через API
+        if (paymentIdRef.current) {
+            webSocketService.stopPaymentStatusCheck(paymentIdRef.current);
+        }
     };
 
     // Очистка ресурсов
     const cleanup = () => {
         stopStatusCheck();
+        if (pingIntervalRef.current) {
+            clearInterval(pingIntervalRef.current);
+            pingIntervalRef.current = null;
+        }
         if (paymentIdRef.current) {
             leavePaymentRoom(paymentIdRef.current);
         }
@@ -131,7 +154,7 @@ export const PaymentModal = ({
 
     // Управление WebSocket подключением при открытии/закрытии модального окна
     useEffect(() => {
-        if (isOpen && paymentUrl && user?.userId) {
+        if (isOpen && paymentUrl) {
             const paymentId = getPaymentId();
             paymentIdRef.current = paymentId;
 
@@ -141,20 +164,33 @@ export const PaymentModal = ({
             // Запускаем проверку статуса
             startStatusCheck(paymentId);
 
-            // Подписываемся на обновления статуса
-            webSocketService.onPaymentStatusUpdate(handlePaymentStatusUpdate);
+            // Настраиваем периодический пинг сервера каждые 30 секунд
+            pingIntervalRef.current = setInterval(() => {
+                webSocketService.pingSubscriptionServer();
+            }, 30000);
+
+            // Подписываемся на события оплаты подписок
+            webSocketService.onSubscriptionPaymentSuccess(handlePaymentSuccess);
+            webSocketService.onSubscriptionPaymentError(handlePaymentError);
 
             console.log('PaymentModal: WebSocket подключение установлено для платежа:', paymentId);
         }
 
         return () => {
             if (isOpen) {
+                // Очищаем интервал пинга
+                if (pingIntervalRef.current) {
+                    clearInterval(pingIntervalRef.current);
+                    pingIntervalRef.current = null;
+                }
+
                 cleanup();
-                webSocketService.offPaymentStatusUpdate(handlePaymentStatusUpdate);
+                webSocketService.offSubscriptionPaymentSuccess(handlePaymentSuccess);
+                webSocketService.offSubscriptionPaymentError(handlePaymentError);
                 console.log('PaymentModal: WebSocket подключение очищено');
             }
         };
-    }, [isOpen, paymentUrl, user?.userId]);
+    }, [isOpen, paymentUrl]);
 
     // Очистка при закрытии модального окна
     useEffect(() => {

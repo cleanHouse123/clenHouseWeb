@@ -50,7 +50,11 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Увеличиваем лимит до 5MB
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\./,
+            urlPattern: /^https?:\/\/.*\/socket\.io\//,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https:\/\/.*cleanhouse.*\.net\/(?!.*payment).*/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -93,5 +97,20 @@ export default defineConfig({
     hmr: {
       overlay: false
     }
-  }
+  },
+
+  // publicDir: 'public',
+ 
+  // build: {
+  //   outDir: 'dist',
+  //   sourcemap: true,
+  //   rollupOptions: {
+  //     output: {
+  //       manualChunks: {
+  //         vendor: ['react', 'react-dom'],
+  //         router: ['react-router-dom']
+  //       }
+  //     }
+  //   }
+  // }
 }) 

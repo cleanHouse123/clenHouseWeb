@@ -33,14 +33,6 @@ export const useCustomerOrders = (params?: Omit<OrderQueryParams, 'customerId'>)
     });
 };
 
-// Получить заказы курьера
-export const useCurrierOrders = (currierId: string, params?: Omit<OrderQueryParams, 'currierId'>) => {
-    return useQuery({
-        queryKey: ['currier-orders', currierId, params],
-        queryFn: () => ordersApi.getCurrierOrders(currierId, params),
-        enabled: !!currierId,
-    });
-};
 
 // Создать заказ
 export const useCreateOrder = () => {
@@ -98,99 +90,23 @@ export const useUpdateOrderStatus = () => {
     });
 };
 
-// Курьер берет заказ
-export const useTakeOrder = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (id: string) => ordersApi.takeOrder(id),
-        onSuccess: (data) => {
-            toast.success('Заказ взят!', {
-                description: `Заказ #${data.id.slice(-8)} взят в работу`,
-                duration: 4000,
-            });
-
-            // Обновляем кэш заказов
-            queryClient.invalidateQueries({ queryKey: ['orders'] });
-            queryClient.invalidateQueries({ queryKey: ['order', data.id] });
-        },
-        onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message || 'Ошибка взятия заказа';
-            toast.error('Ошибка', {
-                description: errorMessage,
-                duration: 5000,
-            });
-        },
-    });
-};
-
-// Курьер начинает выполнение
-export const useStartOrder = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (id: string) => ordersApi.startOrder(id),
-        onSuccess: (data) => {
-            toast.success('Выполнение начато!', {
-                description: `Заказ #${data.id.slice(-8)} выполняется`,
-                duration: 4000,
-            });
-
-            // Обновляем кэш заказов
-            queryClient.invalidateQueries({ queryKey: ['orders'] });
-            queryClient.invalidateQueries({ queryKey: ['order', data.id] });
-        },
-        onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message || 'Ошибка начала выполнения';
-            toast.error('Ошибка', {
-                description: errorMessage,
-                duration: 5000,
-            });
-        },
-    });
-};
-
-// Курьер завершает заказ
-export const useCompleteOrder = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (id: string) => ordersApi.completeOrder(id),
-        onSuccess: (data) => {
-            toast.success('Заказ завершен!', {
-                description: `Заказ #${data.id.slice(-8)} успешно выполнен`,
-                duration: 4000,
-            });
-
-            // Обновляем кэш заказов
-            queryClient.invalidateQueries({ queryKey: ['orders'] });
-            queryClient.invalidateQueries({ queryKey: ['order', data.id] });
-        },
-        onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message || 'Ошибка завершения заказа';
-            toast.error('Ошибка', {
-                description: errorMessage,
-                duration: 5000,
-            });
-        },
-    });
-};
-
-// Курьер отменяет заказ
+// Отменить заказ
 export const useCancelOrder = () => {
     const queryClient = useQueryClient();
+    const { data: user } = useGetMe();
 
     return useMutation({
         mutationFn: (id: string) => ordersApi.cancelOrder(id),
         onSuccess: (data) => {
             toast.success('Заказ отменен!', {
-                description: `Заказ #${data.id.slice(-8)} отменен`,
+                description: `Заказ #${data.id.slice(-8)} успешно отменен`,
                 duration: 4000,
             });
 
             // Обновляем кэш заказов
             queryClient.invalidateQueries({ queryKey: ['orders'] });
             queryClient.invalidateQueries({ queryKey: ['order', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['customer-orders', user?.userId] });
         },
         onError: (error: any) => {
             const errorMessage = error?.response?.data?.message || 'Ошибка отмены заказа';
@@ -202,29 +118,3 @@ export const useCancelOrder = () => {
     });
 };
 
-// Удалить заказ
-export const useDeleteOrder = () => {
-    const queryClient = useQueryClient();
-    const { data: user } = useGetMe();
-
-    return useMutation({
-        mutationFn: (id: string) => ordersApi.deleteOrder(id),
-        onSuccess: (data) => {
-            toast.success('Заказ удален!', {
-                description: data.message,
-                duration: 4000,
-            });
-
-            // Обновляем кэш заказов
-            queryClient.invalidateQueries({ queryKey: ['orders'] });
-            queryClient.invalidateQueries({ queryKey: ['customer-orders', user?.userId] });
-        },
-        onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message || 'Ошибка удаления заказа';
-            toast.error('Ошибка', {
-                description: errorMessage,
-                duration: 5000,
-            });
-        },
-    });
-};

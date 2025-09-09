@@ -8,6 +8,7 @@ export const axiosInstance = axios.create({
   withCredentials: false,
 });
 
+//http://localhost:3000/
 export const axiosPublic = axios.create({
   baseURL:
     import.meta.env.VITE_API_URL ||

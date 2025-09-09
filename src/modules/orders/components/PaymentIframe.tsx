@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button';
 import { CreditCard, CheckCircle, AlertCircle } from 'lucide-react';
-import { io, Socket } from 'socket.io-client';
+import { webSocketService } from '@/modules/subscriptions/services/websocket';
+import { toast } from 'sonner';
 
 interface PaymentIframeProps {
     isOpen: boolean;
@@ -25,7 +26,6 @@ export const PaymentIframe = ({
 }: PaymentIframeProps) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [, setSocket] = useState<Socket | null>(null);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
 
     // Сохраняем данные оплаты в localStorage при открытии
@@ -53,39 +53,79 @@ export const PaymentIframe = ({
             setIsLoading(true);
             setError(null);
 
-            // Создаем WebSocket подключение
-            const newSocket = io('http://localhost:3000');
-            setSocket(newSocket);
+            // Подключаемся к WebSocket заказов
+            webSocketService.connectOrder();
 
-            newSocket.on('connect', () => {
-                console.log('WebSocket connected for payment tracking');
-                newSocket.emit('join_order_payment_room', {
-                    userId,
-                    paymentId,
-                });
-            });
+            // Подключаемся к комнате платежа заказа
+            webSocketService.joinOrderPaymentRoom(paymentId, userId);
 
-            newSocket.on('order_payment_status_update', (data) => {
-                console.log('Order payment status update:', data);
-            });
+            // Настраиваем периодический пинг сервера каждые 30 секунд
+            const pingInterval = setInterval(() => {
+                webSocketService.pingOrderServer();
+            }, 30000);
 
-            newSocket.on('order_payment_success', (data) => {
+            // Запускаем проверку статуса платежа через API каждые 5 секунд
+            webSocketService.startPaymentStatusCheck(paymentId, (status) => {
+                console.log('Статус платежа заказа обновлен через API:', status);
+
+                if (status.status === 'paid' || status.status === 'success') {
+                    handlePaymentSuccess(status);
+                } else if (status.status === 'failed') {
+                    handlePaymentError({ error: 'Платеж не прошел', message: 'Ошибка обработки платежа' });
+                }
+            }, 5000);
+
+            // Обработчики событий
+            const handlePaymentSuccess = (data: any) => {
                 console.log('Order payment successful via WebSocket:', data);
                 setPaymentSuccess(true);
-                // Автоматически закрываем модальное окно через 3 секунды
-                setTimeout(() => {
-                    onSuccess?.();
-                }, 3000);
-            });
 
-            newSocket.on('order_payment_error', (data) => {
+                // Показываем уведомление об успешной оплате
+                const amount = data.amount || 'неизвестную';
+                toast.success('Заказ успешно оплачен!', {
+                    description: `Заказ на сумму ${amount}₽ будет обработан в ближайшее время`,
+                    duration: 5000,
+                });
+
+                console.log('Закрываем модалку оплаты заказа...');
+
+                // Автоматически закрываем модальное окно через 2 секунды
+                setTimeout(() => {
+                    console.log('Вызываем onSuccess callback');
+                    if (onSuccess) {
+                        console.log('onSuccess callback существует, вызываем...');
+                        onSuccess();
+                    } else {
+                        console.error('onSuccess callback не передан!');
+                        // Альтернативный способ закрытия модалки
+                        console.log('Закрываем модалку через onClose...');
+                        onClose();
+                    }
+                }, 2000);
+            };
+
+            const handlePaymentError = (data: any) => {
                 console.log('Order payment error via WebSocket:', data);
                 onError?.(data.error || 'Ошибка оплаты');
-            });
+            };
+
+            // Подписываемся на события заказов
+            webSocketService.onOrderPaymentSuccess(handlePaymentSuccess);
+            webSocketService.onOrderPaymentError(handlePaymentError);
 
             return () => {
-                newSocket.disconnect();
-                setSocket(null);
+                // Очищаем интервал пинга
+                clearInterval(pingInterval);
+
+                // Останавливаем проверку статуса через API
+                webSocketService.stopPaymentStatusCheck(paymentId);
+
+                // Отключаемся от комнаты платежа
+                webSocketService.leaveOrderPaymentRoom(paymentId, userId);
+
+                // Отписываемся от событий
+                webSocketService.offOrderPaymentSuccess(handlePaymentSuccess);
+                webSocketService.offOrderPaymentError(handlePaymentError);
             };
         }
     }, [isOpen, paymentId, userId, onSuccess, onError]);

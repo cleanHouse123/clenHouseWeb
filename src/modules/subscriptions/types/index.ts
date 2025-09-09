@@ -59,8 +59,11 @@ export interface SimulatePaymentResponse {
 export interface PaymentWebSocketEvent {
   type: "payment_success" | "payment_error";
   data: {
+    paymentId: string;
     userId: string;
-    subscriptionId: string;
+    subscriptionId?: string;
+    orderId?: string;
+    amount: number;
     message?: string;
     error?: string;
     timestamp: string;
@@ -68,11 +71,11 @@ export interface PaymentWebSocketEvent {
 }
 
 export interface JoinPaymentRoomRequest {
+  paymentId: string;
   userId: string;
-  paymentId?: string;
 }
 
 export interface LeavePaymentRoomRequest {
+  paymentId: string;
   userId: string;
-  paymentId?: string;
 }
