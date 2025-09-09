@@ -12,9 +12,8 @@ class WebSocketService {
   private isOrderConnected = false;
 
   private getWebSocketUrl(type: "subscription" | "order"): string {
-    const baseUrl =
-      import.meta.env.VITE_API_URL ||
-      "https://cleanhouse123-cleanhouseapi-209c.twc1.net";
+    const baseUrl = import.meta.env.VITE_API_URL;
+    const wsPort = import.meta.env.VITE_WS_PORT || "3000";
 
     // Убираем протокол и добавляем порт
     const host = baseUrl.replace(/^https?:\/\//, "");
@@ -25,7 +24,7 @@ class WebSocketService {
     // Возвращаем URL с namespace согласно WEBSOCKET_SETUP.md
     const namespace =
       type === "subscription" ? "subscription-payment" : "order-payment";
-    return `${protocol}://${host}:3000/${namespace}`;
+    return `${protocol}://${host}:${wsPort}/${namespace}`;
   }
 
   private log(message: string, data?: any) {

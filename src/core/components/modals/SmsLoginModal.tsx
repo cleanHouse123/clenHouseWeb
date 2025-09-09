@@ -59,8 +59,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             code: '',
         },
     });
-    const isDev = true
-    //import.meta.env.DEV || window.location.hostname === 'localhost';
+    const isDev = import.meta.env.VITE_SMS_DEV_MODE === 'true' || import.meta.env.DEV;
     const handlePhoneSubmit = async (data: PhoneFormData) => {
 
         setIsLoading(true);
@@ -71,7 +70,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                 phoneNumber: data.phoneNumber,
                 isDev: isDev
             });
-            console.log('SMS отправлен успешно:', result);
+
 
 
             setPhoneNumber(data.phoneNumber);
@@ -91,11 +90,9 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                 codeForm.setValue('code', '');
             }, 100);
 
-            console.log('Переход на шаг ввода кода');
 
-            if (isDev) {
-                console.log('🔧 DEV MODE: Используйте любой код для тестирования');
-            }
+
+
         } catch (error) {
             console.error('Ошибка отправки SMS:', error);
         } finally {

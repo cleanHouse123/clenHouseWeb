@@ -2,25 +2,18 @@ import { toast } from "sonner";
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL ||
-    "https://cleanhouse123-cleanhouseapi-209c.twc1.net",
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: false,
 });
 
-//http://localhost:3000/
 export const axiosPublic = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL ||
-    "https://cleanhouse123-cleanhouseapi-209c.twc1.net",
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: false,
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
-
-    console.log(accessToken, "accessToken from localStorage");
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -57,10 +50,6 @@ axiosInstance.interceptors.response.use(
 
     // Обработка 429 ошибки (Rate Limit)
     if (error.response?.status === 429) {
-      toast.error("Слишком много запросов", {
-        description: "Пожалуйста, подождите немного перед следующим запросом",
-        duration: 5000,
-      });
       return Promise.reject(error);
     }
 
