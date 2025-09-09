@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './button';
-import { X, Download, Smartphone } from 'lucide-react';
+import { X, Download, Smartphone, Share, Plus } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
     readonly platforms: string[];
@@ -15,25 +15,31 @@ export const PWAInstallPrompt: React.FC = () => {
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
 
     useEffect(() => {
-        // Проверяем, установлено ли уже приложение
-        const checkIfInstalled = () => {
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                setIsInstalled(true);
-                return;
-            }
-
-            // Проверяем для iOS
-            if ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true) {
-                setIsInstalled(true);
-                return;
-            }
+        // Определяем iOS
+        const checkIOS = () => {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
+            const isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent);
+            setIsIOS(isIOSDevice && isSafari);
         };
 
+        // Проверяем, установлено ли уже приложение
+        const checkIfInstalled = () => {
+            const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+            const isIOSStandalone = 'standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true;
+
+            setIsStandalone(isStandaloneMode);
+            setIsInstalled(isStandaloneMode || isIOSStandalone);
+        };
+
+        checkIOS();
         checkIfInstalled();
 
-        // Слушаем событие beforeinstallprompt
+        // Слушаем событие beforeinstallprompt (только для Android)
         const handleBeforeInstallPrompt = (e: Event) => {
             e.preventDefault();
             setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -47,14 +53,26 @@ export const PWAInstallPrompt: React.FC = () => {
             setDeferredPrompt(null);
         };
 
+        // Для iOS показываем промпт через 3 секунды после загрузки
+        const showIOSPrompt = () => {
+            if (isIOS && !isInstalled) {
+                setTimeout(() => {
+                    setShowInstallPrompt(true);
+                }, 3000);
+            }
+        };
+
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
+
+        // Показываем промпт для iOS
+        showIOSPrompt();
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             window.removeEventListener('appinstalled', handleAppInstalled);
         };
-    }, []);
+    }, [isIOS, isInstalled]);
 
     const handleInstallClick = async () => {
         if (!deferredPrompt) return;
@@ -79,7 +97,12 @@ export const PWAInstallPrompt: React.FC = () => {
     };
 
     // Не показываем промпт, если приложение уже установлено или пользователь отклонил
-    if (isInstalled || !showInstallPrompt || !deferredPrompt) {
+    if (isInstalled || !showInstallPrompt) {
+        return null;
+    }
+
+    // Для Android проверяем наличие deferredPrompt
+    if (!isIOS && !deferredPrompt) {
         return null;
     }
 
@@ -111,26 +134,56 @@ export const PWAInstallPrompt: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                    Установите ЧистоДом для быстрого доступа и работы офлайн
-                </p>
-                <div className="flex gap-2">
-                    <Button
-                        onClick={handleInstallClick}
-                        size="sm"
-                        className="flex-1"
-                    >
-                        <Download className="w-4 h-4 mr-2" />
-                        Установить
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleDismiss}
-                    >
-                        Позже
-                    </Button>
-                </div>
+                {isIOS ? (
+                    <>
+                        <p className="text-sm text-muted-foreground">
+                            Установите ЧистоДом для быстрого доступа и работы офлайн
+                        </p>
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-sm">
+                                <Share className="w-4 h-4 text-primary" />
+                                <span>1. Нажмите кнопку "Поделиться" внизу экрана</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                                <Plus className="w-4 h-4 text-primary" />
+                                <span>2. Выберите "На экран Домой"</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleDismiss}
+                                className="flex-1"
+                            >
+                                Понятно
+                            </Button>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <p className="text-sm text-muted-foreground">
+                            Установите ЧистоДом для быстрого доступа и работы офлайн
+                        </p>
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={handleInstallClick}
+                                size="sm"
+                                className="flex-1"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                Установить
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleDismiss}
+                            >
+                                Позже
+                            </Button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
