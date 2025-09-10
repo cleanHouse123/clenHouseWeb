@@ -31,7 +31,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
 
 
     const openCreateOrderModal = () => {
-        //setIsCreateOrderModalOpen(true);
+        setIsCreateOrderModalOpen(true);
     };
 
     const closeCreateOrderModal = () => {
