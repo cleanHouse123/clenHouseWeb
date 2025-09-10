@@ -118,7 +118,7 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
                     <Button
                         variant="outline"
                         size="sm"
-                    //onClick={() => navigate('/orders')}
+                        onClick={() => navigate('/orders')}
                     >
                         Все заказы
                         <ArrowRight className="h-4 w-4 ml-2" />
@@ -131,7 +131,7 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
                         <div
                             key={order.id}
                             className="p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                        // onClick={() => navigate('/orders')}
+                            onClick={() => navigate('/orders')}
                         >
                             <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-2">

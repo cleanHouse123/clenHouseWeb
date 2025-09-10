@@ -54,7 +54,7 @@ export const QuickActions = () => {
                                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl'
                                     : 'bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900'
                                     }`}
-                            // onClick={action.onClick}
+                                onClick={action.onClick}
                             >
                                 <div className="flex items-center gap-3 w-full">
                                     <div className={`p-2 rounded-lg ${action.isPrimary
