@@ -225,7 +225,7 @@ export const CreateOrderModal = ({
                             )}
                         />
 
-                        {/* Заметки */}
+                        {/* Заметки
                         <FormField
                             control={form.control}
                             name="notes"
@@ -242,7 +242,7 @@ export const CreateOrderModal = ({
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        />
+                        /> */}
 
                         {/* Способ оплаты */}
                         {userSubscription?.status === 'active' ? (

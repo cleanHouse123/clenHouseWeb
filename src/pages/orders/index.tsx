@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Header } from '@/core/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
 import { OrderList, OrderDetailsModal } from '@/modules/orders/components';
 import { useCustomerOrders, useUpdateOrderStatus, useCancelOrder } from '@/modules/orders/hooks/useOrders';
 import { OrderStatus, OrderResponseDto } from '@/modules/orders/types';
@@ -25,14 +24,25 @@ const OrdersContent = () => {
         data: customerOrders,
         isLoading: isLoadingOrders,
         refetch: refetchOrders
-    } = useCustomerOrders({
-        status: statusFilter === 'all' ? undefined : statusFilter,
-    });
+    } = useCustomerOrders();
 
     const { mutateAsync: updateOrderStatus } = useUpdateOrderStatus();
     const { mutateAsync: cancelOrder } = useCancelOrder();
     const { data: user } = useGetMe();
     const { openCreateOrderModal } = useCreateOrderModal();
+
+    // Фильтрация заказов на фронтенде
+    const filteredOrders = customerOrders?.orders?.filter(order =>
+        statusFilter === 'all' || order.status === statusFilter
+    ) || [];
+
+    // Функция для подсчета заказов по статусу
+    const getOrdersCountByStatus = (status: OrderStatus | 'all') => {
+        if (status === 'all') {
+            return customerOrders?.orders?.length || 0;
+        }
+        return customerOrders?.orders?.filter(order => order.status === status).length || 0;
+    };
 
     const handleStatusUpdate = async (orderId: string, status: OrderStatus) => {
         try {
@@ -119,77 +129,31 @@ const OrdersContent = () => {
                     </div>
 
 
-                    {/* Фильтры и статистика */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                        {/* Фильтр по статусу */}
-                        <Card className="sm:col-span-2 lg:col-span-1">
-                            <CardHeader className="pb-3">
-                                <CardTitle className="flex items-center gap-2 text-sm">
-                                    <Filter className="h-4 w-4" />
-                                    Фильтр
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as OrderStatus | 'all')}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Выберите статус" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {statusOptions.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </CardContent>
-                        </Card>
+                    {/* Фильтры по статусам */}
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-2 text-sm">
+                                <Filter className="h-4 w-4" />
+                                Фильтр по статусам
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-wrap gap-2">
+                                {statusOptions.map((option) => (
+                                    <Button
+                                        key={option.value}
+                                        variant={statusFilter === option.value ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setStatusFilter(option.value as OrderStatus | 'all')}
+                                        className="text-xs"
+                                    >
+                                        {option.label} ({getOrdersCountByStatus(option.value as OrderStatus | 'all')})
+                                    </Button>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        {/* Статистика */}
-                        <Card>
-                            <CardHeader className="pb-2 sm:pb-3">
-                                <CardTitle className="text-xs sm:text-sm">Всего заказов</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-0">
-                                <div className="text-xl sm:text-2xl font-bold text-primary">
-                                    {customerOrders?.total || 0}
-                                </div>
-                                <p className="text-xs text-white mt-1">
-                                    Всего создано
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="pb-2 sm:pb-3">
-                                <CardTitle className="text-xs sm:text-sm">Активные</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-0">
-                                <div className="text-xl sm:text-2xl font-bold text-orange-600">
-                                    {customerOrders?.orders?.filter(order =>
-                                        ['new', 'assigned', 'in_progress'].includes(order.status)
-                                    ).length || 0}
-                                </div>
-                                <p className="text-xs text-white mt-1">
-                                    В работе
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="pb-2 sm:pb-3">
-                                <CardTitle className="text-xs sm:text-sm">Завершенные</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-0">
-                                <div className="text-xl sm:text-2xl font-bold text-green-600">
-                                    {customerOrders?.orders?.filter(order => order.status === 'done').length || 0}
-                                </div>
-                                <p className="text-xs text-white mt-1">
-                                    Выполнено
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </div>
 
                     {/* Список заказов */}
                     <Card>
@@ -199,14 +163,19 @@ const OrdersContent = () => {
                                 Заказы
                                 {statusFilter !== 'all' && (
                                     <span className="text-xs sm:text-sm text-gray-600">
-                                        ({statusOptions.find(opt => opt.value === statusFilter)?.label})
+                                        ({statusOptions.find(opt => opt.value === statusFilter)?.label}: {filteredOrders.length})
+                                    </span>
+                                )}
+                                {statusFilter === 'all' && (
+                                    <span className="text-xs sm:text-sm text-gray-600">
+                                        (Всего: {filteredOrders.length})
                                     </span>
                                 )}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-2 sm:p-6">
                             <OrderList
-                                orders={customerOrders?.orders || []}
+                                orders={filteredOrders}
                                 isLoading={isLoadingOrders}
                                 onStatusUpdate={handleStatusUpdate}
                                 onCancel={handleCancelOrder}

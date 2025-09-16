@@ -151,41 +151,7 @@ export const OrderDetailsModal = ({
                             </div>
                         )}
 
-                        {/* Платежи */}
-                        {order.payments.length > 0 && (
-                            <div className="border-t pt-4">
-                                <p className="font-medium mb-3 text-sm sm:text-base">Платежи</p>
-                                <div className="space-y-3">
-                                    {order.payments.map((payment) => (
-                                        <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg">
-                                            <div className="flex items-center gap-3">
-                                                <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 text-black flex-shrink-0" />
-                                                <div className="min-w-0">
-                                                    <p className="font-medium text-sm sm:text-base text-black">
-                                                        {payment.method === 'subscription' ? 'По подписке' : 'Онлайн'}
-                                                    </p>
-                                                    <p className="text-xs sm:text-sm text-black">
-                                                        {formatDateTimeLocal(payment.createdAt, locale)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center justify-between sm:justify-end gap-3">
-                                                <span className="font-bold text-base sm:text-lg text-black">{payment.amount}₽</span>
-                                                <Badge
-                                                    variant={payment.status === 'paid' ? 'default' :
-                                                        payment.status === 'pending' ? 'secondary' : 'destructive'}
-                                                    className="text-xs "
-                                                >
-                                                    {payment.status === 'paid' ? 'Оплачен' :
-                                                        payment.status === 'pending' ? 'Ожидает' :
-                                                            payment.status === 'failed' ? 'Ошибка' : 'Возвращен'}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
 
                         {/* Время создания */}
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground border-t pt-4">

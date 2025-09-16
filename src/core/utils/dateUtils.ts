@@ -109,24 +109,11 @@ export const formatDateRelativeLocal = (
   dateString: string,
   locale: Locale = "ru"
 ) => {
-  try {
-    // Парсим дату и извлекаем компоненты без конвертации часового пояса
-    const date = new Date(dateString);
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
-    const seconds = date.getUTCSeconds();
-
-    // Создаем локальную дату без конвертации часового пояса
-    const localDate = new Date(year, month, day, hours, minutes, seconds);
-
-    return formatDistanceToNow(localDate, {
-      addSuffix: true,
-      locale: localeMap[locale],
-    });
-  } catch (error) {
-    return locale === "ru" ? "Неверная дата" : "Invalid date";
-  }
+  return new Date(dateString).toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
