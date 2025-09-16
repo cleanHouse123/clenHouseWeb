@@ -35,6 +35,7 @@ export const subscriptionApi = {
   createSubscription: async (
     data: CreateSubscriptionRequest
   ): Promise<CreateSubscriptionResponse> => {
+    console.log("API createSubscription request data:", data);
     const response = await axiosInstance.post("/subscriptions", data);
     return response.data;
   },
@@ -43,6 +44,7 @@ export const subscriptionApi = {
   createPaymentLink: async (
     data: PaymentLinkRequest
   ): Promise<PaymentLinkResponse> => {
+    console.log("API createPaymentLink request data:", data);
     const response = await axiosInstance.post(
       "/subscriptions/payment/create",
       data
@@ -54,10 +56,37 @@ export const subscriptionApi = {
   simulatePayment: async (
     paymentId: string
   ): Promise<SimulatePaymentResponse> => {
-    const response = await axiosInstance.post(
-      `/subscriptions/payment/simulate/${paymentId}`
-    );
-    return response.data;
+    console.log("API simulatePayment request for paymentId:", paymentId);
+
+    const accessToken = localStorage.getItem("accessToken");
+    console.log("Current access token:", accessToken);
+
+    if (!accessToken) {
+      throw new Error("Access token not found. Please login first.");
+    }
+
+    try {
+      const response = await axiosInstance.post(
+        `/subscriptions/payment/simulate/${paymentId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error("SimulatePayment API error:", error);
+      if (error.response?.status === 401) {
+        console.error(
+          "401 Unauthorized - возможно, нужны права администратора или токен истек"
+        );
+        console.error("Response data:", error.response.data);
+      }
+      throw error;
+    }
   },
 
   // Получить информацию о платеже

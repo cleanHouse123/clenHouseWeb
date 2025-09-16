@@ -18,6 +18,7 @@ export interface UserSubscription {
   status: "pending" | "active" | "cancelled" | "expired";
   startDate: string;
   endDate: string;
+  paymentUrl?: string; // Ссылка на оплату, если подписка не оплачена
   createdAt: string;
   updatedAt: string;
 }

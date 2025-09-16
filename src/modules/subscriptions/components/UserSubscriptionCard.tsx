@@ -166,9 +166,16 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <AlertCircle className="h-4 w-4 text-blue-600" />
-                                    <span className="text-sm text-blue-800 font-medium">
-                                        Подписка ожидает оплаты
-                                    </span>
+                                    <div>
+                                        <span className="text-sm text-blue-800 font-medium">
+                                            Подписка ожидает оплаты
+                                        </span>
+                                        {userSubscription.paymentUrl && (
+                                            <p className="text-xs text-blue-600 mt-1">
+                                                Ссылка на оплату готова
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                                 <Button
                                     onClick={() => onPay(userSubscription.id)}

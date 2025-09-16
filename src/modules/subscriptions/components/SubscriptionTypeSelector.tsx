@@ -33,7 +33,7 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
             type: 'yearly' as const,
             name: 'Годовая подписка',
             description: 'Подписка на год со скидкой 20%',
-            price: 9600, // 1000 * 12 * 0.8
+            price: 1500000, // 1000 * 12 * 0.8
             duration: '12 месяцев',
             features: [
                 'Неограниченное количество заказов',

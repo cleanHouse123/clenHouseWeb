@@ -70,14 +70,38 @@ export const SubscriptionsPage = () => {
 
     const handlePayExistingSubscription = async (subscriptionId: string) => {
         try {
+            const subscriptionType = userSubscription?.type || 'monthly';
+
+            // Используем paymentUrl из подписки, если он есть
+            if (userSubscription?.paymentUrl) {
+                setSelectedType(subscriptionType);
+                setPaymentUrl(userSubscription.paymentUrl);
+                setIsPaymentModalOpen(true);
+                return;
+            }
+
+            // Если paymentUrl нет, создаем новую ссылку на оплату
+            const getCorrectPrice = (type: 'monthly' | 'yearly') => {
+                switch (type) {
+                    case 'monthly':
+                        return 150000; // 1500 рублей в копейках
+                    case 'yearly':
+                        return 1500000; // 15000 рублей в копейках
+                    default:
+                        return 150000;
+                }
+            };
+
+            const correctPrice = getCorrectPrice(subscriptionType);
+
             // Создаем ссылку на оплату для существующей подписки
             const paymentData = await createPaymentLink({
                 subscriptionId: subscriptionId,
-                subscriptionType: userSubscription?.type || 'monthly',
-                amount: Number(userSubscription?.price) || 1000
+                subscriptionType: subscriptionType,
+                amount: correctPrice
             });
 
-            setSelectedType(userSubscription?.type || 'monthly');
+            setSelectedType(subscriptionType);
             setPaymentUrl(paymentData.paymentUrl);
 
             // Открываем модальное окно оплаты
