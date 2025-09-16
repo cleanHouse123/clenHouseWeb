@@ -1,9 +1,8 @@
 import { OrderListProps } from '../types';
-import { OrderCard } from './OrderCard';
 import { OrderListItem } from './OrderListItem';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { EmptyState } from '@/core/components/ui/empty-state';
-import { Package, AlertCircle } from 'lucide-react';
+import { Package } from 'lucide-react';
 
 export const OrderList = ({
     orders,

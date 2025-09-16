@@ -162,12 +162,12 @@ const OrdersContent = () => {
                                 <Package className="h-4 w-4 sm:h-5 sm:w-5" />
                                 Заказы
                                 {statusFilter !== 'all' && (
-                                    <span className="text-xs sm:text-sm text-gray-600">
+                                    <span className="text-xs sm:text-sm ">
                                         ({statusOptions.find(opt => opt.value === statusFilter)?.label}: {filteredOrders.length})
                                     </span>
                                 )}
                                 {statusFilter === 'all' && (
-                                    <span className="text-xs sm:text-sm text-gray-600">
+                                    <span className="text-xs sm:text-sm ">
                                         (Всего: {filteredOrders.length})
                                     </span>
                                 )}

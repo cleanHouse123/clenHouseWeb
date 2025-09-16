@@ -109,7 +109,7 @@ export const SubscriptionsPage = () => {
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                             {isConnected ? (
                                 <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                                     <Wifi className="h-3 w-3 mr-1" />
@@ -121,7 +121,7 @@ export const SubscriptionsPage = () => {
 
                                 </Badge>
                             )}
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 

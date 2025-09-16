@@ -15,10 +15,10 @@ export const EmptyState = ({ icon, title, description, action }: EmptyStateProps
                     {icon}
                 </div>
             )}
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold  mb-2">
                 {title}
             </h3>
-            <p className="text-gray-500 mb-6 max-w-sm">
+            <p className=" mb-6 max-w-sm">
                 {description}
             </p>
             {action && (
