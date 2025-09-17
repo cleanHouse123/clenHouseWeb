@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { webSocketService } from '../services/websocket';
 import { PaymentWebSocketEvent } from '../types';
 import { toast } from 'sonner';
+import { kopecksToRubles } from '../utils/priceUtils';
 
 interface UsePaymentWebSocketProps {
     paymentId?: string;
@@ -28,7 +29,7 @@ export const usePaymentWebSocket = ({ paymentId, type = 'subscription', onSucces
         // Стандартная обработка для подписок
         if (data.subscriptionId) {
             toast.success('Подписка успешно оплачена!', {
-                description: `Подписка на сумму ${data.amount || 'неизвестную'}₽ активирована`,
+                description: `Подписка на сумму ${kopecksToRubles(data.amount) || 'неизвестную'}₽ активирована`,
                 duration: 5000,
             });
 

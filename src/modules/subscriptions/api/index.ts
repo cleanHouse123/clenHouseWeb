@@ -119,4 +119,30 @@ export const subscriptionApi = {
     const response = await axiosInstance.get(`/subscription-plans/${id}`);
     return response.data;
   },
+
+  // Создать платеж с планом подписки (новая оптимизированная функция)
+  createPaymentWithPlan: async (
+    subscriptionId: string,
+    plan: SubscriptionPlan
+  ): Promise<PaymentLinkResponse> => {
+    console.log("API createPaymentWithPlan request data:", {
+      subscriptionId,
+      planId: plan.id,
+      subscriptionType: plan.type,
+      amount: plan.priceInKopecks,
+    });
+
+    const paymentData: PaymentLinkRequest = {
+      subscriptionId,
+      planId: plan.id,
+      subscriptionType: plan.type as "monthly" | "yearly",
+      amount: plan.priceInKopecks, // Используем цену в копейках напрямую
+    };
+
+    const response = await axiosInstance.post(
+      "/subscriptions/payment/create",
+      paymentData
+    );
+    return response.data;
+  },
 };
