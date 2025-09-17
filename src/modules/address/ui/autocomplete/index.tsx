@@ -47,19 +47,16 @@ export default function AutocompleteAddress({
     }
   };
 
+  console.log(addresses?.length);
+  
+
   return (
-    <div className="flex w-full flex-wrap md:flex-nowrap gap-4 border border-gray-200 rounded-md p-2">
       <Autocomplete
         selectedKey={selectedKey}
         inputValue={inputValue}
         onSelectionChange={handleSelectionChange}
         onInputChange={handleInputChange}
-        style={{
-            padding: 0,
-          color: "black",
-          position: "relative",
-          zIndex: 1000,
-        }}
+        className="flex w-full flex-wrap md:flex-nowrap gap-4 border border-gray-200 rounded-md p-2"
       >
         {isLoading || !addresses?.length ? (
           <AutocompleteItem
@@ -75,9 +72,9 @@ export default function AutocompleteAddress({
             {isLoading ? "Loading..." : "No addresses found"}
           </AutocompleteItem>
         ) : (
-          addresses?.map((animal) => (
+          addresses.map((address) => (
             <AutocompleteItem
-              key={animal.value}
+              key={address.display}
               style={{
                 width: "100%",
                 pointerEvents: "auto",
@@ -86,11 +83,10 @@ export default function AutocompleteAddress({
                 zIndex: 1000,
               }}
             >
-              {animal.value}
+              {address.display}
             </AutocompleteItem>
           ))
         )}
       </Autocomplete>
-    </div>
   );
 }
