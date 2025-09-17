@@ -113,7 +113,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
 
     return (
         <>
-            <Card className={`transition-all duration-200 ${isExpiringSoon() ? 'ring-2 ring-yellow-500' : ''}`}>
+            <Card className={`transition-all duration-200 shadow-lg ${isExpiringSoon() ? 'ring-2 ring-yellow-500' : ''}`}>
                 <CardHeader className="pb-4">
                     <div className="flex justify-between items-start">
                         <div>

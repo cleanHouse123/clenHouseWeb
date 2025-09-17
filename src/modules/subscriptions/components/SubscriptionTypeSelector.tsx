@@ -58,9 +58,9 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-foreground mb-2">Загрузка планов подписок...</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {[1, 2].map((i) => (
-                        <Card key={i} className="animate-pulse">
+                        <Card key={i} className="animate-pulse shadow-lg">
                             <CardHeader className="space-y-4">
                                 <div className="h-6 bg-gray-200 rounded"></div>
                                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -106,11 +106,11 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {Array.isArray(subscriptionPlans) && subscriptionPlans.map((plan: SubscriptionPlan) => (
                     <Card
                         key={plan.id}
-                        className={`relative transition-all duration-200 hover:shadow-lg ${selectedType === plan.type ? 'ring-2 ring-primary shadow-lg' : ''
+                        className={`relative transition-all duration-200 shadow-lg hover:shadow-xl ${selectedType === plan.type ? 'ring-2 ring-primary shadow-xl' : ''
                             } ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
                     >
                         {plan.popular && (

@@ -158,8 +158,8 @@ export const SubscriptionsPage = () => {
                         <LoadingIndicator />
                     </div>
                 ) : userSubscription ? (
-                    <div className="space-y-6">
-                        <Card>
+                    <div className="space-y-8">
+                        <Card className="shadow-lg">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <CreditCard className="h-5 w-5" />
@@ -176,8 +176,8 @@ export const SubscriptionsPage = () => {
                         </Card>
                     </div>
                 ) : user ? (
-                    <div className="space-y-6">
-                        <Card>
+                    <div className="space-y-8">
+                        <Card className="shadow-lg">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Plus className="h-5 w-5" />

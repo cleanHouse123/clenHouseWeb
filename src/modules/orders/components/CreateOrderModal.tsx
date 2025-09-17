@@ -115,25 +115,23 @@ export const CreateOrderModal = ({
                         <FormField
                             control={form.control}
                             name="address"
-                            render={({ field }) => {
-                                console.log(field.value, "FIELDS");
-                                
-                                return (
-                                    <FormItem>
-                                    <FormLabel className="flex items-center gap-2">
-                                        <MapPin className="h-4 w-4" />
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                        <MapPin className="h-4 w-4 text-blue-600" />
                                         Адрес *
                                     </FormLabel>
                                     <FormControl>
-                                        <AutocompleteAddress
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                        />
+                                        <div className="relative">
+                                            <AutocompleteAddress
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                            />
+                                        </div>
                                     </FormControl>
-                                    <FormMessage />
+                                    <FormMessage className="text-red-500 text-sm mt-1" />
                                 </FormItem>
-                                )
-                            }}
+                            )}
                         />
 
                         {/* Описание */}
