@@ -80,3 +80,19 @@ export interface LeavePaymentRoomRequest {
   paymentId: string;
   userId: string;
 }
+
+// Типы для планов подписок
+export interface SubscriptionPlan {
+  id: string;
+  type: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: string;
+  features: string[];
+  icon: string;
+  badgeColor: string;
+  popular: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
