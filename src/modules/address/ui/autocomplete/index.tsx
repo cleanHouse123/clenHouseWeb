@@ -1,6 +1,5 @@
-import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useCallback, useRef } from "react";
+import { ChevronDown } from "lucide-react";
 import { useAddresses } from "../../hooks/useOrders";
 
 interface AutocompleteAddressProps {
@@ -12,80 +11,111 @@ export default function AutocompleteAddress({
   onChange,
   value,
 }: AutocompleteAddressProps) {
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState(value);
-  const { data: addresses, isLoading } = useAddresses(inputValue || "");
+  const [inputValue, setInputValue] = useState(value || "");
+  const [debouncedValue, setDebouncedValue] = useState(inputValue);
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const { data: addresses, isLoading } = useAddresses(debouncedValue);
+
+  // Дебаунс для запросов
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(inputValue);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [inputValue]);
 
   useEffect(() => {
     setInputValue(value || "");
-    if (!value) {
-      setSelectedKey(null);
-    }
   }, [value]);
 
-  const handleSelectionChange = (key: React.Key | null) => {
-    const keyString = key?.toString() || null;
-    setSelectedKey(keyString);
+  // Закрытие при клике вне компонента
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (listRef.current && !listRef.current.contains(event.target as Node) &&
+        inputRef.current && !inputRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
 
-    if (keyString && onChange) {
-      onChange(keyString);
-    } else if (!keyString && onChange) {
-      // Если выбор сброшен, очищаем значение
-      onChange("");
-    }
-  };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const handleInputChange = (value: string) => {
-    setInputValue(value);
-
-    // Если инпут очищен, сбрасываем выбранный ключ
-    if (value === "") {
-      setSelectedKey(null);
-    }
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    setIsOpen(true);
 
     if (onChange) {
-      onChange(value);
+      onChange(newValue);
     }
-  };
+  }, [onChange]);
 
-  console.log(addresses?.length);
+  const handleAddressSelect = useCallback((address: string) => {
+    setInputValue(address);
+    setIsOpen(false);
 
+    if (onChange) {
+      onChange(address);
+    }
+  }, [onChange]);
+
+  const handleInputFocus = useCallback(() => {
+    setIsOpen(true);
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setIsOpen(false);
+    }
+  }, []);
 
   return (
+    <div className="relative w-full">
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          onKeyDown={handleKeyDown}
+          placeholder="Введите адрес для поиска"
+          className="w-full px-3 py-2 pr-10 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+        />
+        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+      </div>
 
-      <Autocomplete
-        selectedKey={selectedKey}
-        inputValue={inputValue}
-        onSelectionChange={handleSelectionChange}
-        onInputChange={handleInputChange}
-        placeholder="Введите адрес для поиска"
-        className="flex w-full flex-wrap md:flex-nowrap gap-4 border border-gray-200 rounded-md p-2"
-
-
-      >
-        {isLoading || !addresses?.length ? (
-          <AutocompleteItem
-            key="loading"
-            className="px-4 py-3 text-gray-600 bg-gray-50"
-          >
-            {isLoading ? "Поиск адресов..." : "Адреса не найдены"}
-          </AutocompleteItem>
-        ) : (
-          addresses.map((address) => (
-            <AutocompleteItem
-              key={address.display}
-              style={{
-                width: "100%",
-                pointerEvents: "auto",
-                backgroundColor: "hsl(240 5% 24%)",
-                position: "relative",
-                zIndex: 1000,
-              }}
-            >
-              {address.display}
-            </AutocompleteItem>
-          ))
-        )}
-      </Autocomplete>
+      {isOpen && (
+        <div
+          ref={listRef}
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
+        >
+          {isLoading ? (
+            <div className="px-4 py-3 text-gray-600 bg-gray-50">
+              Поиск адресов...
+            </div>
+          ) : !addresses?.length ? (
+            <div className="px-4 py-3 text-gray-600 bg-gray-50">
+              Адреса не найдены
+            </div>
+          ) : (
+            addresses.map((address, index) => (
+              <div
+                key={`${address.display}-${index}`}
+                onClick={() => handleAddressSelect(address.display)}
+                className="px-4 py-3 text-gray-800 bg-white hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+              >
+                {address.display}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   );
 }
