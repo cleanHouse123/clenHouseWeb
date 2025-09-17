@@ -6,6 +6,7 @@ export const useAddresses = (searchAddress: string) => {
     return useQuery({
         queryKey: ['address', searchAddress],
         queryFn: () => addressApi.getAddresses(searchAddress),
-        staleTime: 30000,
+        staleTime: 0,
+        gcTime: 0,
     });
 };

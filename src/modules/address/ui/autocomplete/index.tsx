@@ -1,6 +1,6 @@
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { useEffect, useState } from "react";
-import { MapPin } from "lucide-react";
+
 import { useAddresses } from "../../hooks/useOrders";
 
 interface AutocompleteAddressProps {
@@ -48,22 +48,20 @@ export default function AutocompleteAddress({
     }
   };
 
+  console.log(addresses?.length);
+
+
   return (
-    <div className="w-full">
+
       <Autocomplete
         selectedKey={selectedKey}
         inputValue={inputValue}
         onSelectionChange={handleSelectionChange}
         onInputChange={handleInputChange}
         placeholder="Введите адрес для поиска"
-        className="w-full"
-        classNames={{
-          base: "w-full",
-          inputWrapper: "border border-gray-300 rounded-lg shadow-sm hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all duration-200",
-          input: "text-gray-900 placeholder:text-gray-500",
-          listbox: "border border-gray-200 rounded-lg shadow-lg mt-1 bg-gray-50",
-          popoverContent: "p-0 bg-gray-50"
-        }}
+        className="flex w-full flex-wrap md:flex-nowrap gap-4 border border-gray-200 rounded-md p-2"
+
+
       >
         {isLoading || !addresses?.length ? (
           <AutocompleteItem
@@ -73,19 +71,21 @@ export default function AutocompleteAddress({
             {isLoading ? "Поиск адресов..." : "Адреса не найдены"}
           </AutocompleteItem>
         ) : (
-          addresses?.map((address) => (
+          addresses.map((address) => (
             <AutocompleteItem
-              key={address.value}
-              className="px-4 py-3 hover:bg-blue-100 cursor-pointer transition-colors duration-150 bg-gray-50"
+              key={address.display}
+              style={{
+                width: "100%",
+                pointerEvents: "auto",
+                backgroundColor: "hsl(240 5% 24%)",
+                position: "relative",
+                zIndex: 1000,
+              }}
             >
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                <span className="text-gray-800">{address.value}</span>
-              </div>
+              {address.display}
             </AutocompleteItem>
           ))
         )}
       </Autocomplete>
-    </div>
   );
 }
