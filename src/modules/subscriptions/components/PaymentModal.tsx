@@ -6,6 +6,7 @@ import { webSocketService } from '../services/websocket';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { kopecksToRubles } from '../utils/priceUtils';
 interface PaymentModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -73,7 +74,7 @@ export const PaymentModal = ({
         // Останавливаем проверку статуса при завершении
         stopStatusCheck();
 
-        const amount = data.amount || 'неизвестную';
+        const amount = kopecksToRubles(data.amount) || 'неизвестную';
         toast.success('Подписка успешно оплачена!', {
             description: `Подписка на сумму ${amount}₽ активирована`,
             duration: 5000,
