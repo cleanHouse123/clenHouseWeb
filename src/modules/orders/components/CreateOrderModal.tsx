@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { Button } from '@/core/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
-import { Input } from '@/core/components/ui/inputs/input';
 import { Textarea } from '@/core/components/ui/inputs/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
 import { Calendar } from '@/core/components/ui/calendar';
@@ -18,6 +17,7 @@ import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { SubscriptionStatusCard } from './SubscriptionStatusCard';
+import AutocompleteAddress from '@/modules/address/ui/autocomplete';
 
 const createOrderSchema = z.object({
     address: z.string().min(1, 'Адрес обязателен').max(500, 'Адрес слишком длинный'),
@@ -115,21 +115,25 @@ export const CreateOrderModal = ({
                         <FormField
                             control={form.control}
                             name="address"
-                            render={({ field }) => (
-                                <FormItem>
+                            render={({ field }) => {
+                                console.log(field.value, "FIELDS");
+                                
+                                return (
+                                    <FormItem>
                                     <FormLabel className="flex items-center gap-2">
                                         <MapPin className="h-4 w-4" />
                                         Адрес *
                                     </FormLabel>
                                     <FormControl>
-                                        <Input
-                                            placeholder="ул. Пушкина, д. 10, кв. 5"
-                                            {...field}
+                                        <AutocompleteAddress
+                                            value={field.value}
+                                            onChange={field.onChange}
                                         />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
-                            )}
+                                )
+                            }}
                         />
 
                         {/* Описание */}
