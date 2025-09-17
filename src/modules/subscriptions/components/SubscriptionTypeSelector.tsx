@@ -5,9 +5,10 @@ import { Badge } from '@/core/components/ui/badge';
 import { Check, Calendar, Zap, Star, Crown, Diamond, Shield, Rocket, Heart } from 'lucide-react';
 import { useSubscriptionPlans } from '../hooks/useSubscriptionPlans';
 import { SubscriptionPlan } from '../types';
+import { kopecksToRubles } from '../utils/priceUtils';
 
 interface SubscriptionTypeSelectorProps {
-    onSelect: (type: 'monthly' | 'yearly', price: number) => void;
+    onSelect: (type: 'monthly' | 'yearly', priceInKopecks: number) => void;
     isLoading?: boolean;
 }
 
@@ -46,9 +47,9 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
     const [selectedType, setSelectedType] = useState<'monthly' | 'yearly' | null>(null);
     const { data: subscriptionPlans, isLoading: plansLoading, error } = useSubscriptionPlans();
 
-    const handleSelect = (type: 'monthly' | 'yearly', price: number) => {
+    const handleSelect = (type: 'monthly' | 'yearly', priceInKopecks: number) => {
         setSelectedType(type);
-        onSelect(type, price);
+        onSelect(type, priceInKopecks);
     };
 
     if (plansLoading) {
@@ -130,7 +131,7 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                             </Badge>
                             <div className="mt-4">
                                 <span className="text-3xl font-bold text-primary">
-                                    {plan.price}₽
+                                    {kopecksToRubles(plan.priceInKopecks)}
                                 </span>
                             </div>
                         </CardHeader>
@@ -155,7 +156,7 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                             </div>
 
                             <Button
-                                onClick={() => handleSelect(plan.type as 'monthly' | 'yearly', plan.price)}
+                                onClick={() => handleSelect(plan.type as 'monthly' | 'yearly', plan.priceInKopecks)}
                                 className="w-full"
                                 disabled={isLoading}
                             >

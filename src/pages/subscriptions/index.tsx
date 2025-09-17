@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Header } from '@/core/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
-import { Badge } from '@/core/components/ui/badge';
 import {
     useUserSubscription,
     useCreateSubscription,
     useCreatePaymentLink,
     useDeleteSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
+import { subscriptionApi } from '@/modules/subscriptions/api';
+import { SubscriptionPlan } from '@/modules/subscriptions/types';
 import { usePaymentWebSocket } from '@/modules/subscriptions/hooks/usePaymentWebSocket';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { SubscriptionTypeSelector } from '@/modules/subscriptions/components/SubscriptionTypeSelector';
@@ -16,42 +17,49 @@ import { UserSubscriptionCard } from '@/modules/subscriptions/components/UserSub
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
 import {
     CreditCard,
-    Wifi,
-    WifiOff,
     Plus
 } from 'lucide-react';
 
 export const SubscriptionsPage = () => {
-    const [selectedType, setSelectedType] = useState<'monthly' | 'yearly' | null>(null);
+    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     const { data: user, isLoading: isLoadingUser } = useGetMe();
     const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
     const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
-    const { mutateAsync: createPaymentLink, isPending: isCreatingPaymentLink } = useCreatePaymentLink();
+    const { isPending: isCreatingPaymentLink } = useCreatePaymentLink();
     const { mutateAsync: deleteSubscription } = useDeleteSubscription();
 
-    const { isConnected } = usePaymentWebSocket();
+    usePaymentWebSocket();
 
-    const handleSelectSubscription = async (type: 'monthly' | 'yearly', price: number) => {
+    const handleSelectSubscription = async (type: 'monthly' | 'yearly', priceInKopecks: number) => {
         try {
-            setSelectedType(type);
+            // Получаем план подписки по типу
+            const plans = await subscriptionApi.getSubscriptionPlans();
+            const plan = plans.find(p => p.type === type);
+
+            if (!plan) {
+                throw new Error('План подписки не найден');
+            }
+
+            setSelectedPlan(plan);
 
             // Создаем подписку
             const subscriptionResult = await createSubscription({
                 type,
-                price
+                price: priceInKopecks
             });
 
             console.log('Subscription created:', subscriptionResult);
 
-            // Создаем ссылку на оплату с реальным subscriptionId
-            const paymentData = await createPaymentLink({
-                subscriptionId: subscriptionResult.id,
-                subscriptionType: type,
-                amount: price
-            });
+            // Создаем платеж с планом (новая оптимизированная функция)
+            const paymentData = await subscriptionApi.createPaymentWithPlan(
+                subscriptionResult.id,
+                plan
+            );
+
+            console.log('Payment link created:', paymentData);
             setPaymentUrl(paymentData.paymentUrl);
 
             // Открываем модальное окно оплаты
@@ -64,7 +72,7 @@ export const SubscriptionsPage = () => {
 
     const handleClosePaymentModal = () => {
         setIsPaymentModalOpen(false);
-        setSelectedType(null);
+        setSelectedPlan(null);
         setPaymentUrl(null);
     };
 
@@ -74,34 +82,30 @@ export const SubscriptionsPage = () => {
 
             // Используем paymentUrl из подписки, если он есть
             if (userSubscription?.paymentUrl) {
-                setSelectedType(subscriptionType);
+                // Получаем план подписки для отображения
+                const plans = await subscriptionApi.getSubscriptionPlans();
+                const plan = plans.find(p => p.type === subscriptionType);
+                setSelectedPlan(plan || null);
                 setPaymentUrl(userSubscription.paymentUrl);
                 setIsPaymentModalOpen(true);
                 return;
             }
 
             // Если paymentUrl нет, создаем новую ссылку на оплату
-            const getCorrectPrice = (type: 'monthly' | 'yearly') => {
-                switch (type) {
-                    case 'monthly':
-                        return 150000; // 1500 рублей в копейках
-                    case 'yearly':
-                        return 1500000; // 15000 рублей в копейках
-                    default:
-                        return 150000;
-                }
-            };
+            const plans = await subscriptionApi.getSubscriptionPlans();
+            const plan = plans.find(p => p.type === subscriptionType);
 
-            const correctPrice = getCorrectPrice(subscriptionType);
+            if (!plan) {
+                throw new Error('План подписки не найден');
+            }
 
-            // Создаем ссылку на оплату для существующей подписки
-            const paymentData = await createPaymentLink({
-                subscriptionId: subscriptionId,
-                subscriptionType: subscriptionType,
-                amount: correctPrice
-            });
+            // Создаем платеж с планом (новая оптимизированная функция)
+            const paymentData = await subscriptionApi.createPaymentWithPlan(
+                subscriptionId,
+                plan
+            );
 
-            setSelectedType(subscriptionType);
+            setSelectedPlan(plan);
             setPaymentUrl(paymentData.paymentUrl);
 
             // Открываем модальное окно оплаты
@@ -200,7 +204,7 @@ export const SubscriptionsPage = () => {
             <PaymentModal
                 isOpen={isPaymentModalOpen}
                 onClose={handleClosePaymentModal}
-                subscriptionType={selectedType}
+                subscriptionType={selectedPlan?.type as 'monthly' | 'yearly' | null}
                 paymentUrl={paymentUrl}
             />
         </div>

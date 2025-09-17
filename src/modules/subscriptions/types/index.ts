@@ -37,8 +37,9 @@ export interface CreateSubscriptionResponse extends UserSubscription {
 
 export interface PaymentLinkRequest {
   subscriptionId: string;
+  planId: string;
   subscriptionType: "monthly" | "yearly";
-  amount: number;
+  amount: number; // В копейках
 }
 
 export interface PaymentLinkResponse {
@@ -87,7 +88,7 @@ export interface SubscriptionPlan {
   type: string;
   name: string;
   description: string;
-  price: number;
+  priceInKopecks: number; // Цена в копейках
   duration: string;
   features: string[];
   icon: string;
