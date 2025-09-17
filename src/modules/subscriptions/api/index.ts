@@ -6,6 +6,7 @@ import {
   PaymentLinkRequest,
   PaymentLinkResponse,
   SimulatePaymentResponse,
+  SubscriptionPlan,
 } from "../types";
 
 export const subscriptionApi = {
@@ -104,6 +105,18 @@ export const subscriptionApi = {
     const response = await axiosInstance.delete(
       `/subscriptions/${subscriptionId}`
     );
+    return response.data;
+  },
+
+  // Получить все планы подписок
+  getSubscriptionPlans: async (): Promise<SubscriptionPlan[]> => {
+    const response = await axiosInstance.get("/subscription-plans");
+    return response.data;
+  },
+
+  // Получить план подписки по ID
+  getSubscriptionPlanById: async (id: string): Promise<SubscriptionPlan> => {
+    const response = await axiosInstance.get(`/subscription-plans/${id}`);
     return response.data;
   },
 };
