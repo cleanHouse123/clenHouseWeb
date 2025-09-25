@@ -1,1 +1,11 @@
 node_modules
+
+# Build outputs
+dev-dist/
+dist/
+build/
+
+# Service Workers (auto-generated)
+sw.js
+workbox-*.js
+registerSW.js

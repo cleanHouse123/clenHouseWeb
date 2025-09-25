@@ -1,0 +1,1 @@
+export { LogoHouse } from './LogoHouse';
