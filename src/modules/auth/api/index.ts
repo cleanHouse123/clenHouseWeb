@@ -22,7 +22,12 @@ export const authApi = {
 
   // Верификация SMS кода и авторизация
   verifySms: async (data: VerifySmsRequest): Promise<AuthResponse> => {
-    const response = await axiosPublic.post("/auth/sms/verify", data);
+    const payload = {
+      phoneNumber: data.phoneNumber,
+      code: data.code,
+      ...(data.adToken && { adToken: data.adToken }),
+    };
+    const response = await axiosPublic.post("/auth/sms/verify", payload);
     return response.data;
   },
 
