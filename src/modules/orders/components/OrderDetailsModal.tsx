@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Badge } from '@/core/components/ui/badge';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { PaymentIframe } from './PaymentIframe';

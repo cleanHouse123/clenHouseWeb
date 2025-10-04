@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal } from "./Modal";
-import { Button } from "@/core/components/ui/button";
+import { Button } from "@/core/components/ui/button/button";
 
 interface DeleteConfirmModalProps {
   open: boolean;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { Textarea } from '@/core/components/ui/inputs/textarea';

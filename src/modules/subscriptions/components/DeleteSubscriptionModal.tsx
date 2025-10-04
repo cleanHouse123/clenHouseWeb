@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/core/components/ui/dialog';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { AlertTriangle, XCircle } from 'lucide-react';
 
 interface DeleteSubscriptionModalProps {

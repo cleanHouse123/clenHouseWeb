@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { CreditCard, Wifi, WifiOff } from 'lucide-react';
 import { webSocketService } from '../services/websocket';

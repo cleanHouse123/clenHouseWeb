@@ -1,4 +1,4 @@
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Package, CreditCard, Settings, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

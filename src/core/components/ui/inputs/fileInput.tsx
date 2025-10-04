@@ -1,6 +1,6 @@
 import React from "react";
 import { Upload, X } from "lucide-react";
-import { Button } from "@/core/components/ui/button";
+import { Button } from "@/core/components/ui/button/button";
 
 interface FileInputProps {
     value?: File[];

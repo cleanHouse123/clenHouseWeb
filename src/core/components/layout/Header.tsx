@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
+import { Card } from '@/core/components/ui/card';
 import { LogOut, Menu, X, User, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { ProfileModal } from '@/core/components/modals/ProfileModal';
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
-import { LogoHouse } from '@/core/components/ui/icons';
+import { Logo } from '@/core/components/ui';
 
 export const Header = () => {
     const { data: user, isLoading } = useGetMe();
@@ -61,48 +62,59 @@ export const Header = () => {
 
     const menuItems = [
         { key: 'how-it-works', label: 'Как это работает', href: '#how-it-works' },
-        { key: 'areas', label: 'Зоны обслуживания', href: '#service-areas' },
-        { key: 'subscription', label: 'Подписка', href: '#subscription' },
         { key: 'faq', label: 'FAQ', href: '#faq' },
     ];
 
+    const handleScrollToSection = (href: string) => {
+        const id = href.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+            const headerHeight = 100; // Высота header + отступ
+            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - headerHeight;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+        setIsMobileMenuOpen(false);
+    };
+
     return (
-        <header className="bg-transparent border-0">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="bg-transparent border-0 relative z-40">
+            <div className="mx-auto px-4 sm:px-8 lg:px-16 pt-5">
                 {/* Белая капсула TopNav */}
-                <div className="mt-3 mb-3 sm:mt-4 sm:mb-4 bg-white rounded-lg [--radius:1rem] px-3 py-2 sm:px-2 sm:py-[9px] shadow-sm border border-[rgba(0,0,0,0.06)] font-onest">
+                <Card radius="r16" padding="sm" background="white" className="px-3 py-2 sm:px-2 sm:py-[9px] font-onest">
                 <div className="flex justify-between items-center h-14">
                     {/* Логотип */}
-                    <button
-                        onClick={() => navigate('/')}
-                        className="flex items-center gap-2 hover:opacity-90 transition-opacity"
-                        aria-label="ЧистоДома — на главную"
-                    >
-                        <span className="flex items-center gap-1 pl-1 sm:pl-2 font-bold tracking-tight font-onest text-xl sm:text-2xl lg:text-[24.76px] leading-[1] text-[#000000]">
-                            <span>чисто</span>
-                            <LogoHouse className="mx-1 w-7 h-6 sm:w-8 sm:h-7 lg:w-auto lg:h-auto" />
-                            <span>дома</span>
-                        </span>
-                    </button>
+                    <div className="pl-1 sm:pl-2">
+                        <Logo 
+                            size="lg" 
+                            onClick={() => navigate('/')} 
+                        />
+                    </div>
 
                     {/* Центральное меню (десктоп) */}
-                    <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
+                    <nav className="hidden md:flex items-center gap-4 xl:gap-6">
                         {menuItems.map((item) => (
-                            <a
+                            <button
                                 key={item.key}
-                                href={item.href}
+                                onClick={() => handleScrollToSection(item.href)}
                                 className="text-[rgba(0,0,0,0.9)] text-sm xl:text-base leading-[1.4] font-normal transition-colors hover:text-primary whitespace-nowrap"
                             >
                                 {item.label}
-                            </a>
+                            </button>
                         ))}
                     </nav>
 
                     {/* Десктопная навигация */}
-                    <div className="hidden sm:flex items-center gap-2">
+                    <div className="hidden md:flex items-center gap-2">
                         <Button
                             onClick={handleCallCourier}
-                            className="rounded-lg [--radius:12px] bg-primary text-primary-foreground hover:bg-[hsl(var(--accent))] px-4 py-2 text-sm md:px-5 md:py-2.5 lg:px-6 lg:py-3 lg:text-base whitespace-nowrap"
+                            variant="primary"
+                            size="lg"
+                            className="whitespace-nowrap"
                         >
                             Вызвать курьера
                         </Button>
@@ -111,7 +123,9 @@ export const Header = () => {
                             // Неавторизованный пользователь
                             <Button
                                 onClick={handleLogin}
-                                className="flex items-center gap-2 rounded-lg [--radius:10px] border-[1.5px] border-primary text-primary hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] hover:bg-white px-4 py-2 text-sm md:px-5 md:py-2.5 lg:px-5 lg:py-3 lg:text-base bg-white font-medium leading-[1.4] disabled:border-[#999999] disabled:text-[#999999] whitespace-nowrap"
+                                variant="outline"
+                                size="lg"
+                                className="flex items-center gap-2 whitespace-nowrap"
                                 data-testid="sms-login-button"
                             >
                                 Войти
@@ -146,7 +160,7 @@ export const Header = () => {
 
                                 <Button
                                     variant="outline"
-                                    size="sm"
+                                    size="md"
                                     onClick={handleDashboard}
                                     className="flex items-center gap-2"
                                 >
@@ -156,9 +170,9 @@ export const Header = () => {
 
                                 <Button
                                     variant="ghost"
-                                    size="sm"
+                                    size="md"
                                     onClick={handleLogout}
-                                    className="flex items-center gap-2 "
+                                    className="flex items-center gap-2"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Выйти
@@ -169,7 +183,7 @@ export const Header = () => {
                             <div className="flex items-center gap-2">
                                 <Button
                                     variant="outline"
-                                    size="sm"
+                                    size="md"
                                     onClick={handleLogin}
                                     className="flex items-center gap-2"
                                 >
@@ -177,7 +191,7 @@ export const Header = () => {
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    size="sm"
+                                    size="md"
                                     onClick={handleLogout}
                                     className="flex items-center gap-2 text-destructive hover:text-destructive/80"
                                 >
@@ -189,7 +203,7 @@ export const Header = () => {
                     </div>
 
                     {/* Мобильная кнопка меню */}
-                    <div className="sm:hidden">
+                    <div className="md:hidden">
                         <Button
                             variant="ghost"
                             size="sm"
@@ -203,29 +217,31 @@ export const Header = () => {
                             )}
                         </Button>
                     </div>
-                </div>
+                    </div>
+                </Card>
 
                 {/* Мобильное меню */}
                 {isMobileMenuOpen && (
-                    <div className="sm:hidden border-t border-border bg-card">
+                    <Card radius="r16" padding="sm" background="white" className="md:hidden mt-2 px-3 py-2 font-onest relative z-50">
                         <div className="px-2 pt-2 pb-3 space-y-1">
                             {/* Мобильное меню: пункты навигации */}
                             <div className="px-1 py-1">
                                 {menuItems.map((item) => (
-                                    <a
+                                    <button
                                         key={item.key}
-                                        href={item.href}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="block px-3 py-2 rounded-lg text-[rgba(0,0,0,0.9)] hover:bg-muted/50"
+                                        onClick={() => handleScrollToSection(item.href)}
+                                        className="block w-full text-left px-3 py-2 rounded-lg text-[rgba(0,0,0,0.9)] hover:bg-muted/50"
                                     >
                                         {item.label}
-                                    </a>
+                                    </button>
                                 ))}
                             </div>
 
                             <Button
                                 onClick={handleCallCourier}
-                                className="w-full justify-start flex items-center gap-2 rounded-lg [--radius:12px] bg-primary text-primary-foreground hover:bg-[hsl(var(--accent))]"
+                                variant="primary"
+                                size="lg"
+                                className="w-full justify-start flex items-center gap-2"
                             >
                                 Вызвать курьера
                             </Button>
@@ -234,8 +250,9 @@ export const Header = () => {
                                 // Неавторизованный пользователь
                                 <Button
                                     onClick={handleLogin}
+                                    variant="outline"
+                                    size="lg"
                                     className="w-full justify-start flex items-center gap-2"
-                                    variant="ghost"
                                 >
                                     Войти
                                 </Button>
@@ -269,8 +286,9 @@ export const Header = () => {
 
                                     <Button
                                         onClick={handleDashboard}
+                                        variant="outline"
+                                        size="lg"
                                         className="w-full justify-start flex items-center gap-2"
-                                        variant="ghost"
                                     >
                                         <Home className="h-4 w-4" />
                                         Личный кабинет
@@ -278,8 +296,9 @@ export const Header = () => {
 
                                     <Button
                                         onClick={handleLogout}
-                                        className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
                                         variant="ghost"
+                                        size="lg"
+                                        className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
                                     >
                                         <LogOut className="h-4 w-4" />
                                         Выйти
@@ -290,15 +309,17 @@ export const Header = () => {
                                 <>
                                     <Button
                                         onClick={handleLogin}
+                                        variant="outline"
+                                        size="lg"
                                         className="w-full justify-start flex items-center gap-2"
-                                        variant="ghost"
                                     >
                                         Войти
                                     </Button>
                                     <Button
                                         onClick={handleLogout}
-                                        className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
                                         variant="ghost"
+                                        size="lg"
+                                        className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
                                     >
                                         <LogOut className="h-4 w-4" />
                                         Выйти
@@ -306,10 +327,9 @@ export const Header = () => {
                                 </>
                             )}
                         </div>
-                    </div>
+                    </Card>
                 )}
                 </div>
-            </div>
 
             {/* Profile Modal */}
             {user ? (

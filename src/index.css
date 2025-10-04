@@ -1,8 +1,8 @@
+@import "@fontsource-variable/onest";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "@fontsource-variable/onest";
 
 :root {
   font-family: 'Onest Variable', system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -21,26 +21,31 @@
 
 @layer base {
   :root {
-    /* Figma-based palette */
-    --background: 0 0% 95%; /* #F3F3F3 */
-    --foreground: 0 0% 0%;  /* #000000 */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 23 100% 50%;           /* #FF5E00 */
-    --primary-foreground: 0 0% 100%;  /* #FFFFFF */
-    --secondary: 0 0% 100%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 0% / 0.7;  /* rgba(0,0,0,0.7) */
-    --accent: 36 100% 50%;            /* #FF8000 */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0% / 0.08;         /* rgba(0,0,0,0.08) */
-    --input: 0 0% 0% / 0.08;
-    --ring: 23 100% 50% / 0.35;       /* focus ring */
+    /* Palette */
+    --color-white: #FFFFFF;
+    --color-black: #000000;
+    --color-bg: #F3F3F3;
+    --color-orange-500: #FF5E00;
+    --color-orange-600: #FF8000;
+    --color-gray-400: #999999;
+    --color-red-600: #DC2626;
+    --color-border: rgba(0,0,0,0.08);
+    --color-ring: rgba(255, 94, 0, 0.35);
+    --color-muted-foreground: rgba(0,0,0,0.7);
+
+    /* Roles */
+    --background: var(--color-bg);
+    --foreground: var(--color-black);
+    --primary: var(--color-orange-500);
+    --primary-foreground: var(--color-white);
+    --accent: var(--color-orange-600);
+    --disabled: var(--color-gray-400);
+    --destructive: var(--color-red-600);
+    --muted-foreground: var(--color-muted-foreground);
+    --border: var(--color-border);
+    --input: var(--border);
+    --ring: var(--color-ring);
+
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;

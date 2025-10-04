@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/core/components/ui/popover";
-import { Button } from "@/core/components/ui/button";
+import { Button } from "@/core/components/ui/button/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/inputs/select";
 
 interface SortOption {

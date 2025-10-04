@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Header } from '@/core/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { OrderList, OrderDetailsModal } from '@/modules/orders/components';
 import { useCustomerOrders, useUpdateOrderStatus, useCancelOrder } from '@/modules/orders/hooks/useOrders';
 import { OrderStatus, OrderResponseDto } from '@/modules/orders/types';

@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent } from '@/core/components/ui/card';
 import { User, Phone, Mail, Calendar, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

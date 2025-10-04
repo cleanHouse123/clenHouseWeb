@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/badge';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { UserSubscription } from '../types';
 import { DeleteSubscriptionModal } from './DeleteSubscriptionModal';
