@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 
 const IMAGE_VERSION = '?v=2';
@@ -8,14 +9,20 @@ export const HowItWorksSection: React.FC = () => {
     <section id="how-it-works" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
       <div className="mx-auto px-4 sm:px-8 lg:px-16">
         {/* Заголовок */}
-        <div className="mx-auto text-center flex flex-col items-center gap-4 max-w-[850px] px-2">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true, margin: "-100px" }}
+          className="mx-auto text-center flex flex-col items-center gap-4 max-w-[850px] px-2"
+        >
           <h2 className="text-[28px] sm:text-[30px] md:text-[32px] lg:text-[36px] font-medium font-onest leading-[1.2] text-[#000]">
             Как это работает?
           </h2>
           <p className="text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] font-normal font-onest leading-[1.4] text-[rgba(0,0,0,0.7)]">
             Простая авторизация по номеру телефона и удобный личный кабинет
           </p>
-        </div>
+        </motion.div>
 
         {/* Шаги */}
         <div className="mt-[42px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -25,18 +32,84 @@ export const HowItWorksSection: React.FC = () => {
             { step: 'Шаг 3', text: 'Оплатите единоразово или подпиской', image: `/images/step3.png${IMAGE_VERSION}` },
             { step: 'Шаг 4', text: 'Передайте мусор курьеру в выбранное время заказа', image: `/images/step4.png${IMAGE_VERSION}` },
           ].map(({ step, text, image }, idx) => (
-            <Card key={idx} radius="r20" padding="none" background="white" className="w-full flex flex-col items-center gap-[30px] py-7 px-5">
-              {/* Изображение 141x141 */}
-              <img 
-                src={image} 
-                alt={step} 
-                className="w-[141px] h-[141px] rounded-[12px] object-cover" 
-              />
-              <div className="flex flex-col items-center gap-[10px] text-center">
-                <div className="text-[16px] font-medium font-onest leading-[1.4] text-[#FF5D00]">{step}</div>
-                <div className="text-[18px] sm:text-[19px] md:text-[20px] lg:text-[22px] font-medium font-onest leading-[1.2] text-[#000] whitespace-pre-line">{text}</div>
-              </div>
-            </Card>
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.6, 
+                delay: idx * 0.2,
+                ease: "easeOut"
+              }}
+              viewport={{ once: true, margin: "-50px" }}
+              whileHover={{ 
+                y: -8, 
+                transition: { duration: 0.2 }
+              }}
+              className="w-full"
+            >
+              <Card radius="r20" padding="none" background="white" className="w-full flex flex-col items-center gap-[30px] py-7 px-5 hover:shadow-lg transition-shadow duration-300 h-full">
+                {/* Изображение 141x141 с подпрыгивающей анимацией */}
+                <motion.div
+                  initial={{ y: 0 }}
+                  whileInView={{ 
+                    y: [-10, 10, -5, 5, 0],
+                    transition: { 
+                      duration: 1.5, 
+                      delay: idx * 0.2 + 0.3,
+                      ease: "easeInOut",
+                      times: [0, 0.2, 0.4, 0.6, 1]
+                    }
+                  }}
+                  viewport={{ once: true }}
+                  whileHover={{ 
+                    scale: 1.1,
+                    y: -5,
+                    transition: { duration: 0.3, ease: "easeOut" }
+                  }}
+                  className="cursor-pointer"
+                >
+                  <img 
+                    src={image} 
+                    alt={step} 
+                    className="w-[141px] h-[141px] rounded-[12px] object-cover" 
+                  />
+                </motion.div>
+                <div className="flex flex-col items-center gap-[10px] text-center flex-1">
+                  <motion.div 
+                    className="text-[16px] font-medium font-onest leading-[1.4] text-[#FF5D00]"
+                    initial={{ scale: 0 }}
+                    whileInView={{ 
+                      scale: [0, 1.2, 1],
+                      transition: { 
+                        duration: 0.6, 
+                        delay: idx * 0.2 + 0.5,
+                        ease: "easeOut"
+                      }
+                    }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {step}
+                  </motion.div>
+                  <motion.div 
+                    className="text-[18px] sm:text-[19px] md:text-[20px] lg:text-[22px] font-medium font-onest leading-[1.2] text-[#000] whitespace-pre-line"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ 
+                      opacity: 1,
+                      transition: { 
+                        duration: 0.5, 
+                        delay: idx * 0.2 + 0.7
+                      }
+                    }}
+                    viewport={{ once: true }}
+                  >
+                    {text}
+                  </motion.div>
+                </div>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </div>

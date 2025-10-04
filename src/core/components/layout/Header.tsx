@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { Button } from '@/core/components/ui/button/button';
 import { Card } from '@/core/components/ui/card';
@@ -85,58 +86,86 @@ export const Header = () => {
         <header className="bg-transparent border-0 relative z-40">
             <div className="mx-auto px-4 sm:px-8 lg:px-16 pt-5">
                 {/* Белая капсула TopNav */}
-                <Card radius="r16" padding="sm" background="white" className="px-3 py-2 sm:px-2 sm:py-[9px] font-onest">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                >
+                    <Card radius="r16" padding="sm" background="white" className="px-3 py-2 sm:px-2 sm:py-[9px] font-onest hover:shadow-lg transition-shadow duration-300">
                 <div className="flex justify-between items-center h-14">
                     {/* Логотип */}
-                    <div className="pl-1 sm:pl-2">
+                    <motion.div 
+                        className="pl-1 sm:pl-2"
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.2 }}
+                    >
                         <Logo 
                             size="lg" 
                             onClick={() => navigate('/')} 
                         />
-                    </div>
+                    </motion.div>
 
                     {/* Центральное меню (десктоп) */}
                     <nav className="hidden md:flex items-center gap-4 xl:gap-6">
-                        {menuItems.map((item) => (
-                            <button
+                        {menuItems.map((item, index) => (
+                            <motion.button
                                 key={item.key}
                                 onClick={() => handleScrollToSection(item.href)}
                                 className="text-[rgba(0,0,0,0.9)] text-sm xl:text-base leading-[1.4] font-normal transition-colors hover:text-primary whitespace-nowrap"
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, delay: index * 0.1 + 0.2 }}
+                                whileHover={{ y: -2 }}
                             >
                                 {item.label}
-                            </button>
+                            </motion.button>
                         ))}
                     </nav>
 
                     {/* Десктопная навигация */}
-                    <div className="hidden md:flex items-center gap-2">
-                        <Button
-                            onClick={handleCallCourier}
-                            variant="primary"
-                            size="lg"
-                            className="whitespace-nowrap"
+                    <motion.div 
+                        className="hidden md:flex items-center gap-2"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.4 }}
+                    >
+                        <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
-                            Вызвать курьера
-                        </Button>
-
-                        {!user ? (
-                            // Неавторизованный пользователь
                             <Button
-                                onClick={handleLogin}
-                                variant="outline"
+                                onClick={handleCallCourier}
+                                variant="primary"
                                 size="lg"
-                                className="flex items-center gap-2 whitespace-nowrap"
-                                data-testid="sms-login-button"
+                                className="whitespace-nowrap"
                             >
-                                Войти
+                                Вызвать курьера
                             </Button>
-                        ) : isLoading ? (
-                            // Загрузка данных пользователя
-                            <div className="flex items-center gap-2">
-                                <LoadingIndicator />
-                                <span className="text-sm text-muted-foreground">Загрузка...</span>
-                            </div>
-                        ) : user ? (
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: 0.5 }}
+                        >
+                            {!user ? (
+                                // Неавторизованный пользователь
+                                <Button
+                                    onClick={handleLogin}
+                                    variant="outline"
+                                    size="lg"
+                                    className="flex items-center gap-2 whitespace-nowrap"
+                                    data-testid="sms-login-button"
+                                >
+                                    Войти
+                                </Button>
+                            ) : isLoading ? (
+                                // Загрузка данных пользователя
+                                <div className="flex items-center gap-2">
+                                    <LoadingIndicator />
+                                    <span className="text-sm text-muted-foreground">Загрузка...</span>
+                                </div>
+                            ) : user ? (
                             // Авторизованный пользователь
                             <>
                                 <button
@@ -200,62 +229,103 @@ export const Header = () => {
                                 </Button>
                             </div>
                         )}
-                    </div>
+                        </motion.div>
+                    </motion.div>
 
                     {/* Мобильная кнопка меню */}
-                    <div className="md:hidden">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={toggleMobileMenu}
-                            className="p-2"
+                    <motion.div 
+                        className="md:hidden"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4, delay: 0.6 }}
+                    >
+                        <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
                         >
-                            {isMobileMenuOpen ? (
-                                <X className="h-5 w-5" />
-                            ) : (
-                                <Menu className="h-5 w-5" />
-                            )}
-                        </Button>
-                    </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={toggleMobileMenu}
+                                className="p-2"
+                            >
+                                <motion.div
+                                    animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {isMobileMenuOpen ? (
+                                        <X className="h-5 w-5" />
+                                    ) : (
+                                        <Menu className="h-5 w-5" />
+                                    )}
+                                </motion.div>
+                            </Button>
+                        </motion.div>
+                    </motion.div>
                     </div>
                 </Card>
 
                 {/* Мобильное меню */}
-                {isMobileMenuOpen && (
-                    <Card radius="r16" padding="sm" background="white" className="md:hidden mt-2 px-3 py-2 font-onest relative z-50">
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                        >
+                            <Card radius="r16" padding="sm" background="white" className="md:hidden mt-2 px-3 py-2 font-onest relative z-50">
                         <div className="px-2 pt-2 pb-3 space-y-1">
                             {/* Мобильное меню: пункты навигации */}
                             <div className="px-1 py-1">
-                                {menuItems.map((item) => (
-                                    <button
+                                {menuItems.map((item, index) => (
+                                    <motion.button
                                         key={item.key}
                                         onClick={() => handleScrollToSection(item.href)}
-                                        className="block w-full text-left px-3 py-2 rounded-lg text-[rgba(0,0,0,0.9)] hover:bg-muted/50"
+                                        className="block w-full text-left px-3 py-2 rounded-lg text-[rgba(0,0,0,0.9)] hover:bg-muted/50 transition-colors"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                                        whileTap={{ scale: 0.95, backgroundColor: "rgba(0,0,0,0.1)" }}
                                     >
                                         {item.label}
-                                    </button>
+                                    </motion.button>
                                 ))}
                             </div>
 
-                            <Button
-                                onClick={handleCallCourier}
-                                variant="primary"
-                                size="lg"
-                                className="w-full justify-start flex items-center gap-2"
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: 0.2 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                Вызвать курьера
-                            </Button>
-
-                            {!user ? (
-                                // Неавторизованный пользователь
                                 <Button
-                                    onClick={handleLogin}
-                                    variant="outline"
+                                    onClick={handleCallCourier}
+                                    variant="primary"
                                     size="lg"
                                     className="w-full justify-start flex items-center gap-2"
                                 >
-                                    Войти
+                                    Вызвать курьера
                                 </Button>
+                            </motion.div>
+
+                            {!user ? (
+                                // Неавторизованный пользователь
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3, delay: 0.3 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Button
+                                        onClick={handleLogin}
+                                        variant="outline"
+                                        size="lg"
+                                        className="w-full justify-start flex items-center gap-2"
+                                    >
+                                        Войти
+                                    </Button>
+                                </motion.div>
                             ) : isLoading ? (
                                 // Загрузка данных пользователя
                                 <div className="flex items-center justify-center gap-2 py-2">
@@ -284,52 +354,83 @@ export const Header = () => {
                                         </div>
                                     </button>
 
-                                    <Button
-                                        onClick={handleDashboard}
-                                        variant="outline"
-                                        size="lg"
-                                        className="w-full justify-start flex items-center gap-2"
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3, delay: 0.4 }}
+                                        whileTap={{ scale: 0.95 }}
                                     >
-                                        <Home className="h-4 w-4" />
-                                        Личный кабинет
-                                    </Button>
+                                        <Button
+                                            onClick={handleDashboard}
+                                            variant="outline"
+                                            size="lg"
+                                            className="w-full justify-start flex items-center gap-2"
+                                        >
+                                            <Home className="h-4 w-4" />
+                                            Личный кабинет
+                                        </Button>
+                                    </motion.div>
 
-                                    <Button
-                                        onClick={handleLogout}
-                                        variant="ghost"
-                                        size="lg"
-                                        className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3, delay: 0.5 }}
+                                        whileTap={{ scale: 0.95 }}
                                     >
-                                        <LogOut className="h-4 w-4" />
-                                        Выйти
-                                    </Button>
+                                        <Button
+                                            onClick={handleLogout}
+                                            variant="ghost"
+                                            size="lg"
+                                            className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
+                                        >
+                                            <LogOut className="h-4 w-4" />
+                                            Выйти
+                                        </Button>
+                                    </motion.div>
                                 </>
                             ) : (
                                 // Ошибка загрузки данных пользователя
                                 <>
-                                    <Button
-                                        onClick={handleLogin}
-                                        variant="outline"
-                                        size="lg"
-                                        className="w-full justify-start flex items-center gap-2"
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3, delay: 0.3 }}
+                                        whileTap={{ scale: 0.95 }}
                                     >
-                                        Войти
-                                    </Button>
-                                    <Button
-                                        onClick={handleLogout}
-                                        variant="ghost"
-                                        size="lg"
-                                        className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
+                                        <Button
+                                            onClick={handleLogin}
+                                            variant="outline"
+                                            size="lg"
+                                            className="w-full justify-start flex items-center gap-2"
+                                        >
+                                            Войти
+                                        </Button>
+                                    </motion.div>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3, delay: 0.4 }}
+                                        whileTap={{ scale: 0.95 }}
                                     >
-                                        <LogOut className="h-4 w-4" />
-                                        Выйти
-                                    </Button>
+                                        <Button
+                                            onClick={handleLogout}
+                                            variant="ghost"
+                                            size="lg"
+                                            className="w-full justify-start flex items-center gap-2 text-destructive hover:text-destructive/80"
+                                        >
+                                            <LogOut className="h-4 w-4" />
+                                            Выйти
+                                        </Button>
+                                    </motion.div>
                                 </>
                             )}
                         </div>
-                    </Card>
-                )}
-                </div>
+                            </Card>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                </motion.div>
+            </div>
 
             {/* Profile Modal */}
             {user ? (
