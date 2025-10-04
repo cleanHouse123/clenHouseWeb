@@ -25,7 +25,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
           
           <div className="relative z-20 w-full tablet:w-1/2 flex flex-col gap-6 tablet:gap-8">
             <div className="flex flex-col gap-4 tablet:gap-5">
-              <h1 className="text-[28px] sm:text-[30px] md:text-[30px] tablet:text-[30px] semi-lg:text-[33px] semi-lg2:text-[37px] lg:text-[40px] xl:text-[42px] semi-xl:text-[45px] font-medium font-onest text-[#000000] leading-[1.1em] lg:leading-[1em]">
+              <h1 className="text-[24px] sm:text-[30px] md:text-[30px] tablet:text-[30px] semi-lg:text-[33px] semi-lg2:text-[37px] lg:text-[40px] xl:text-[42px] semi-xl:text-[45px] font-medium font-onest text-[#000000] leading-[1.1em] lg:leading-[1em]">
                 Выброс мусора и клининговые услуги в Санкт‑Петербурге
               </h1>
               
