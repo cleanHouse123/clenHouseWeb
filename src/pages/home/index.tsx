@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { Header } from "@/core/components/layout/Header";
+import { FooterSection } from "@/core/components/layout/footer";
 import { MainSection } from "./ui/main-section";
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
+
 
 export const HomePage = () => {
   const navigate = useNavigate();
@@ -42,12 +44,14 @@ export const HomePage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <MainSection onCallCourier={handleCallCourier} />
+      <FooterSection />
 
       {/* SMS Login Modal */}
       <SmsLoginModal
         isOpen={isSmsLoginModalOpen}
         onClose={() => setIsSmsLoginModalOpen(false)}
       />
+
     </div>
   );
 };

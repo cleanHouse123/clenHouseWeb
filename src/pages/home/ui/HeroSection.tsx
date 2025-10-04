@@ -9,35 +9,35 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
   return (
-    <section className="relative bg-background pt-[32px] sm:pt-[48px] md:pt-[58px]">
-      <div className="mx-auto px-4 sm:px-8 lg:px-16">
+    <section className="relative bg-background  pt-[102px] sm:pt-[48px] md:pt-[58px]">
+      <div className="mx-auto px-4 sm:px-8 lg:px-16 mt-12 md:mt-24">
         <Card radius="r40" padding="xl" background="white" className="relative overflow-visible">
           <div
             className="hidden tablet:block absolute right-0 top-0 bottom-0 w-1/2 rounded-r-[40px] bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: "url('/images/room.png')" }}
           />
-          
+
           <div className="hidden tablet:block absolute right-0 top-0 bottom-0 w-1/2 rounded-r-[40px] bg-gradient-to-r from-white via-white/50 to-transparent z-10" />
-          
+
           <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.8 }}
-            animate={{ 
-              opacity: 1, 
+            animate={{
+              opacity: 1,
               y: 0,
               scale: 1,
-              transition: { 
-                duration: 1.5, 
-                delay: 1.0, 
+              transition: {
+                duration: 1.5,
+                delay: 1.0,
                 ease: "easeOut"
               }
             }}
             className="hidden tablet:block absolute -right-2 bottom-0 tablet:w-[465px] tablet:h-[600px] semi-lg:w-[480px] semi-lg:h-[595px] semi-lg2:w-[500px] semi-lg2:h-[590px] lg:w-[500px] lg:h-[585px] xl:w-[500px] xl:h-[585px] semi-xl:w-[435px] semi-xl:h-[580px] bg-contain bg-bottom bg-no-repeat z-30"
             style={{ backgroundImage: "url('/images/girl-hero.png')" }}
           />
-          
+
           <div className="relative z-20 w-full tablet:w-1/2 flex flex-col gap-6 tablet:gap-8">
             <div className="flex flex-col gap-4 tablet:gap-5">
-              <motion.h1 
+              <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -45,8 +45,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
               >
                 Выброс мусора и клининговые услуги в Санкт‑Петербурге
               </motion.h1>
-              
-              <motion.p 
+
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
@@ -55,7 +55,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 ЧистоДома — современная платформа для заказа клининга онлайн с удобным личным кабинетом и системой подписки
               </motion.p>
             </div>
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -70,8 +70,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 Вызвать курьера
               </Button>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 1, delay: 0.6 }}
@@ -84,12 +84,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
               <div className="absolute inset-0 bg-gradient-to-b from-white via-white/50 to-transparent z-[5]" />
               <motion.div
                 initial={{ opacity: 0, y: 40, scale: 0.8 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0, 
+                animate={{
+                  opacity: 1,
+                  y: 0,
                   scale: 1,
-                  transition: { 
-                    duration: 1.5, 
+                  transition: {
+                    duration: 1.5,
                     delay: 1.0,
                     ease: "easeOut"
                   }

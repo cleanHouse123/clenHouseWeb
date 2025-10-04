@@ -1,8 +1,7 @@
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useCustomerOrders } from '@/modules/orders/hooks/useOrders';
-import { Header } from '@/core/components/layout/Header';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
-import { QuickActions } from './components/QuickActions';
+import { WelcomeSection } from './components/WelcomeSection';
 import { RecentOrders } from './components/RecentOrders';
 import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext';
 
@@ -54,35 +53,18 @@ const DashboardContent = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Header />
-
+        <div className="min-h-screen ">
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Welcome Section */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Добро пожаловать, {user.name}!
-                    </h1>
-                    <p className="text-gray-600">
-                        Управляйте своими заказами и подписками
-                    </p>
-                </div>
+                <WelcomeSection userName={user.name} />
 
-                {/* Main Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column - Orders */}
-                    <div className="lg:col-span-2">
-                        <RecentOrders
-                            orders={customerOrders?.orders || []}
-                            isLoading={isLoadingOrders}
-                        />
-                    </div>
-
-                    {/* Right Column - Quick Actions */}
-                    <div>
-                        <QuickActions />
-                    </div>
+                {/* Recent Orders */}
+                <div className="max-w-4xl">
+                    <RecentOrders
+                        orders={customerOrders?.orders || []}
+                        isLoading={isLoadingOrders}
+                    />
                 </div>
             </main>
         </div>

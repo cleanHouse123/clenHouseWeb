@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Header } from '@/core/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button/button';
 import { OrderList, OrderDetailsModal } from '@/modules/orders/components';
@@ -93,9 +92,7 @@ const OrdersContent = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Header />
-
+        <div className="min-h-screen ">
             <main className="container mx-auto px-4 py-4 sm:py-8">
                 <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
                     {/* Заголовок и действия */}
@@ -142,7 +139,7 @@ const OrdersContent = () => {
                                 {statusOptions.map((option) => (
                                     <Button
                                         key={option.value}
-                                        variant={statusFilter === option.value ? "default" : "outline"}
+                                        variant={statusFilter === option.value ? "primary" : "outline"}
                                         size="sm"
                                         onClick={() => setStatusFilter(option.value as OrderStatus | 'all')}
                                         className="text-xs"
@@ -195,7 +192,6 @@ const OrdersContent = () => {
                 userId={user?.userId}
                 onPaymentSuccess={handlePaymentSuccess}
             />
-
         </div>
     );
 };

@@ -88,8 +88,9 @@ export const OrderDetailsModal = ({
                         {/* Статус и цена */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4  rounded-lg">
                             <div className="flex items-center gap-3">
-                                <OrderStatusBadge status={order.status} />
                                 <span className="text-xs sm:text-sm ">Статус заказа</span>
+                                <OrderStatusBadge status={order.status} />
+
                             </div>
                             <div className="text-left sm:text-right">
                                 <div className="text-xl sm:text-2xl font-bold text-primary">{order.price}₽</div>

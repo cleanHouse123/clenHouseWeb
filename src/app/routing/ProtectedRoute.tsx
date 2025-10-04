@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
+import { AppLayout } from '@/core/components/layout/AppLayout';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const accessToken = localStorage.getItem('accessToken');
@@ -25,6 +26,6 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         return <Navigate to={'/'} state={{ from: location }} replace />
     }
 
-    return children
+    return <AppLayout>{children}</AppLayout>
 }
 

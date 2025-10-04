@@ -3,14 +3,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/core/components/ui/button/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
+import { Dialog, DialogContent } from '@/core/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { Textarea } from '@/core/components/ui/inputs/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
 import { Calendar } from '@/core/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { TimePicker } from '@/core/components/ui/time-picker';
-import { CalendarIcon, Plus, MapPin, Clock } from 'lucide-react';
+import { CalendarIcon, Plus, MapPin, X, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/core/lib/utils';
@@ -98,136 +98,164 @@ export const CreateOrderModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <Plus className="h-5 w-5" />
-                        Создать заказ
-                    </DialogTitle>
-                </DialogHeader>
+            <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto p-0 gap-0">
+                {/* Header */}
+                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                                <Plus className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-gray-900">Создать заказ</h2>
+                                <p className="text-sm text-gray-500">Заполните форму для вызова курьера</p>
+                            </div>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onClose}
+                            className="h-8 w-8 p-0 hover:bg-gray-100"
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
 
-                {/* Статус подписки */}
-                <SubscriptionStatusCard hasActiveSubscription={hasActiveSubscription} />
+                {/* Content */}
+                <div className="p-6">
+                    {/* Статус подписки */}
+                    <SubscriptionStatusCard hasActiveSubscription={hasActiveSubscription} />
 
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                        {/* Адрес */}
-                        <FormField
-                            control={form.control}
-                            name="address"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                                        <MapPin className="h-4 w-4 text-blue-600" />
-                                        Адрес *
-                                    </FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <AutocompleteAddress
-                                                value={field.value}
-                                                onChange={field.onChange}
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+                            {/* Адрес */}
+                            <FormField
+                                control={form.control}
+                                name="address"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="flex items-center gap-2 text-base font-semibold text-gray-900 mb-3">
+                                            <MapPin className="h-5 w-5 text-orange-500" />
+                                            Адрес забора мусора *
+                                        </FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <AutocompleteAddress
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage className="text-red-500 text-sm mt-2" />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Описание */}
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-base font-semibold text-gray-900 mb-3">
+                                            Описание мусора
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Опишите тип и количество мусора (например: бытовые отходы, мебель, строительный мусор)"
+                                                className="min-h-[100px] text-base"
+                                                {...field}
                                             />
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage className="text-red-500 text-sm mt-1" />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Описание */}
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Описание</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Описание заказа (опционально)"
-                                            className="min-h-[80px]"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                        </FormControl>
+                                        <FormMessage className="text-red-500 text-sm mt-2" />
+                                    </FormItem>
+                                )}
+                            />
 
 
-                        {/* Запланированная дата */}
-                        <FormField
-                            control={form.control}
-                            name="scheduledDate"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="flex items-center gap-2">
-                                        <CalendarIcon className="h-4 w-4" />
-                                        Запланированная дата
-                                    </FormLabel>
-                                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant="outline"
-                                                    className={cn(
-                                                        'w-full justify-start text-left font-normal',
-                                                        !field.value && 'text-muted-foreground'
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? (
-                                                        format(field.value, 'PPP', { locale: ru })
-                                                    ) : (
-                                                        <span>Выберите дату</span>
-                                                    )}
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0 z-50" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={(date) => {
-                                                    field.onChange(date);
-                                                    setCalendarOpen(false);
-                                                }}
-                                                disabled={(date) => {
-                                                    const today = new Date();
-                                                    today.setHours(0, 0, 0, 0);
-                                                    return date < today;
-                                                }}
-                                                className="rounded-md border bg-background"
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            {/* Дата и время */}
+                            <div className="space-y-4">
+                                <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                                    <CalendarIcon className="h-5 w-5 text-orange-500" />
+                                    Когда забрать мусор?
+                                </h3>
 
-                        {/* Запланированное время */}
-                        <FormField
-                            control={form.control}
-                            name="scheduledTime"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="flex items-center gap-2">
-                                        <Clock className="h-4 w-4" />
-                                        Запланированное время
-                                    </FormLabel>
-                                    <FormControl>
-                                        <TimePicker
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            placeholder="Выберите время"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Дата */}
+                                    <FormField
+                                        control={form.control}
+                                        name="scheduledDate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Дата
+                                                </FormLabel>
+                                                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    'w-full justify-start text-left font-normal h-12',
+                                                                    !field.value && 'text-muted-foreground'
+                                                                )}
+                                                            >
+                                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                {field.value ? (
+                                                                    format(field.value, 'PPP', { locale: ru })
+                                                                ) : (
+                                                                    <span>Выберите дату</span>
+                                                                )}
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0 z-50" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={(date) => {
+                                                                field.onChange(date);
+                                                                setCalendarOpen(false);
+                                                            }}
+                                                            disabled={(date) => {
+                                                                const today = new Date();
+                                                                today.setHours(0, 0, 0, 0);
+                                                                return date < today;
+                                                            }}
+                                                            className="rounded-md border bg-background"
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                        {/* Заметки
+                                    {/* Время */}
+                                    <FormField
+                                        control={form.control}
+                                        name="scheduledTime"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium text-gray-700">
+                                                    Время
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <TimePicker
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        placeholder="Выберите время"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Заметки
                         <FormField
                             control={form.control}
                             name="notes"
@@ -246,73 +274,92 @@ export const CreateOrderModal = ({
                             )}
                         /> */}
 
-                        {/* Способ оплаты */}
-                        {userSubscription?.status === 'active' ? (
-                            <FormItem>
-                                <FormLabel>Способ оплаты *</FormLabel>
-                                <div className="flex items-center gap-2 p-3 rounded-lg border bg-green-50 border-green-200">
-                                    <span className="text-green-700 font-medium">
-                                        Подписка активна до {userSubscription.endDate ? new Date(userSubscription.endDate).toLocaleDateString('ru-RU', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        }) : 'неизвестно'}
-                                    </span>
-                                </div>
-                                {/* Скрытое поле для формы */}
-                                <input type="hidden" {...form.register('paymentMethod')} value="subscription" />
-                            </FormItem>
-                        ) : (
-                            <FormField
-                                control={form.control}
-                                name="paymentMethod"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Способ оплаты *</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Выберите способ оплаты" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {paymentMethodOptions.map((option) => (
-                                                    <SelectItem key={option.value} value={option.value}>
-                                                        <div className="flex items-center gap-2">
-                                                            <span>{option.icon}</span>
-                                                            <span>{option.label}</span>
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )}
+                            {/* Способ оплаты */}
+                            <div className="space-y-4">
+                                <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                                    <CreditCard className="h-5 w-5 text-orange-500" />
+                                    Способ оплаты
+                                </h3>
 
-                        {/* Кнопки */}
-                        <div className="flex gap-3 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={onClose}
-                                className="flex-1"
-                                disabled={isLoading}
-                            >
-                                Отмена
-                            </Button>
-                            <Button
-                                type="submit"
-                                className="flex-1"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? 'Создание...' : 'Создать заказ'}
-                            </Button>
-                        </div>
-                    </form>
-                </Form>
+                                {userSubscription?.status === 'active' ? (
+                                    <div className="p-4 rounded-xl border-2 border-green-200 bg-green-50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                                <CreditCard className="h-5 w-5 text-white" />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-green-900">Оплата по подписке</p>
+                                                <p className="text-sm text-green-700">
+                                                    Подписка активна до {userSubscription.endDate ? new Date(userSubscription.endDate).toLocaleDateString('ru-RU', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric'
+                                                    }) : 'неизвестно'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {/* Скрытое поле для формы */}
+                                        <input type="hidden" {...form.register('paymentMethod')} value="subscription" />
+                                    </div>
+                                ) : (
+                                    <FormField
+                                        control={form.control}
+                                        name="paymentMethod"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="h-12">
+                                                            <SelectValue placeholder="Выберите способ оплаты" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {paymentMethodOptions.map((option) => (
+                                                            <SelectItem key={option.value} value={option.value}>
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-lg">{option.icon}</span>
+                                                                    <span className="font-medium">{option.label}</span>
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
+                            </div>
+
+                            {/* Кнопки */}
+                            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={onClose}
+                                    className="flex-1 h-12 text-base font-medium"
+                                    disabled={isLoading}
+                                >
+                                    Отмена
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="flex-1 h-12 text-base font-medium bg-orange-500 hover:bg-orange-600"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            Создание...
+                                        </div>
+                                    ) : (
+                                        'Создать заказ'
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
+                    </Form>
+                </div>
             </DialogContent>
         </Dialog>
     );
