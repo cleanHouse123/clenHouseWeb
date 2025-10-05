@@ -66,7 +66,7 @@ export const OrderDetailsModal = ({
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto z-[9999] mx-4 sm:mx-auto">
+                <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto z-[9999]  sm:mx-auto">
                     <DialogHeader className="pb-4">
                         <div className="flex items-center justify-between">
                             <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
