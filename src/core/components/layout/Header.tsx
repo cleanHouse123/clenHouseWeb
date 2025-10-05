@@ -320,11 +320,7 @@ export const Header = () => {
                                                         <p className="text-sm font-medium text-foreground">
                                                             {user.name}
                                                         </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {user.role === 'customer' ? 'Клиент' :
-                                                                user.role === 'currier' ? 'Курьер' :
-                                                                    user.role === 'admin' ? 'Администратор' : user.role}
-                                                        </p>
+
                                                     </div>
                                                 </button>
 

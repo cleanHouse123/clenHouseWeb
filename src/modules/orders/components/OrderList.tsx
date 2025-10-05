@@ -25,7 +25,7 @@ export const OrderList = ({
             <EmptyState
                 icon={<Package className="h-12 w-12 text-muted-foreground" />}
                 title="Заказы не найдены"
-                description="У вас пока нет заказов. Создайте первый заказ, чтобы начать работу."
+                description=""
             />
         );
     }

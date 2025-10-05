@@ -98,7 +98,7 @@ export const CreateOrderModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto p-0 gap-0">
+            <DialogContent className="bg-white max-w-4xl max-h-[95vh] overflow-y-auto p-0 gap-0">
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
                     <div className="flex items-center justify-between">
@@ -136,7 +136,7 @@ export const CreateOrderModal = ({
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="flex items-center gap-2 text-base font-semibold text-gray-900 mb-3">
-                                            <MapPin className="h-5 w-5 text-orange-500" />
+                                            <MapPin className="h-5 w-5" />
                                             Адрес забора мусора *
                                         </FormLabel>
                                         <FormControl>
@@ -164,7 +164,8 @@ export const CreateOrderModal = ({
                                         <FormControl>
                                             <Textarea
                                                 placeholder="Опишите тип и количество мусора (например: бытовые отходы, мебель, строительный мусор)"
-                                                className="min-h-[100px] text-base"
+
+                                                className="min-h-[100px] text-base bg-white placeholder:text-gray-400"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -177,7 +178,7 @@ export const CreateOrderModal = ({
                             {/* Дата и время */}
                             <div className="space-y-4">
                                 <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                                    <CalendarIcon className="h-5 w-5 text-orange-500" />
+                                    <CalendarIcon className="h-5 w-5" />
                                     Когда забрать мусор?
                                 </h3>
 
@@ -197,7 +198,7 @@ export const CreateOrderModal = ({
                                                             <Button
                                                                 variant="outline"
                                                                 className={cn(
-                                                                    'w-full justify-start text-left font-normal h-12',
+                                                                    'w-full justify-start text-left border-gray-100 text-black hover:text-black font-normal h-10',
                                                                     !field.value && 'text-muted-foreground'
                                                                 )}
                                                             >
@@ -223,7 +224,7 @@ export const CreateOrderModal = ({
                                                                 today.setHours(0, 0, 0, 0);
                                                                 return date < today;
                                                             }}
-                                                            className="rounded-md border bg-background"
+                                                            className="rounded-md  bg-white placeholder:text-gray-400"
                                                         />
                                                     </PopoverContent>
                                                 </Popover>
@@ -277,14 +278,14 @@ export const CreateOrderModal = ({
                             {/* Способ оплаты */}
                             <div className="space-y-4">
                                 <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                                    <CreditCard className="h-5 w-5 text-orange-500" />
+                                    <CreditCard className="h-5 w-5" />
                                     Способ оплаты
                                 </h3>
 
                                 {userSubscription?.status === 'active' ? (
-                                    <div className="p-4 rounded-xl border-2 border-green-200 bg-green-50">
+                                    <div className="p-4 rounded-xl border-2 ">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                            <div className="w-10 h-10 rounded-full flex items-center justify-center">
                                                 <CreditCard className="h-5 w-5 text-white" />
                                             </div>
                                             <div>
@@ -309,7 +310,7 @@ export const CreateOrderModal = ({
                                             <FormItem>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="h-12">
+                                                        <SelectTrigger className="h-12 bg-white">
                                                             <SelectValue placeholder="Выберите способ оплаты" />
                                                         </SelectTrigger>
                                                     </FormControl>

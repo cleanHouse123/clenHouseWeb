@@ -156,17 +156,18 @@
 
 .rdp-selected {
   .rdp-day_button {
-    border: 1px solid green;
-    color: green;
+    border: 1px solid #f97316;
+    color: black;
   }
 
 }
 .rdp-today{
-  color: rgb(0, 128, 73)!important;
+  color: #f97316!important;
 }
 .rdp-chevron{
-  fill: green!important;
+  fill: #f97316!important;
 }
+
 .bg-card {
   background-color: #f9fafb!important;
 }

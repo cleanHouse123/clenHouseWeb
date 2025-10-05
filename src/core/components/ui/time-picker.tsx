@@ -25,9 +25,9 @@ export function TimePicker({ value, onChange, placeholder = "Выберите в
     };
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
             <Select value={selectedHour} onValueChange={handleHourChange} disabled={disabled}>
-                <SelectTrigger className="w-20">
+                <SelectTrigger className="w-20 bg-white">
                     <SelectValue placeholder="ЧЧ" />
                 </SelectTrigger>
                 <SelectContent>
@@ -42,7 +42,7 @@ export function TimePicker({ value, onChange, placeholder = "Выберите в
             <span className="text-muted-foreground">:</span>
 
             <Select value={selectedMinute} onValueChange={handleMinuteChange} disabled={disabled}>
-                <SelectTrigger className="w-20">
+                <SelectTrigger className="w-20 bg-white">
                     <SelectValue placeholder="ММ" />
                 </SelectTrigger>
                 <SelectContent>
