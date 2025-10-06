@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Header } from '@/core/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import {
@@ -125,8 +124,6 @@ export const SubscriptionsPage = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <Header />
-
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">

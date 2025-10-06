@@ -11,6 +11,7 @@ export interface SendSmsResponse {
 export interface VerifySmsRequest {
   phoneNumber: string;
   code: string;
+  adToken?: string;
 }
 
 export interface AuthResponse {

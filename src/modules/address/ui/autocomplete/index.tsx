@@ -85,7 +85,7 @@ export default function AutocompleteAddress({
           onFocus={handleInputFocus}
           onKeyDown={handleKeyDown}
           placeholder="Введите адрес для поиска"
-          className="w-full px-3 py-2 pr-10 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+          className="placeholder:text-gray-400 w-full px-3 py-2 pr-10 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-0 focus:border-gray-300"
         />
         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
       </div>

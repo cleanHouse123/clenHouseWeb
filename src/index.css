@@ -1,9 +1,11 @@
+@import "@fontsource-variable/onest";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Rubik, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Onest Variable', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -19,31 +21,37 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 210 11% 15%;
-    --card: 0 0% 100%;
-    --card-foreground: 210 11% 15%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 11% 15%;
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 11% 95%;
-    --secondary-foreground: 210 11% 15%;
-    --muted: 210 11% 95%;
-    --muted-foreground: 210 11% 45%;
-    --accent: 210 11% 95%;
-    --accent-foreground: 210 11% 15%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 210 11% 90%;
-    --input: 210 11% 95%;
-    --ring: 142 76% 36%;
+    /* Palette */
+    --color-white: #FFFFFF;
+    --color-black: #000000;
+    --color-bg: #F3F3F3;
+    --color-orange-500: #FF5E00;
+    --color-orange-600: #FF8000;
+    --color-gray-400: #999999;
+    --color-red-600: #DC2626;
+    --color-border: rgba(0,0,0,0.08);
+    --color-ring: rgba(255, 94, 0, 0.35);
+    --color-muted-foreground: rgba(0,0,0,0.7);
+
+    /* Roles */
+    --background: var(--color-bg);
+    --foreground: var(--color-black);
+    --primary: var(--color-orange-500);
+    --primary-foreground: var(--color-white);
+    --accent: var(--color-orange-600);
+    --disabled: var(--color-gray-400);
+    --destructive: var(--color-red-600);
+    --muted-foreground: var(--color-muted-foreground);
+    --border: var(--color-border);
+    --input: var(--border);
+    --ring: var(--color-ring);
+
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* 12px */
   }
 }
 
@@ -148,17 +156,18 @@
 
 .rdp-selected {
   .rdp-day_button {
-    border: 1px solid green;
-    color: green;
+    border: 1px solid #f97316;
+    color: black;
   }
 
 }
 .rdp-today{
-  color: rgb(0, 128, 73)!important;
+  color: #f97316!important;
 }
 .rdp-chevron{
-  fill: green!important;
+  fill: #f97316!important;
 }
+
 .bg-card {
   background-color: #f9fafb!important;
 }

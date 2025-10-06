@@ -9,7 +9,7 @@ const statusConfig = {
     new: {
         label: 'Новый',
         variant: 'default' as const,
-        className: 'bg-blue-100 text-blue-800 border-blue-200',
+        className: 'bg-orange-100 text-orange-800 border-orange-200',
     },
     paid: {
         label: 'Оплачен',

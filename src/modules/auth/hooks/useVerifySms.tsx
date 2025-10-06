@@ -9,11 +9,22 @@ export const useVerifySms = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: VerifySmsRequest) => authApi.verifySms(data),
+        mutationFn: (data: VerifySmsRequest) => {
+            // Получаем adToken из localStorage если он есть
+            const adToken = localStorage.getItem('adToken');
+
+            return authApi.verifySms({
+                ...data,
+                ...(adToken && { adToken }),
+            });
+        },
         onSuccess: (data) => {
             // Сохраняем токены в localStorage
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.refreshToken);
+
+            // Удаляем adToken после успешной авторизации
+            localStorage.removeItem('adToken');
 
             // Инвалидируем кэш пользователя для обновления данных
             queryClient.invalidateQueries({ queryKey: ['me'] });

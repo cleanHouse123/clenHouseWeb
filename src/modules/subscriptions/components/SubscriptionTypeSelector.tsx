@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/badge';
 import { Check, Calendar, Zap, Star, Crown, Diamond, Shield, Rocket, Heart } from 'lucide-react';

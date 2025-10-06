@@ -6,7 +6,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/core/components/ui/dialog'
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 
 interface SessionExpiredModalProps {
     isOpen: boolean;

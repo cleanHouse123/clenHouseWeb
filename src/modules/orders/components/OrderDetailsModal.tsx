@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Badge } from '@/core/components/ui/badge';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { PaymentIframe } from './PaymentIframe';
@@ -66,7 +66,7 @@ export const OrderDetailsModal = ({
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto z-[9999] mx-4 sm:mx-auto">
+                <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto z-[9999]  sm:mx-auto">
                     <DialogHeader className="pb-4">
                         <div className="flex items-center justify-between">
                             <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
@@ -88,8 +88,9 @@ export const OrderDetailsModal = ({
                         {/* Статус и цена */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4  rounded-lg">
                             <div className="flex items-center gap-3">
-                                <OrderStatusBadge status={order.status} />
                                 <span className="text-xs sm:text-sm ">Статус заказа</span>
+                                <OrderStatusBadge status={order.status} />
+
                             </div>
                             <div className="text-left sm:text-right">
                                 <div className="text-xl sm:text-2xl font-bold text-primary">{order.price}₽</div>

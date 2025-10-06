@@ -17,6 +17,7 @@ function Calendar({
   return (
     <DayPicker
       locale={locale}
+
       showOutsideDays={showOutsideDays}
       className={cn("p-3 w-full", className)}
 

@@ -1,6 +1,6 @@
 import { Calendar } from "@/core/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/core/components/ui/popover"
-import { Button } from "@/core/components/ui/button"
+import { Button } from "@/core/components/ui/button/button"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { ru, enUS, he, ar } from "date-fns/locale"

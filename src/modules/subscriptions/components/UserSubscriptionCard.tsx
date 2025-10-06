@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/badge';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/button/button';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { UserSubscription } from '../types';
 import { DeleteSubscriptionModal } from './DeleteSubscriptionModal';
@@ -115,11 +115,11 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
         <>
             <Card className={`transition-all duration-200 shadow-lg ${isExpiringSoon() ? 'ring-2 ring-yellow-500' : ''}`}>
                 <CardHeader className="pb-4">
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between gap-2 items-start">
                         <div>
-                            <CardTitle className="text-lg font-semibold">
+                            <h3 className="text-lg font-semibold">
                                 {userSubscription.type === 'monthly' ? 'Месячная подписка' : 'Годовая подписка'}
-                            </CardTitle>
+                            </h3>
                             <p className="text-sm text-muted-foreground mt-1">
                                 {userSubscription.type === 'monthly' ? 'Подписка на месяц' : 'Подписка на год'}
                             </p>
@@ -163,16 +163,16 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                     </div>
 
                     {userSubscription.status === 'pending' && onPay && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <AlertCircle className="h-4 w-4 text-blue-600" />
+                                    <AlertCircle className="h-4 w-4 text-orange-600" />
                                     <div>
-                                        <span className="text-sm text-blue-800 font-medium">
+                                        <span className="text-sm text-black font-medium">
                                             Подписка ожидает оплаты
                                         </span>
                                         {userSubscription.paymentUrl && (
-                                            <p className="text-xs text-blue-600 mt-1">
+                                            <p className="text-xs text-orange-600 mt-1">
                                                 Ссылка на оплату готова
                                             </p>
                                         )}
@@ -181,7 +181,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                                 <Button
                                     onClick={() => onPay(userSubscription.id)}
                                     size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700"
+                                    className="bg-orange-600 hover:bg-orange-700"
                                 >
                                     <CreditCard className="h-4 w-4 mr-2" />
                                     Оплатить
@@ -192,19 +192,19 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
 
                     {/* Кнопка удаления для активных подписок */}
                     {userSubscription.status === 'active' && onDelete && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <XCircle className="h-4 w-4 text-red-600" />
-                                    <span className="text-sm text-red-800 font-medium">
+                                    <XCircle className="h-4 w-4 text-orange-600" />
+                                    <span className="text-sm text-orange-800 font-medium">
                                         Управление подпиской
                                     </span>
                                 </div>
                                 <Button
                                     onClick={handleDeleteClick}
                                     size="sm"
-                                    variant="destructive"
-                                    className="bg-red-600 hover:bg-red-700"
+                                    variant="primary"
+                                    className="bg-orange-600 hover:bg-orange-700"
                                 >
                                     <XCircle className="h-4 w-4 mr-2" />
                                     Удалить
@@ -214,10 +214,10 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                     )}
 
                     {isExpiringSoon() && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <div className="flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4 text-yellow-600" />
-                                <span className="text-sm text-yellow-800 font-medium">
+                                <AlertCircle className="h-4 w-4 text-orange-600" />
+                                <span className="text-sm text-orange-800 font-medium">
                                     Подписка скоро истекает
                                 </span>
                             </div>
