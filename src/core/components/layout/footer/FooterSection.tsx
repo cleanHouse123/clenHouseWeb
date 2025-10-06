@@ -10,25 +10,23 @@ export const FooterSection: React.FC = () => {
             <div className="px-4 sm:px-8 lg:px-16">
                 {/* Верхняя часть */}
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 sm:gap-8">
-                    {/* Левая группа: только логотип на lg+ */}
-                    <div className="hidden lg:block lg:flex-shrink-0">
+                    {/* Левая группа: логотип + контакты на lg+ */}
+                    <div className="hidden lg:flex lg:items-start gap-6 lg:flex-shrink-0">
                         <div className="h-[48px] flex items-center">
                             <Logo size="xl" />
                         </div>
+                        <div className="flex flex-col gap-2">
+                            <FooterText>{footerContact.title}</FooterText>
+                            <FooterText size="xl" weight="medium" opacity="90">{footerContact.phone}</FooterText>
+                            <FooterText size="lg" opacity="80">{footerContact.email}</FooterText>
+                        </div>
                     </div>
 
-                    {/* Центральная группа: логотип на <lg, контакты на lg+ */}
+                    {/* Центральная группа: логотип на <lg */}
                     <div className="flex flex-col lg:flex-row lg:items-start gap-4 sm:gap-6 lg:gap-[50px] lg:flex-shrink-0">
                         {/* Логотип только на мобильных и планшетах */}
                         <div className="lg:hidden h-[48px] flex items-center justify-center sm:justify-start flex-shrink-0">
                             <Logo size="xl" />
-                        </div>
-
-                        {/* Контакты только на lg+ */}
-                        <div className="hidden lg:flex flex-col gap-2 flex-shrink-0">
-                            <FooterText>{footerContact.title}</FooterText>
-                            <FooterText size="xl" weight="medium" opacity="90">{footerContact.phone}</FooterText>
-                            <FooterText size="lg" opacity="80">{footerContact.email}</FooterText>
                         </div>
                     </div>
 
@@ -74,6 +72,19 @@ export const FooterSection: React.FC = () => {
                                 {link.text}
                             </FooterLink>
                         ))}
+
+{footerLinks.main.map((link) => (
+                                    <FooterLink key={link.text} href={link.href}>
+                                        {link.text}
+                                    </FooterLink>
+                                ))}
+
+
+{footerLinks.support.map((link) => (
+                                    <FooterLink key={link.text} href={link.href}>
+                                        {link.text}
+                                    </FooterLink>
+                                ))}
                     </div>
                 </div>
             </div>

@@ -43,7 +43,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="text-[24px] sm:text-[30px] md:text-[30px] tablet:text-[30px] semi-lg:text-[33px] semi-lg2:text-[37px] lg:text-[40px] xl:text-[42px] semi-xl:text-[45px] font-medium font-onest text-[#000000] leading-[1.1em] lg:leading-[1em]"
               >
-                Выброс мусора и клининговые услуги в Санкт‑Петербурге
+                ЧистоДома — выброс мусора и клининговые услуги в России
               </motion.h1>
 
               <motion.p
