@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button/button';
-import { Badge } from '@/core/components/ui/badge';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { PaymentIframe } from './PaymentIframe';
 import { OrderResponseDto } from '../types';
-import { ordersApi } from '../api';
+import { useCreateOrderPayment } from '../hooks/useOrders';
 import {
     MapPin,
     Calendar,
@@ -16,7 +15,7 @@ import {
     ExternalLink
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
-import { formatDateTime, formatDateTimeLocal, formatDateRelativeLocal } from '@/core/utils/dateUtils';
+import { formatDateTime, formatDateRelativeLocal } from '@/core/utils/dateUtils';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -37,12 +36,16 @@ export const OrderDetailsModal = ({
     const [isPaymentIframeOpen, setIsPaymentIframeOpen] = useState(false);
     const [paymentUrl, setPaymentUrl] = useState('');
     const [paymentId, setPaymentId] = useState('');
+    const { mutateAsync: createOrderPayment } = useCreateOrderPayment();
 
     if (!order) return null;
 
     const handleOpenPayment = async () => {
         try {
-            const payment = await ordersApi.createPaymentLink(order.id, 200);
+            const payment = await createOrderPayment({
+                orderId: order.id,
+                amount: order.price
+            });
             setPaymentUrl(payment.paymentUrl);
             setPaymentId(payment.paymentId);
             setIsPaymentIframeOpen(true);

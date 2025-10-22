@@ -9,13 +9,57 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/compone
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { useSendSms } from '@/modules/auth/hooks/useSendSms';
 import { useVerifySms } from '@/modules/auth/hooks/useVerifySms';
-import { Phone, ArrowLeft, Shield, Link } from 'lucide-react';
+import { Phone, ArrowLeft, Shield } from 'lucide-react';
+
+// Функция для жесткого форматирования номера телефона
+const formatPhoneNumber = (value: string): string => {
+    // Удаляем все символы кроме цифр
+    const numbers = value.replace(/\D/g, '');
+
+    // Ограничиваем длину до 11 цифр
+    const limitedNumbers = numbers.slice(0, 11);
+
+    // Если начинается с 8, заменяем на 7
+    if (limitedNumbers.startsWith('8')) {
+        const formatted = '7' + limitedNumbers.slice(1);
+        return formatRussianPhone(formatted);
+    }
+
+    // Если начинается с 7, форматируем как российский номер
+    if (limitedNumbers.startsWith('7')) {
+        return formatRussianPhone(limitedNumbers);
+    }
+
+    // Если пустая строка или не начинается с 7/8, возвращаем +7
+    if (limitedNumbers.length === 0) {
+        return '+7';
+    }
+
+    // Если не начинается с 7 или 8, добавляем 7 в начало
+    return formatRussianPhone('7' + limitedNumbers);
+};
+
+const formatRussianPhone = (numbers: string): string => {
+    if (numbers.length <= 1) return '+7';
+    if (numbers.length <= 4) return `+7 (${numbers.slice(1)}`;
+    if (numbers.length <= 7) return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4)}`;
+    if (numbers.length <= 9) return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4, 7)}-${numbers.slice(7)}`;
+    if (numbers.length === 10) return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4, 7)}-${numbers.slice(7, 9)}-${numbers.slice(9)}`;
+    return `+7 (${numbers.slice(1, 4)}) ${numbers.slice(4, 7)}-${numbers.slice(7, 9)}-${numbers.slice(9, 11)}`;
+};
 
 // Схема валидации для номера телефона
 const phoneSchema = z.object({
     phoneNumber: z.string()
         .min(1, 'Введите номер телефона')
-        .regex(/^\+?[1-9][\d\s]{1,14}$/, 'Введите корректный номер телефона'),
+        .refine((value) => {
+            console.log('🔧 phoneSchema validation - value:', value);
+            // Более гибкая валидация - принимаем номера с 10 или 11 цифрами
+            const isValid = /^\+7\s\(\d{3}\)\s\d{3}-\d{2}-\d{1,2}$/.test(value) ||
+                /^\+7\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}$/.test(value);
+            console.log('🔧 phoneSchema validation - isValid:', isValid);
+            return isValid;
+        }, 'Введите корректный российский номер телефона'),
 });
 
 // Схема валидации для SMS кода
@@ -59,8 +103,12 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             code: '',
         },
     });
-    const isDev = import.meta.env.VITE_SMS_DEV_MODE === 'true' || import.meta.env.DEV;
+    const isDev = true
+    //import.meta.env.VITE_SMS_DEV_MODE === 'true' || import.meta.env.DEV;
+    console.log('🔧 isDev:', isDev);
     const handlePhoneSubmit = async (data: PhoneFormData) => {
+        console.log('🔧 handlePhoneSubmit - data:', data);
+        console.log('🔧 handlePhoneSubmit - phoneNumber:', data.phoneNumber);
 
         setIsLoading(true);
         try {
@@ -191,7 +239,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                             : `Код отправлен на номер ${phoneNumber}`
                         }
                     </p>
-                    {(import.meta.env.DEV || window.location.hostname === 'localhost') && (
+                    {/* {(import.meta.env.DEV || window.location.hostname === 'localhost') && (
                         <div className="mt-2 px-3 py-2 bg-yellow-100 border border-yellow-300 rounded-lg">
                             <p className="text-sm text-yellow-800 font-medium">
                                 Режим разработки
@@ -204,13 +252,28 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                 </div>
                             )}
                         </div>
-                    )}
+                    )} */}
                 </DialogHeader>
 
                 <div className="space-y-6">
                     {step === 'phone' ? (
                         <Form {...phoneForm}>
-                            <form onSubmit={phoneForm.handleSubmit(handlePhoneSubmit)} className="space-y-4">
+                            <form onSubmit={(e) => {
+                                e.preventDefault(); // Предотвращаем стандартную отправку формы
+                                console.log('🔧 Form submit - form values:', phoneForm.getValues());
+                                console.log('🔧 Form submit - form errors:', phoneForm.formState.errors);
+
+                                // Проверяем валидацию вручную
+                                const isValid = phoneForm.formState.isValid;
+                                console.log('🔧 Form submit - isValid:', isValid);
+
+                                if (isValid) {
+                                    phoneForm.handleSubmit(handlePhoneSubmit)(e);
+                                } else {
+                                    console.log('🔧 Form validation failed');
+                                    phoneForm.trigger(); // Запускаем валидацию для показа ошибок
+                                }
+                            }} className="space-y-4" noValidate>
                                 <FormField
                                     control={phoneForm.control}
                                     name="phoneNumber"
@@ -224,10 +287,74 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                                                     <Input
                                                         {...field}
-                                                        type="tel"
-                                                        placeholder="+375 29 123 45 67"
+                                                        type="text"
+                                                        placeholder="+7 (999) 999-99-99"
                                                         className="pl-10"
                                                         autoComplete="tel"
+                                                        maxLength={18}
+                                                        inputMode="numeric"
+                                                        onChange={(e) => {
+                                                            const formatted = formatPhoneNumber(e.target.value);
+                                                            console.log('🔧 onChange - input:', e.target.value, 'formatted:', formatted);
+                                                            field.onChange(formatted);
+                                                            // Принудительно обновляем значение поля
+                                                            if (e.target.value !== formatted) {
+                                                                e.target.value = formatted;
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            // Дополнительная проверка при потере фокуса
+                                                            const formatted = formatPhoneNumber(e.target.value);
+                                                            if (e.target.value !== formatted) {
+                                                                e.target.value = formatted;
+                                                                field.onChange(formatted);
+                                                            }
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            // Разрешаем только цифры, Backspace, Delete, Tab, Escape, Enter
+                                                            const allowedKeys = [
+                                                                'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                                                                'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                                                                'Home', 'End'
+                                                            ];
+
+                                                            // Разрешаем цифры
+                                                            if (e.key >= '0' && e.key <= '9') {
+                                                                return;
+                                                            }
+
+                                                            // Разрешаем специальные клавиши
+                                                            if (allowedKeys.includes(e.key)) {
+                                                                return;
+                                                            }
+
+                                                            // Разрешаем Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                                                            if (e.ctrlKey && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                                                                return;
+                                                            }
+
+                                                            // Блокируем все остальные клавиши
+                                                            e.preventDefault();
+                                                        }}
+                                                        onPaste={(e) => {
+                                                            e.preventDefault();
+                                                            const pastedText = e.clipboardData.getData('text');
+                                                            const formatted = formatPhoneNumber(pastedText);
+                                                            console.log('🔧 onPaste - pastedText:', pastedText, 'formatted:', formatted);
+                                                            field.onChange(formatted);
+                                                            // Принудительно обновляем значение поля
+                                                            const target = e.target as HTMLInputElement;
+                                                            target.value = formatted;
+                                                        }}
+                                                        onDrop={(e) => {
+                                                            e.preventDefault();
+                                                            const droppedText = e.dataTransfer.getData('text');
+                                                            const formatted = formatPhoneNumber(droppedText);
+                                                            field.onChange(formatted);
+                                                        }}
+                                                        onDragOver={(e) => {
+                                                            e.preventDefault();
+                                                        }}
                                                     />
                                                 </div>
                                             </FormControl>
@@ -339,7 +466,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                     {isDev && devCode && (
                                         <Button
                                             type="button"
-                                            variant="secondary"
+                                            variant="outline"
                                             onClick={() => {
                                                 codeForm.setValue('code', devCode);
                                                 codeForm.trigger('code');

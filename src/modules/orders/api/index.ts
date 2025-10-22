@@ -132,4 +132,20 @@ export const ordersApi = {
     });
     return response.data;
   },
+
+  // Проверить статус платежа заказа
+  checkPaymentStatus: async (
+    paymentId: string
+  ): Promise<{
+    id: string;
+    orderId: string;
+    amount: number;
+    status: "pending" | "paid" | "failed";
+    createdAt: string;
+  }> => {
+    const response = await axiosInstance.get(
+      `/orders/payment/status/${paymentId}`
+    );
+    return response.data;
+  },
 };

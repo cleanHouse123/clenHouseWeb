@@ -5,6 +5,7 @@ import { CreditCard, Wifi, WifiOff } from 'lucide-react';
 import { webSocketService } from '../services/websocket';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCheckSubscriptionPaymentStatus } from '../hooks/useSubscriptions';
 import { toast } from 'sonner';
 import { kopecksToRubles } from '../utils/priceUtils';
 interface PaymentModalProps {
@@ -28,6 +29,9 @@ export const PaymentModal = ({
     const statusCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const paymentIdRef = useRef<string | null>(null);
+
+    // Хуки для работы с платежами
+    const checkPaymentStatus = useCheckSubscriptionPaymentStatus();
 
     // Извлекаем paymentId из URL
     const getPaymentId = () => {
@@ -112,16 +116,21 @@ export const PaymentModal = ({
     const startStatusCheck = (paymentId: string) => {
         console.log('Запуск проверки статуса платежа через API:', paymentId);
 
-        // Используем новый API для проверки статуса
-        webSocketService.startPaymentStatusCheck(paymentId, (status) => {
-            console.log('Статус платежа обновлен через API:', status);
+        const interval = setInterval(async () => {
+            try {
+                const status = await checkPaymentStatus.mutateAsync(paymentId);
 
-            if (status.status === 'paid' || status.status === 'success') {
-                handlePaymentSuccess(status);
-            } else if (status.status === 'failed') {
-                handlePaymentError({ error: 'Платеж не прошел', message: 'Ошибка обработки платежа' });
+                if (status.status === 'paid' || status.status === 'success') {
+                    handlePaymentSuccess(status);
+                } else if (status.status === 'failed') {
+                    handlePaymentError({ error: 'Платеж не прошел', message: 'Ошибка обработки платежа' });
+                }
+            } catch (error) {
+                console.error('Ошибка проверки статуса платежа:', error);
             }
         }, 5000);
+
+        statusCheckIntervalRef.current = interval;
     };
 
     // Остановка проверки статуса
@@ -133,8 +142,9 @@ export const PaymentModal = ({
         }
 
         // Останавливаем проверку через API
-        if (paymentIdRef.current) {
-            webSocketService.stopPaymentStatusCheck(paymentIdRef.current);
+        if (statusCheckIntervalRef.current) {
+            clearInterval(statusCheckIntervalRef.current);
+            statusCheckIntervalRef.current = null;
         }
     };
 
@@ -265,7 +275,7 @@ export const PaymentModal = ({
 
 
 
-                    {/* Кнопка закрытия */}
+                    {/* Кнопки */}
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={onClose} className="flex-1">
                             Закрыть
