@@ -99,7 +99,7 @@ export const Header = () => {
                             </div>
 
                             {/* Центральное меню (десктоп) */}
-                            <nav className="hidden md:flex items-center gap-4 xl:gap-6">
+                            <nav className="hidden mobile-menu:flex items-center gap-4 xl:gap-6">
                                 {menuItems.map((item) => (
                                     <button
                                         key={item.key}
@@ -112,7 +112,7 @@ export const Header = () => {
                             </nav>
 
                             {/* Десктопная навигация */}
-                            <div className="hidden md:flex items-center gap-3">
+                            <div className="hidden mobile-menu:flex items-center gap-3">
                                 <Button
                                     onClick={handleCallCourier}
                                     variant="primary"
@@ -209,7 +209,7 @@ export const Header = () => {
 
                             {/* Мобильная кнопка меню */}
                             <motion.div
-                                className="md:hidden"
+                                className="mobile-menu:hidden"
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4, delay: 0.6 }}
@@ -249,7 +249,7 @@ export const Header = () => {
                                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
                                 transition={{ duration: 0.3, ease: "easeOut" }}
                             >
-                                <Card radius="r16" padding="sm" background="white" className="md:hidden mt-2 px-3 py-2 font-onest relative z-50">
+                                <Card radius="r16" padding="sm" background="white" className="mobile-menu:hidden mt-2 px-3 py-2 font-onest relative z-50">
                                     <div className="px-2 pt-2 pb-3 space-y-1">
                                         {/* Мобильное меню: пункты навигации */}
                                         <div className="px-1 py-1">
