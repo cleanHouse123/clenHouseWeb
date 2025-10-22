@@ -1,10 +1,9 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { CreateOrderModal, PaymentIframe } from '@/modules/orders/components';
-import { useCreateOrder } from '@/modules/orders/hooks/useOrders';
+import { useCreateOrder, useCreateOrderPayment } from '@/modules/orders/hooks/useOrders';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { OrderFormData } from '@/modules/orders/types';
-import { ordersApi } from '@/modules/orders/api';
 import { toast } from 'sonner';
 
 interface CreateOrderContextType {
@@ -26,6 +25,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
     const [paymentUrl, setPaymentUrl] = useState('');
     const [paymentId, setPaymentId] = useState('');
     const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder();
+    const { mutateAsync: createOrderPayment } = useCreateOrderPayment();
     const { data: user } = useGetMe();
     const { data: userSubscription } = useUserSubscription();
 
@@ -64,7 +64,10 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                 onOrderCreated?.();
             } else if (data.paymentMethod === 'online') {
                 // Если способ оплаты "online", создаем ссылку на оплату
-                const payment = await ordersApi.createPaymentLink(order.id, 200);
+                const payment = await createOrderPayment({
+                    orderId: order.id,
+                    amount: 200
+                });
                 setPaymentUrl(payment.paymentUrl);
                 setPaymentId(payment.paymentId);
                 setIsPaymentIframeOpen(true);

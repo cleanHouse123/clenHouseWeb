@@ -5,7 +5,6 @@ import {
   CreateSubscriptionResponse,
   PaymentLinkRequest,
   PaymentLinkResponse,
-  SimulatePaymentResponse,
   SubscriptionPlan,
 } from "../types";
 
@@ -53,47 +52,18 @@ export const subscriptionApi = {
     return response.data;
   },
 
-  // Симулировать оплату
-  simulatePayment: async (
+  // Проверить статус платежа подписки
+  checkPaymentStatus: async (
     paymentId: string
-  ): Promise<SimulatePaymentResponse> => {
-    console.log("API simulatePayment request for paymentId:", paymentId);
-
-    const accessToken = localStorage.getItem("accessToken");
-    console.log("Current access token:", accessToken);
-
-    if (!accessToken) {
-      throw new Error("Access token not found. Please login first.");
-    }
-
-    try {
-      const response = await axiosInstance.post(
-        `/subscriptions/payment/simulate/${paymentId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.data;
-    } catch (error: any) {
-      console.error("SimulatePayment API error:", error);
-      if (error.response?.status === 401) {
-        console.error(
-          "401 Unauthorized - возможно, нужны права администратора или токен истек"
-        );
-        console.error("Response data:", error.response.data);
-      }
-      throw error;
-    }
-  },
-
-  // Получить информацию о платеже
-  getPaymentInfo: async (paymentId: string): Promise<any> => {
+  ): Promise<{
+    id: string;
+    subscriptionId: string;
+    amount: number;
+    status: "pending" | "paid" | "failed";
+    createdAt: string;
+  }> => {
     const response = await axiosInstance.get(
-      `/subscriptions/payment/${paymentId}`
+      `/subscriptions/payment/status/${paymentId}`
     );
     return response.data;
   },

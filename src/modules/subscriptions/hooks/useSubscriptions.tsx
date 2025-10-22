@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { subscriptionApi } from '../api';
-import { CreateSubscriptionRequest } from '../types';
+import { CreateSubscriptionRequest, SubscriptionPaymentStatus } from '../types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { toast } from 'sonner';
 
@@ -148,38 +148,6 @@ export const useCreatePaymentLink = () => {
     });
 };
 
-export const useSimulatePayment = () => {
-    const queryClient = useQueryClient();
-    const { data: user } = useGetMe();
-
-    return useMutation({
-        mutationFn: (paymentId: string) =>
-            subscriptionApi.simulatePayment(paymentId),
-        onSuccess: (data) => {
-            if (data.success) {
-                toast.success('Оплата успешна!', {
-                    description: data.message,
-                    duration: 4000,
-                });
-            } else {
-                toast.error('Ошибка оплаты', {
-                    description: data.message,
-                    duration: 5000,
-                });
-            }
-            // Обновляем подписку пользователя
-            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
-        },
-        onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message || 'Ошибка симуляции оплаты';
-            toast.error('Ошибка', {
-                description: errorMessage,
-                duration: 5000,
-            });
-        },
-    });
-};
-
 export const useDeleteSubscription = () => {
     const queryClient = useQueryClient();
     const { data: user } = useGetMe();
@@ -201,6 +169,16 @@ export const useDeleteSubscription = () => {
                 description: errorMessage,
                 duration: 5000,
             });
+        },
+    });
+};
+
+// Проверить статус платежа подписки
+export const useCheckSubscriptionPaymentStatus = () => {
+    return useMutation({
+        mutationFn: (paymentId: string) => subscriptionApi.checkPaymentStatus(paymentId),
+        onError: (error: any) => {
+            console.error('Ошибка проверки статуса платежа подписки:', error);
         },
     });
 };

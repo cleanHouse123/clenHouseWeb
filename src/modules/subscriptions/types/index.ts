@@ -48,14 +48,12 @@ export interface PaymentLinkResponse {
   status: "pending";
 }
 
-export interface SimulatePaymentRequest {
-  paymentId: string;
-  success: boolean;
-}
-
-export interface SimulatePaymentResponse {
-  success: boolean;
-  message: string;
+export interface SubscriptionPaymentStatus {
+  id: string;
+  subscriptionId: string;
+  amount: number;
+  status: "pending" | "paid" | "failed";
+  createdAt: string;
 }
 
 export interface PaymentWebSocketEvent {

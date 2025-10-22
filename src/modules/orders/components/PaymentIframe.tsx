@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/compone
 import { Button } from '@/core/components/ui/button';
 import { CreditCard, CheckCircle, AlertCircle } from 'lucide-react';
 import { webSocketService } from '@/modules/subscriptions/services/websocket';
+import { useCheckOrderPaymentStatus } from '../hooks/useOrders';
 import { toast } from 'sonner';
 
 interface PaymentIframeProps {
@@ -27,6 +28,39 @@ export const PaymentIframe = ({
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
+    const [statusCheckInterval, setStatusCheckInterval] = useState<NodeJS.Timeout | null>(null);
+
+    // Хуки для работы с платежами
+    const checkPaymentStatus = useCheckOrderPaymentStatus();
+
+    // Проверка статуса платежа через API
+    const startStatusCheck = () => {
+        if (!paymentId) return;
+
+        const interval = setInterval(async () => {
+            try {
+                const status = await checkPaymentStatus.mutateAsync(paymentId);
+
+                if (status.status === 'paid' || status.status === 'success') {
+                    handlePaymentSuccess(status);
+                } else if (status.status === 'failed') {
+                    handlePaymentError({ error: 'Платеж не прошел', message: 'Ошибка обработки платежа' });
+                }
+            } catch (error) {
+                console.error('Ошибка проверки статуса платежа:', error);
+            }
+        }, 5000);
+
+        setStatusCheckInterval(interval);
+    };
+
+    // Остановка проверки статуса
+    const stopStatusCheck = () => {
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+            setStatusCheckInterval(null);
+        }
+    };
 
     // Сохраняем данные оплаты в localStorage при открытии
     useEffect(() => {
@@ -64,16 +98,8 @@ export const PaymentIframe = ({
                 webSocketService.pingOrderServer();
             }, 30000);
 
-            // Запускаем проверку статуса платежа через API каждые 5 секунд
-            webSocketService.startPaymentStatusCheck(paymentId, (status) => {
-                console.log('Статус платежа заказа обновлен через API:', status);
-
-                if (status.status === 'paid' || status.status === 'success') {
-                    handlePaymentSuccess(status);
-                } else if (status.status === 'failed') {
-                    handlePaymentError({ error: 'Платеж не прошел', message: 'Ошибка обработки платежа' });
-                }
-            }, 5000);
+            // Запускаем проверку статуса платежа через API
+            startStatusCheck();
 
             // Обработчики событий
             const handlePaymentSuccess = (data: any) => {
@@ -118,7 +144,7 @@ export const PaymentIframe = ({
                 clearInterval(pingInterval);
 
                 // Останавливаем проверку статуса через API
-                webSocketService.stopPaymentStatusCheck(paymentId);
+                stopStatusCheck();
 
                 // Отключаемся от комнаты платежа
                 webSocketService.leaveOrderPaymentRoom(paymentId, userId);
@@ -212,7 +238,9 @@ export const PaymentIframe = ({
                             <CheckCircle className="h-4 w-4 text-green-500" />
                             <span>Безопасная оплата</span>
                         </div>
-                        <span>Стоимость: 200₽</span>
+                        <div className="flex items-center gap-2">
+                            <span>Стоимость: 200₽</span>
+                        </div>
                     </div>
                 </div>
             </DialogContent>

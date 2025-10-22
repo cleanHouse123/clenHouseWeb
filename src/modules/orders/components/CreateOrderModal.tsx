@@ -82,7 +82,7 @@ export const CreateOrderModal = ({
             description: data.description,
             scheduledAt,
             notes: data.notes,
-            paymentMethod: data.paymentMethod,
+            paymentMethod: data.paymentMethod
         };
 
         onSubmit(orderData);

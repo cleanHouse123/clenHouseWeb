@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ordersApi } from '../api';
-import { CreateOrderDto, OrderQueryParams, UpdateOrderStatusDto } from '../types';
+import { CreateOrderDto, OrderQueryParams, UpdateOrderStatusDto, OrderPaymentRequest, OrderPaymentResponse, OrderPaymentStatus } from '../types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { toast } from 'sonner';
 
@@ -114,6 +114,43 @@ export const useCancelOrder = () => {
                 description: errorMessage,
                 duration: 5000,
             });
+        },
+    });
+};
+
+// Создать платеж заказа
+export const useCreateOrderPayment = () => {
+    const queryClient = useQueryClient();
+    const { data: user } = useGetMe();
+
+    return useMutation({
+        mutationFn: (data: OrderPaymentRequest) => ordersApi.createPaymentLink(data.orderId, data.amount),
+        onSuccess: (data: OrderPaymentResponse) => {
+            toast.success('Ссылка на оплату создана!', {
+                description: 'Перенаправляем на страницу оплаты...',
+                duration: 3000,
+            });
+
+            // Обновляем кэш заказов
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            queryClient.invalidateQueries({ queryKey: ['customer-orders', user?.userId] });
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message || 'Ошибка создания платежа';
+            toast.error('Ошибка', {
+                description: errorMessage,
+                duration: 5000,
+            });
+        },
+    });
+};
+
+// Проверить статус платежа заказа
+export const useCheckOrderPaymentStatus = () => {
+    return useMutation({
+        mutationFn: (paymentId: string) => ordersApi.checkPaymentStatus(paymentId),
+        onError: (error: any) => {
+            console.error('Ошибка проверки статуса платежа:', error);
         },
     });
 };

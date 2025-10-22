@@ -124,3 +124,23 @@ export interface OrderDetailsProps {
   onCancel?: (orderId: string) => void;
   showActions?: boolean;
 }
+
+// Payment Types
+export interface OrderPaymentRequest {
+  orderId: string;
+  amount: number;
+}
+
+export interface OrderPaymentResponse {
+  paymentUrl: string;
+  paymentId: string;
+  status: "pending";
+}
+
+export interface OrderPaymentStatus {
+  id: string;
+  orderId: string;
+  amount: number;
+  status: "pending" | "paid" | "failed";
+  createdAt: string;
+}
