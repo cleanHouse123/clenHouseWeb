@@ -63,6 +63,7 @@ export const Header = () => {
 
     const menuItems = [
         { key: 'how-it-works', label: 'Как это работает', href: '#how-it-works' },
+        { key: 'subscription', label: 'Подписка', href: '#subscription' },
         { key: 'faq', label: 'FAQ', href: '#faq' },
     ];
 

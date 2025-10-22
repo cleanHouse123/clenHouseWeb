@@ -2,6 +2,7 @@ import React from 'react';
 import { HeroSection } from './HeroSection';
 import { BenefitsSection } from './BenefitsSection';
 import { HowItWorksSection } from './HowItWorksSection';
+import { SubscriptionPlansSection } from './SubscriptionPlansSection';
 import { FAQSection } from './FAQSection';
 
 
@@ -15,6 +16,7 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
       <HeroSection onCallCourier={onCallCourier} />
       <BenefitsSection />
       <HowItWorksSection />
+      <SubscriptionPlansSection />
       <FAQSection />
 
     </main>
