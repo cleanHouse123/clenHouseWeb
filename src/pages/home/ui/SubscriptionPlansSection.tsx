@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
 import { useSubscriptionPlans } from '@/modules/subscriptions/hooks/useSubscriptionPlans';
+import { useCreateSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
+import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan } from '@/modules/subscriptions/types';
+import { useGetMe } from '@/modules/auth/hooks/useGetMe';
+import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
+import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 
 function formatRubles(kopecks: number) {
   const rubles = Math.round(kopecks / 100);
@@ -13,6 +18,48 @@ function formatRubles(kopecks: number) {
 export const SubscriptionPlansSection: React.FC = () => {
   const { data: plans, isLoading, error } = useSubscriptionPlans();
   const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
+  const { data: user } = useGetMe();
+  const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
+  
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const handleSubscribe = async (plan: SubscriptionPlan) => {
+    try {
+      // Проверяем авторизацию
+      if (!user) {
+        setIsLoginModalOpen(true);
+        return;
+      }
+
+      setSelectedPlan(plan);
+
+      // Создаем подписку
+      const subscriptionResult = await createSubscription({
+        type: plan.type as 'monthly' | 'yearly',
+        price: plan.priceInKopecks
+      });
+
+      // Создаем ссылку на оплату
+      const paymentData = await subscriptionApi.createPaymentWithPlan(
+        subscriptionResult.id,
+        plan
+      );
+
+      setPaymentUrl(paymentData.paymentUrl);
+      setIsPaymentModalOpen(true);
+    } catch (error) {
+      console.error('Ошибка при оформлении подписки:', error);
+    }
+  };
+
+  const handleClosePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+    setSelectedPlan(null);
+    setPaymentUrl(null);
+  };
 
   return (
     <section id="subscription" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
@@ -114,9 +161,14 @@ export const SubscriptionPlansSection: React.FC = () => {
                     <div className="text-[18px] sm:text-[20px] md:text-[22px] lg:text-[24px] font-medium font-onest leading-[1.2] text-[#000]">
                       {formatRubles(plan.priceInKopecks)}
                     </div>
-                    <Button size="sm" className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4">
-                      Оформить
-                    </Button>
+                     <Button 
+                       size="sm" 
+                       className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
+                       onClick={() => handleSubscribe(plan)}
+                       disabled={isCreatingSubscription}
+                     >
+                       {isCreatingSubscription ? 'Обработка...' : 'Оформить'}
+                     </Button>
                   </div>
                 </Card>
               </motion.div>
@@ -124,6 +176,21 @@ export const SubscriptionPlansSection: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Модалки */}
+      {selectedPlan && paymentUrl && (
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={handleClosePaymentModal}
+          subscriptionType={selectedPlan.type as 'monthly' | 'yearly'}
+          paymentUrl={paymentUrl}
+        />
+      )}
+
+      <SmsLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </section>
   );
 };
