@@ -39,23 +39,7 @@ export const FooterSection: React.FC = () => {
                             <FooterText size="lg" opacity="80">{footerContact.email}</FooterText>
                         </div>
 
-                        {/* Ссылки */}
-                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 md:gap-[40px]">
-                            <div className="flex flex-col gap-[11px] w-full sm:w-[114px] text-center sm:text-left">
-                                {footerLinks.main.map((link) => (
-                                    <FooterLink key={link.text} href={link.href}>
-                                        {link.text}
-                                    </FooterLink>
-                                ))}
-                            </div>
-                            <div className="flex flex-col gap-[11px] w-full sm:w-auto text-center sm:text-left">
-                                {footerLinks.support.map((link) => (
-                                    <FooterLink key={link.text} href={link.href}>
-                                        {link.text}
-                                    </FooterLink>
-                                ))}
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
@@ -73,18 +57,18 @@ export const FooterSection: React.FC = () => {
                             </FooterLink>
                         ))}
 
-{footerLinks.main.map((link) => (
-                                    <FooterLink key={link.text} href={link.href}>
-                                        {link.text}
-                                    </FooterLink>
-                                ))}
+                        {footerLinks.main.map((link) => (
+                            <FooterLink key={link.text} href={link.href}>
+                                {link.text}
+                            </FooterLink>
+                        ))}
 
 
-{footerLinks.support.map((link) => (
-                                    <FooterLink key={link.text} href={link.href}>
-                                        {link.text}
-                                    </FooterLink>
-                                ))}
+                        {footerLinks.support.map((link) => (
+                            <FooterLink key={link.text} href={link.href}>
+                                {link.text}
+                            </FooterLink>
+                        ))}
                     </div>
                 </div>
             </div>

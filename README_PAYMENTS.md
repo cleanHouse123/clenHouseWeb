@@ -2,6 +2,399 @@
 
 Документация по настройке и использованию платежной системы YooKassa в приложении Clean House.
 
+## 🚀 Быстрый старт для фронтенда
+
+### Важно! Не используйте iframe для оплаты
+
+**❌ Неправильно:**
+
+```javascript
+// НЕ ДЕЛАЙТЕ ТАК - iframe не поддерживается YooKassa
+const iframe = document.createElement("iframe");
+iframe.src = paymentUrl;
+```
+
+**✅ Правильно:**
+
+```javascript
+// Прямое перенаправление на страницу оплаты
+window.location.href = paymentUrl;
+// или
+window.open(paymentUrl, "_blank");
+```
+
+### Пример интеграции для React/React Native
+
+```javascript
+// 1. Создание платежа
+const createPayment = async (orderId, amount) => {
+  try {
+    const response = await fetch("/orders/payment/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ orderId, amount }),
+    });
+
+    const data = await response.json();
+    return data; // { paymentUrl, paymentId, status }
+  } catch (error) {
+    console.error("Ошибка создания платежа:", error);
+  }
+};
+
+// 2. Перенаправление на оплату
+const handlePayment = async () => {
+  const payment = await createPayment(orderId, 1500);
+
+  if (payment?.paymentUrl) {
+    // Прямое перенаправление - ЕДИНСТВЕННЫЙ правильный способ
+    window.location.href = payment.paymentUrl;
+  }
+};
+
+// 3. Проверка статуса после возврата
+const checkPaymentStatus = async (paymentId) => {
+  const response = await fetch(`/orders/payment/status/${paymentId}`);
+  const status = await response.json();
+  return status; // { status: 'paid|pending|failed' }
+};
+```
+
+### Flow оплаты
+
+1. **Создание платежа** → получение `paymentUrl`
+2. **Перенаправление** → `window.location.href = paymentUrl`
+3. **Оплата на YooKassa** → пользователь вводит данные карты
+4. **Возврат на сервер** → YooKassa перенаправляет на `/order-payment/success/:paymentId`
+5. **Обработка на сервере** → автоматическое обновление статуса платежа
+6. **Редирект на фронтенд** → `http://localhost:5173/payment-return?paymentId=xxx`
+
+### ⚠️ Особенности тестового режима
+
+В тестовом режиме YooKassa может не передавать параметры через return_url. В этом случае:
+
+1. После оплаты пользователь увидит страницу с кнопкой "Вернуться в приложение"
+2. При нажатии на кнопку произойдет переход на фронтенд без `paymentId`
+3. Фронтенд должен проверить статус последнего платежа через API или показать общее сообщение об успешной оплате
+
+### WebSocket уведомления (опционально)
+
+```javascript
+import io from "socket.io-client";
+
+const socket = io("ws://localhost:4000/order-payment");
+
+// Подключение к комнате платежа
+socket.emit("join_order_payment_room", {
+  userId: "user-id",
+  paymentId: "payment-id",
+});
+
+// Обработка успешной оплаты
+socket.on("order_payment_success", (data) => {
+  console.log("Платеж успешен:", data);
+  // Обновить UI, показать успех
+});
+
+// Обработка ошибки оплаты
+socket.on("order_payment_error", (data) => {
+  console.log("Ошибка платежа:", data);
+  // Показать ошибку пользователю
+});
+```
+
+### Для React Native приложений
+
+```javascript
+import { Linking } from "react-native";
+
+// Создание и обработка платежа
+const handlePayment = async () => {
+  try {
+    const payment = await createPayment(orderId, amount);
+
+    if (payment?.paymentUrl) {
+      // Открытие внешнего браузера для оплаты
+      const supported = await Linking.canOpenURL(payment.paymentUrl);
+
+      if (supported) {
+        await Linking.openURL(payment.paymentUrl);
+
+        // Сохраняем paymentId для проверки статуса
+        await AsyncStorage.setItem("pendingPaymentId", payment.paymentId);
+
+        // Запускаем периодическую проверку статуса
+        startPaymentStatusCheck(payment.paymentId);
+      }
+    }
+  } catch (error) {
+    console.error("Ошибка оплаты:", error);
+  }
+};
+
+// Периодическая проверка статуса платежа
+const startPaymentStatusCheck = (paymentId) => {
+  const interval = setInterval(async () => {
+    try {
+      const status = await checkPaymentStatus(paymentId);
+
+      if (status.status === "paid") {
+        clearInterval(interval);
+        await AsyncStorage.removeItem("pendingPaymentId");
+        // Показать успех и обновить UI
+        showPaymentSuccess();
+      } else if (status.status === "failed") {
+        clearInterval(interval);
+        await AsyncStorage.removeItem("pendingPaymentId");
+        // Показать ошибку
+        showPaymentError();
+      }
+    } catch (error) {
+      console.error("Ошибка проверки статуса:", error);
+    }
+  }, 3000); // Проверяем каждые 3 секунды
+
+  // Останавливаем через 5 минут
+  setTimeout(() => clearInterval(interval), 300000);
+};
+
+// При возврате в приложение (AppState change)
+useEffect(() => {
+  const handleAppStateChange = async (nextAppState) => {
+    if (nextAppState === "active") {
+      const pendingPaymentId = await AsyncStorage.getItem("pendingPaymentId");
+      if (pendingPaymentId) {
+        // Проверяем статус при возврате в приложение
+        const status = await checkPaymentStatus(pendingPaymentId);
+        if (status.status === "paid") {
+          await AsyncStorage.removeItem("pendingPaymentId");
+          showPaymentSuccess();
+        }
+      }
+    }
+  };
+
+  const subscription = AppState.addEventListener(
+    "change",
+    handleAppStateChange
+  );
+  return () => subscription?.remove();
+}, []);
+```
+
+### Для веб-приложений с SPA роутингом
+
+```javascript
+// Для Next.js, React Router и других SPA
+const handlePayment = async () => {
+  const payment = await createPayment(orderId, amount);
+
+  if (payment?.paymentUrl) {
+    // Сохраняем текущий URL для возврата
+    sessionStorage.setItem("returnUrl", window.location.pathname);
+    sessionStorage.setItem("pendingPaymentId", payment.paymentId);
+
+    // Перенаправляем на оплату
+    window.location.href = payment.paymentUrl;
+  }
+};
+
+// В компоненте success страницы или при загрузке приложения
+useEffect(() => {
+  const checkPendingPayment = async () => {
+    const pendingPaymentId = sessionStorage.getItem("pendingPaymentId");
+    const returnUrl = sessionStorage.getItem("returnUrl");
+
+    if (pendingPaymentId) {
+      const status = await checkPaymentStatus(pendingPaymentId);
+
+      if (status.status === "paid") {
+        sessionStorage.removeItem("pendingPaymentId");
+        sessionStorage.removeItem("returnUrl");
+
+        // Показываем успех и возвращаемся
+        showPaymentSuccess();
+        if (returnUrl) {
+          router.push(returnUrl);
+        }
+      }
+    }
+  };
+
+  checkPendingPayment();
+}, []);
+```
+
+### Обработка возврата без paymentId (тестовый режим)
+
+```javascript
+// Компонент страницы возврата
+const PaymentReturn = () => {
+  const [status, setStatus] = useState("checking");
+  const searchParams = new URLSearchParams(window.location.search);
+  const paymentId = searchParams.get("paymentId");
+  const error = searchParams.get("error");
+  const type = searchParams.get("type"); // 'subscription' для подписок
+
+  useEffect(() => {
+    const handleReturn = async () => {
+      if (error) {
+        setStatus("error");
+        return;
+      }
+
+      if (paymentId) {
+        // Есть paymentId - проверяем конкретный платеж
+        try {
+          const endpoint =
+            type === "subscription"
+              ? `/subscription-payment/status/${paymentId}`
+              : `/order-payment/status/${paymentId}`;
+
+          const response = await fetch(endpoint);
+          const result = await response.json();
+
+          setStatus(result.status === "paid" ? "success" : "pending");
+        } catch (error) {
+          console.error("Ошибка проверки статуса:", error);
+          setStatus("error");
+        }
+      } else {
+        // Нет paymentId - проверяем последний платеж или показываем общее сообщение
+        const pendingPaymentId = sessionStorage.getItem("pendingPaymentId");
+
+        if (pendingPaymentId) {
+          try {
+            const endpoint =
+              type === "subscription"
+                ? `/subscription-payment/status/${pendingPaymentId}`
+                : `/order-payment/status/${pendingPaymentId}`;
+
+            const response = await fetch(endpoint);
+            const result = await response.json();
+
+            if (result.status === "paid") {
+              sessionStorage.removeItem("pendingPaymentId");
+              setStatus("success");
+            } else {
+              setStatus("pending");
+            }
+          } catch (error) {
+            console.error("Ошибка проверки статуса:", error);
+            setStatus("success"); // Показываем успех, так как пользователь вернулся
+          }
+        } else {
+          // Нет сохраненного paymentId - показываем общее сообщение
+          setStatus("success");
+        }
+      }
+    };
+
+    handleReturn();
+  }, [paymentId, error, type]);
+
+  if (status === "checking") {
+    return <div>Проверяем статус оплаты...</div>;
+  }
+
+  if (status === "error") {
+    return (
+      <div>
+        <h2>Ошибка оплаты</h2>
+        <p>Произошла ошибка при обработке платежа. Попробуйте еще раз.</p>
+        <button onClick={() => window.history.back()}>Вернуться назад</button>
+      </div>
+    );
+  }
+
+  if (status === "success") {
+    return (
+      <div>
+        <h2>Оплата успешна!</h2>
+        <p>
+          {type === "subscription"
+            ? "Подписка успешно оформлена."
+            : "Заказ успешно оплачен."}
+        </p>
+        <button onClick={() => (window.location.href = "/")}>
+          Вернуться на главную
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h2>Оплата в обработке</h2>
+      <p>Платеж обрабатывается. Статус будет обновлен автоматически.</p>
+    </div>
+  );
+};
+```
+
+### Обработка ошибок и edge cases
+
+```javascript
+const createPaymentWithRetry = async (orderId, amount, retries = 3) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const payment = await createPayment(orderId, amount);
+      return payment;
+    } catch (error) {
+      console.error(`Попытка ${i + 1} неудачна:`, error);
+
+      if (i === retries - 1) {
+        throw new Error("Не удалось создать платеж после нескольких попыток");
+      }
+
+      // Ждем перед повторной попыткой
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+};
+
+// Проверка доступности платежной системы
+const isPaymentAvailable = async () => {
+  try {
+    const response = await fetch("/orders/payment/health");
+    return response.ok;
+  } catch {
+    return false;
+  }
+};
+
+// Полный пример с обработкой ошибок
+const handlePaymentWithErrorHandling = async () => {
+  try {
+    // Проверяем доступность
+    const available = await isPaymentAvailable();
+    if (!available) {
+      throw new Error("Платежная система временно недоступна");
+    }
+
+    // Создаем платеж с повторными попытками
+    const payment = await createPaymentWithRetry(orderId, amount);
+
+    if (!payment?.paymentUrl) {
+      throw new Error("Не удалось получить ссылку на оплату");
+    }
+
+    // Перенаправляем
+    window.location.href = payment.paymentUrl;
+  } catch (error) {
+    console.error("Ошибка оплаты:", error);
+
+    // Показываем пользователю понятную ошибку
+    showErrorMessage(
+      "Не удалось перейти к оплате. Попробуйте позже или обратитесь в поддержку."
+    );
+  }
+};
+```
+
 ## Настройка
 
 ### Переменные окружения

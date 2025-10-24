@@ -68,8 +68,12 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                     orderId: order.id,
                     amount: 200
                 });
+
+                // Сохраняем данные платежа
                 setPaymentUrl(payment.paymentUrl);
                 setPaymentId(payment.paymentId);
+
+                // Показываем модальное окно с кнопкой перенаправления
                 setIsPaymentIframeOpen(true);
                 closeCreateOrderModal();
             } else {
@@ -122,7 +126,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                 isLoading={isCreatingOrder}
             />
 
-            {/* Iframe для оплаты */}
+            {/* Модальное окно для перенаправления на оплату */}
             <PaymentIframe
                 isOpen={isPaymentIframeOpen}
                 onClose={handleClosePayment}

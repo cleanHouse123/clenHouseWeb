@@ -46,8 +46,12 @@ export const OrderDetailsModal = ({
                 orderId: order.id,
                 amount: order.price
             });
+
+            // Сохраняем данные платежа
             setPaymentUrl(payment.paymentUrl);
             setPaymentId(payment.paymentId);
+
+            // Показываем модальное окно с кнопкой перенаправления
             setIsPaymentIframeOpen(true);
         } catch (error) {
             console.error('Ошибка создания платежа:', error);
@@ -181,7 +185,7 @@ export const OrderDetailsModal = ({
                 </DialogContent>
             </Dialog>
 
-            {/* Iframe для оплаты */}
+            {/* Модальное окно для перенаправления на оплату */}
             <PaymentIframe
                 isOpen={isPaymentIframeOpen}
                 onClose={() => setIsPaymentIframeOpen(false)}

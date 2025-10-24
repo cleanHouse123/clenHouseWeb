@@ -103,9 +103,9 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             code: '',
         },
     });
-    const isDev = true
-    //import.meta.env.VITE_SMS_DEV_MODE === 'true' || import.meta.env.DEV;
-    console.log('🔧 isDev:', isDev);
+    const isDev = import.meta.env.VITE_SMS_DEV_MODE === 'true' || import.meta.env.DEV;
+
+
     const handlePhoneSubmit = async (data: PhoneFormData) => {
         console.log('🔧 handlePhoneSubmit - data:', data);
         console.log('🔧 handlePhoneSubmit - phoneNumber:', data.phoneNumber);
