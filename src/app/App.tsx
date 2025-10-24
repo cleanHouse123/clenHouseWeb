@@ -4,13 +4,17 @@ import { useWindowHeight } from '@/core/hooks/ui/useWindowHeight'
 import { PWAInstallPrompt } from '@/core/components/ui/PWAInstallPrompt'
 import { Toaster } from 'sonner'
 import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext'
+import { Suspense } from 'react'
+import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
 
 function App() {
     useWindowHeight();
 
     return (
         <CreateOrderProvider>
-            <RouterProvider router={router} />
+            <Suspense fallback={<LoadingIndicator />}>
+                <RouterProvider router={router} />
+            </Suspense>
             <PWAInstallPrompt />
             <Toaster
                 position="top-right"

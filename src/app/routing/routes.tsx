@@ -1,15 +1,18 @@
 
-import { HomePage } from "@/pages/home";
-import { DashboardPage } from "@/pages/dashboard";
-import { OrdersPage } from "@/pages/orders";
-import { PaymentReturnPage } from "@/pages/payment-return";
-import { PrivacyPolicyPage } from "@/pages/privacy-policy";
-import { TermsOfServicePage } from "@/pages/terms-of-service";
-import { ContactsPage } from "@/pages/contacts";
+import { lazy } from "react";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { createBrowserRouter } from "react-router-dom";
-import { SubscriptionsPage } from "@/pages/subscriptions";
 import { AppLayout } from "@/core/components/layout/AppLayout";
+
+// Динамические импорты для code splitting
+const HomePage = lazy(() => import("@/pages/home").then(module => ({ default: module.HomePage })));
+const DashboardPage = lazy(() => import("@/pages/dashboard").then(module => ({ default: module.DashboardPage })));
+const OrdersPage = lazy(() => import("@/pages/orders").then(module => ({ default: module.OrdersPage })));
+const PaymentReturnPage = lazy(() => import("@/pages/payment-return").then(module => ({ default: module.PaymentReturnPage })));
+const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy").then(module => ({ default: module.PrivacyPolicyPage })));
+const TermsOfServicePage = lazy(() => import("@/pages/terms-of-service").then(module => ({ default: module.TermsOfServicePage })));
+const ContactsPage = lazy(() => import("@/pages/contacts").then(module => ({ default: module.ContactsPage })));
+const SubscriptionsPage = lazy(() => import("@/pages/subscriptions").then(module => ({ default: module.SubscriptionsPage })));
 
 export const router = createBrowserRouter([
   {

@@ -102,12 +102,55 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    emptyOutDir: true,
     rollupOptions: {
+      input: {
+        main: './index.html'
+      },
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['lucide-react', 'sonner']
+          // Основные библиотеки React
+          'react-vendor': ['react', 'react-dom'],
+          
+          // Роутинг
+          'router': ['react-router-dom'],
+          
+          // UI библиотеки
+          'ui-radix': [
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-checkbox', 
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-form',
+            '@radix-ui/react-label',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-toggle',
+            '@radix-ui/react-tooltip'
+          ],
+          
+          // Иконки и утилиты
+          'ui-icons': ['lucide-react', 'sonner'],
+          
+          // Формы и валидация
+          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          
+          // Анимации (большая библиотека)
+          'animations': ['framer-motion'],
+          
+          // WebSocket
+          'websocket': ['socket.io-client'],
+          
+          // Работа с данными
+          'data': ['@tanstack/react-query', 'axios'],
+          
+          // Утилиты
+          'utils': ['clsx', 'tailwind-merge', 'class-variance-authority', 'date-fns']
         }
       }
     }
