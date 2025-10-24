@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'ЧистоДом - Система управления',
         short_name: 'ЧистоДом',
-        description: 'Эффективное решение для управления вашим бизнесом',
+        description: 'Эффективное решение для выноса мусора',
         theme_color: '#000000',
         background_color: '#ffffff',
         display: 'standalone',

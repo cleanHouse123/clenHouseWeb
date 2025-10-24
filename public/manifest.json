@@ -1,7 +1,7 @@
 {
   "name": " ЧистоДом - Система управления",
   "short_name": "ЧистоДом",
-  "description": "Эффективное решение для управления вашим бизнесом",
+  "description": "Эффективное решение для выноса мусора",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
