@@ -90,15 +90,6 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
         }
     };
 
-    const handlePaymentSuccess = () => {
-        console.log('CreateOrderContext: handlePaymentSuccess вызван');
-        setIsPaymentIframeOpen(false);
-        console.log('CreateOrderContext: модалка оплаты закрыта');
-        // Обновляем данные после успешной оплаты
-        onOrderCreated?.();
-        console.log('CreateOrderContext: данные заказов обновлены');
-    };
-
     const handlePaymentError = (error: string) => {
         console.error('Ошибка оплаты:', error);
         setIsPaymentIframeOpen(false);
@@ -132,8 +123,6 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                 onClose={handleClosePayment}
                 paymentUrl={paymentUrl}
                 paymentId={paymentId}
-                userId={user?.userId}
-                onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
             />
         </CreateOrderContext.Provider>

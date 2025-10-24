@@ -2,130 +2,63 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
-import { useCheckOrderPaymentStatus } from '@/modules/orders/hooks/useOrders';
 import { toast } from 'sonner';
 
-type PaymentStatus = 'checking' | 'success' | 'error';
+type PaymentStatus = 'processing' | 'success' | 'error';
 
 export const PaymentReturnPage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const [status, setStatus] = useState<PaymentStatus>('checking');
+    const [status, setStatus] = useState<PaymentStatus>('processing');
     const [error, setError] = useState<string | null>(null);
 
-    const { mutateAsync: checkPaymentStatus } = useCheckOrderPaymentStatus();
-
     const paymentId = searchParams.get('paymentId');
+    const paymentStatus = searchParams.get('status');
+    const errorParam = searchParams.get('error');
     const returnUrl = sessionStorage.getItem('returnUrl') || '/orders';
 
     useEffect(() => {
-        if (paymentId) {
-            checkPaymentResult(paymentId);
+        // Очищаем sessionStorage при загрузке страницы
+        sessionStorage.removeItem('pendingPaymentId');
+        sessionStorage.removeItem('returnUrl');
+
+        if (errorParam) {
+            setStatus('error');
+            setError('Произошла ошибка при обработке платежа');
+            return;
+        }
+
+        if (paymentId && paymentStatus === 'success') {
+            setStatus('success');
+
+            // Показываем уведомление об успешной оплате
+            toast.success('Заказ успешно оплачен!', {
+                description: 'Ваш заказ принят в обработку',
+                duration: 5000,
+            });
+
+            // Перенаправляем на страницу заказов через 3 секунды
+            setTimeout(() => {
+                navigate(returnUrl);
+            }, 3000);
         } else {
-            // В тестовом режиме YooKassa может не передавать paymentId
-            handleTestModeReturn();
-        }
-    }, [paymentId]);
-
-    const handleTestModeReturn = async () => {
-        try {
-            // В тестовом режиме проверяем последний платеж из sessionStorage
-            const pendingPaymentId = sessionStorage.getItem('pendingPaymentId');
-
-            if (pendingPaymentId) {
-                // Если есть сохраненный paymentId, проверяем его статус
-                console.log('Тестовый режим: проверяем последний платеж', pendingPaymentId);
-                await checkPaymentResult(pendingPaymentId);
-            } else {
-                // Если нет сохраненного paymentId, показываем общее сообщение об успешной оплате
-                console.log('Тестовый режим: показываем общее сообщение об успешной оплате');
-                setStatus('success');
-
-                // Очищаем sessionStorage
-                sessionStorage.removeItem('pendingPaymentId');
-                sessionStorage.removeItem('returnUrl');
-
-                // Показываем уведомление об успешной оплате
-                toast.success('Заказ успешно оплачен!', {
-                    description: 'Ваш заказ будет обработан в ближайшее время',
-                    duration: 5000,
-                });
-
-                // Перенаправляем на страницу заказов через 3 секунды
-                setTimeout(() => {
-                    navigate(returnUrl);
-                }, 3000);
-            }
-        } catch (error) {
-            console.error('Ошибка обработки возврата в тестовом режиме:', error);
+            // Если нет параметров или статус не success, показываем ошибку
             setStatus('error');
-            setError('Ошибка обработки возврата с платежной страницы');
+            setError('Платеж не был завершен');
         }
-    };
-
-    const checkPaymentResult = async (paymentId: string) => {
-        try {
-            // Проверяем статус платежа (сервер уже обработал возврат с YooKassa)
-            const payment = await checkPaymentStatus(paymentId);
-
-            if (payment.status === 'paid') {
-                setStatus('success');
-
-                // Очищаем sessionStorage
-                sessionStorage.removeItem('pendingPaymentId');
-                sessionStorage.removeItem('returnUrl');
-
-                // Показываем уведомление об успешной оплате
-                toast.success('Заказ успешно оплачен!', {
-                    description: 'Ваш заказ будет обработан в ближайшее время',
-                    duration: 5000,
-                });
-
-                // Перенаправляем на страницу заказов через 3 секунды
-                setTimeout(() => {
-                    navigate(returnUrl);
-                }, 3000);
-            } else if (payment.status === 'failed') {
-                setStatus('error');
-                setError('Платеж не прошел');
-
-                // Очищаем sessionStorage
-                sessionStorage.removeItem('pendingPaymentId');
-                sessionStorage.removeItem('returnUrl');
-            } else {
-                // Если статус еще pending, ждем и проверяем снова
-                setTimeout(() => checkPaymentResult(paymentId), 2000);
-            }
-        } catch (error) {
-            console.error('Ошибка проверки платежа:', error);
-            setStatus('error');
-            setError('Ошибка проверки статуса платежа');
-        }
-    };
-
-    const handleRetry = () => {
-        if (paymentId) {
-            setStatus('checking');
-            setError(null);
-            checkPaymentResult(paymentId);
-        }
-    };
-
-    const handleGoBack = () => {
-        navigate(returnUrl);
-    };
+    }, [paymentId, paymentStatus, errorParam, navigate, returnUrl]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-                {status === 'checking' && (
+                {status === 'processing' && (
                     <div>
                         <Loader2 className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-spin" />
                         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                            Проверяем статус платежа...
+                            Обработка платежа...
                         </h2>
                         <p className="text-gray-600">
-                            Сервер обработал возврат с YooKassa, проверяем результат
+                            Пожалуйста, подождите
                         </p>
                     </div>
                 )}
@@ -137,14 +70,20 @@ export const PaymentReturnPage = () => {
                             ✅ Платеж успешно завершен!
                         </h2>
                         <p className="text-gray-600 mb-4">
-                            {paymentId
-                                ? 'Ваш заказ успешно оплачен. Вы будете перенаправлены автоматически...'
-                                : 'Оплата прошла успешно! Вы будете перенаправлены автоматически...'
-                            }
+                            Спасибо за оплату. Ваш заказ принят в обработку.
+                        </p>
+                        <p className="text-gray-600 mb-4">
+                            Вы будете перенаправлены на страницу заказов через несколько секунд...
                         </p>
                         <div className="flex justify-center">
                             <Loader2 className="h-6 w-6 text-green-500 animate-spin" />
                         </div>
+                        <Button
+                            onClick={() => navigate(returnUrl)}
+                            className="mt-4"
+                        >
+                            Перейти к заказам сейчас
+                        </Button>
                     </div>
                 )}
 
@@ -152,19 +91,14 @@ export const PaymentReturnPage = () => {
                     <div>
                         <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
                         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                            ❌ Ошибка оплаты
+                            ❌ Ошибка при оплате
                         </h2>
                         <p className="text-gray-600 mb-4">
-                            {error || 'Платеж не был завершен. Попробуйте еще раз.'}
+                            {error || 'К сожалению, произошла ошибка при обработке платежа.'}
                         </p>
-                        <div className="space-y-3">
-                            <Button onClick={handleRetry} className="w-full">
-                                Попробовать снова
-                            </Button>
-                            <Button variant="outline" onClick={handleGoBack} className="w-full">
-                                Вернуться к заказам
-                            </Button>
-                        </div>
+                        <Button onClick={() => navigate(returnUrl)} className="w-full">
+                            Вернуться к заказам
+                        </Button>
                     </div>
                 )}
             </div>
