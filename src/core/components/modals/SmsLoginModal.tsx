@@ -292,22 +292,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                 <div className="space-y-6">
                     {step === 'phone' ? (
                         <Form {...phoneForm}>
-                            <form onSubmit={(e) => {
-                                e.preventDefault(); // Предотвращаем стандартную отправку формы
-                                console.log('🔧 Form submit - form values:', phoneForm.getValues());
-                                console.log('🔧 Form submit - form errors:', phoneForm.formState.errors);
-
-                                // Проверяем валидацию вручную
-                                const isValid = phoneForm.formState.isValid;
-                                console.log('🔧 Form submit - isValid:', isValid);
-
-                                if (isValid) {
-                                    phoneForm.handleSubmit(handlePhoneSubmit)(e);
-                                } else {
-                                    console.log('🔧 Form validation failed');
-                                    phoneForm.trigger(); // Запускаем валидацию для показа ошибок
-                                }
-                            }} className="space-y-4" noValidate>
+                            <form className="space-y-4" noValidate>
                                 <FormField
                                     control={phoneForm.control}
                                     name="phoneNumber"
@@ -398,9 +383,20 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                 />
 
                                 <Button
-                                    type="submit"
+                                    type="button"
                                     className="w-full"
                                     disabled={isLoading || isSendingSms}
+                                    onMouseDown={async (e) => {
+                                        // Предотвращаем потерю фокуса и отправляем форму
+                                        e.preventDefault();
+
+                                        // Принудительно запускаем валидацию
+                                        const validationResult = await phoneForm.trigger();
+
+                                        if (validationResult) {
+                                            phoneForm.handleSubmit(handlePhoneSubmit)();
+                                        }
+                                    }}
                                 >
                                     {isLoading || isSendingSms ? (
                                         <div className="flex items-center justify-center">
