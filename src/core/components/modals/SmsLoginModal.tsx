@@ -10,6 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useSendSms } from '@/modules/auth/hooks/useSendSms';
 import { useVerifySms } from '@/modules/auth/hooks/useVerifySms';
 import { Phone, ArrowLeft, Shield } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { authApi } from '@/modules/auth/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 // Функция для жесткого форматирования номера телефона
 const formatPhoneNumber = (value: string): string => {
@@ -86,9 +90,11 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [devCode, setDevCode] = useState<string>('');
     const codeInputRef = useRef<HTMLInputElement>(null);
+    const [searchParams] = useSearchParams();
 
     const { mutateAsync: sendSms, isPending: isSendingSms } = useSendSms();
     const { mutateAsync: verifySms, isPending: isVerifyingSms } = useVerifySms();
+    const queryClient = useQueryClient();
 
     const phoneForm = useForm<PhoneFormData>({
         resolver: zodResolver(phoneSchema),
@@ -151,12 +157,40 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const handleCodeSubmit = async (data: CodeFormData) => {
         setIsLoading(true);
         try {
-            await verifySms({
-                phoneNumber,
-                code: data.code
-            });
-            // Закрываем модальное окно при успешной авторизации
-            onClose();
+            // Проверяем, есть ли параметр subscriptionType в URL
+            const subscriptionType = searchParams.get('subscriptionType');
+
+            if (subscriptionType) {
+                // Если есть параметр subscriptionType, используем прямую верификацию без перенаправления
+                const adToken = localStorage.getItem('adToken');
+                const result = await authApi.verifySms({
+                    phoneNumber,
+                    code: data.code,
+                    ...(adToken && { adToken }),
+                });
+
+                // Сохраняем токены в localStorage
+                localStorage.setItem('accessToken', result.accessToken);
+                localStorage.setItem('refreshToken', result.refreshToken);
+                localStorage.removeItem('adToken');
+
+                // Инвалидируем кэш пользователя для обновления данных
+                queryClient.invalidateQueries({ queryKey: ['me'] });
+
+                toast.success('Добро пожаловать!', {
+                    description: `Привет, ${result.user.name}! Вы успешно вошли в систему`,
+                    duration: 4000,
+                });
+
+                // Закрываем модальное окно - перенаправление произойдет в SubscriptionPlansSection
+                onClose();
+            } else {
+                // Если нет параметра, используем стандартную логику с перенаправлением
+                await verifySms({
+                    phoneNumber,
+                    code: data.code
+                });
+            }
         } catch (error) {
             console.error('Ошибка верификации SMS:', error);
             // Устанавливаем состояние ошибки

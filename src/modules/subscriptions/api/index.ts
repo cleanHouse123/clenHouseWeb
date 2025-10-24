@@ -39,20 +39,23 @@ export const subscriptionApi = {
     return response.data;
   },
 
-  // Создать ссылку на оплату подписки (новый endpoint согласно документации)
+  // Создать ссылку на оплату подписки (обновленный endpoint согласно документации)
   createSubscriptionPayment: async (
     subscriptionId: string,
     subscriptionType: "monthly" | "yearly",
+    planId: string,
     amount: number
   ): Promise<PaymentLinkResponse> => {
     console.log("API createSubscriptionPayment request data:", {
       subscriptionId,
       subscriptionType,
+      planId,
       amount,
     });
-    const response = await axiosInstance.post("/subscription/payment/create", {
+    const response = await axiosInstance.post("/subscriptions/payment/create", {
       subscriptionId,
       subscriptionType,
+      planId,
       amount,
     });
     return response.data;
@@ -65,7 +68,8 @@ export const subscriptionApi = {
     id: string;
     subscriptionId: string;
     amount: number;
-    status: "pending" | "paid" | "failed";
+    status: "pending" | "success" | "failed" | "refunded";
+    subscriptionType: string;
     createdAt: string;
   }> => {
     const response = await axiosInstance.get(
@@ -96,7 +100,7 @@ export const subscriptionApi = {
     return response.data;
   },
 
-  // Создать платеж с планом подписки (упрощенная функция)
+  // Создать платеж с планом подписки (обновленная функция)
   createPaymentWithPlan: async (
     subscriptionId: string,
     plan: SubscriptionPlan
@@ -104,6 +108,7 @@ export const subscriptionApi = {
     return subscriptionApi.createSubscriptionPayment(
       subscriptionId,
       plan.type as "monthly" | "yearly",
+      plan.id,
       plan.priceInKopecks
     );
   },

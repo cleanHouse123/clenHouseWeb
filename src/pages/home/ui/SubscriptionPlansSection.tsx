@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
@@ -9,6 +9,7 @@ import { SubscriptionPlan } from '@/modules/subscriptions/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
+import { useSearchParams } from 'react-router-dom';
 
 function formatRubles(kopecks: number) {
   const rubles = Math.round(kopecks / 100);
@@ -20,7 +21,8 @@ export const SubscriptionPlansSection: React.FC = () => {
   const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
   const { data: user } = useGetMe();
   const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -30,6 +32,11 @@ export const SubscriptionPlansSection: React.FC = () => {
     try {
       // Проверяем авторизацию
       if (!user) {
+        // Добавляем параметр subscriptionType в URL
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('subscriptionType', plan.type);
+        setSearchParams(newSearchParams);
+
         setIsLoginModalOpen(true);
         return;
       }
@@ -60,6 +67,34 @@ export const SubscriptionPlansSection: React.FC = () => {
     setSelectedPlan(null);
     setPaymentUrl(null);
   };
+
+  const handleCloseLoginModal = () => {
+    setIsLoginModalOpen(false);
+    // Убираем параметр subscriptionType из URL при закрытии модального окна
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('subscriptionType');
+    setSearchParams(newSearchParams);
+  };
+
+  // Обработка авторизации после возврата на страницу
+  useEffect(() => {
+    const subscriptionType = searchParams.get('subscriptionType');
+
+    if (user && subscriptionType && subscriptionPlans) {
+      // Находим план по типу
+      const plan = subscriptionPlans.find(p => p.type === subscriptionType);
+
+      if (plan) {
+        // Автоматически запускаем процесс оформления подписки
+        handleSubscribe(plan);
+
+        // Убираем параметр из URL
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete('subscriptionType');
+        setSearchParams(newSearchParams);
+      }
+    }
+  }, [user, searchParams, subscriptionPlans]);
 
   return (
     <section id="subscription" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
@@ -94,26 +129,25 @@ export const SubscriptionPlansSection: React.FC = () => {
         )}
 
         {!isLoading && !error && subscriptionPlans && (
-          <div className={`mt-[42px] grid gap-4 ${
-            subscriptionPlans.length === 1 ? 'grid-cols-1' :
+          <div className={`mt-[42px] grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :
             subscriptionPlans.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
-            subscriptionPlans.length === 3 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
-            subscriptionPlans.length === 4 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4' :
-            'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
-          }`}>
+              subscriptionPlans.length === 3 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
+                subscriptionPlans.length === 4 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4' :
+                  'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
+            }`}>
             {subscriptionPlans.map((plan: SubscriptionPlan, idx) => (
               <motion.div
                 key={plan.id}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.6, 
+                transition={{
+                  duration: 0.6,
                   delay: idx * 0.2,
                   ease: "easeOut"
                 }}
                 viewport={{ once: true, margin: "-50px" }}
-                whileHover={{ 
-                  y: -8, 
+                whileHover={{
+                  y: -8,
                   transition: { duration: 0.2 }
                 }}
                 className="w-full"
@@ -137,38 +171,36 @@ export const SubscriptionPlansSection: React.FC = () => {
                     <p className="text-[13px] sm:text-[14px] md:text-[15px] text-gray-600">{plan.description}</p>
 
                     <div className="flex flex-wrap gap-2 pt-2">
-                     {plan.features.map((tag: string, index: number) => {
-                       const isLastTwo = index >= plan.features.length - 2;
-                       const isGreenFeature = plan.badgeColor === 'green' && isLastTwo;
-                       
-                       return (
-                         <div 
-                           key={tag} 
-                           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full ${
-                             isGreenFeature ? 'bg-[#E5F8E3]' : 'bg-[#EDF6FC]'
-                           }`}
-                         >
-                           <span className={`text-[12px] sm:text-[13px] font-normal leading-[1.4] ${
-                             isGreenFeature ? 'text-[#387C32]' : 'text-[#01609F]'
-                           }`}>{tag}</span>
-                         </div>
-                       );
-                     })}
+                      {plan.features.map((tag: string, index: number) => {
+                        const isLastTwo = index >= plan.features.length - 2;
+                        const isGreenFeature = plan.badgeColor === 'green' && isLastTwo;
+
+                        return (
+                          <div
+                            key={tag}
+                            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full ${isGreenFeature ? 'bg-[#E5F8E3]' : 'bg-[#EDF6FC]'
+                              }`}
+                          >
+                            <span className={`text-[12px] sm:text-[13px] font-normal leading-[1.4] ${isGreenFeature ? 'text-[#387C32]' : 'text-[#01609F]'
+                              }`}>{tag}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
 
                   <div className="flex flex-row items-center justify-between gap-3 mt-6">
                     <div className="text-[18px] sm:text-[20px] md:text-[22px] lg:text-[24px] font-medium font-onest leading-[1.2] text-[#000]">
                       {formatRubles(plan.priceInKopecks)}
                     </div>
-                     <Button 
-                       size="sm" 
-                       className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
-                       onClick={() => handleSubscribe(plan)}
-                       disabled={isCreatingSubscription}
-                     >
-                       {isCreatingSubscription ? 'Обработка...' : 'Оформить'}
-                     </Button>
+                    <Button
+                      size="sm"
+                      className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
+                      onClick={() => handleSubscribe(plan)}
+                      disabled={isCreatingSubscription}
+                    >
+                      {isCreatingSubscription ? 'Обработка...' : 'Оформить'}
+                    </Button>
                   </div>
                 </Card>
               </motion.div>
@@ -189,7 +221,7 @@ export const SubscriptionPlansSection: React.FC = () => {
 
       <SmsLoginModal
         isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
+        onClose={handleCloseLoginModal}
       />
     </section>
   );

@@ -52,10 +52,11 @@ export const SubscriptionsPage = () => {
 
             console.log('Subscription created:', subscriptionResult);
 
-            // Создаем платеж подписки через новый API
+            // Создаем платеж подписки через обновленный API
             const paymentData = await subscriptionApi.createSubscriptionPayment(
                 subscriptionResult.id,
                 type,
+                plan.id,
                 priceInKopecks
             );
 
@@ -92,17 +93,22 @@ export const SubscriptionsPage = () => {
                 return;
             }
 
-            // Если paymentUrl нет, создаем новую ссылку на оплату через новый API
+            // Если paymentUrl нет, создаем новую ссылку на оплату через обновленный API
+            const plans = await subscriptionApi.getSubscriptionPlans();
+            const plan = plans.find(p => p.type === subscriptionType);
+
+            if (!plan) {
+                throw new Error('План подписки не найден');
+            }
+
             const paymentData = await subscriptionApi.createSubscriptionPayment(
                 subscriptionId,
                 subscriptionType as 'monthly' | 'yearly',
+                plan.id,
                 amount
             );
 
-            // Получаем план подписки для отображения
-            const plans = await subscriptionApi.getSubscriptionPlans();
-            const plan = plans.find(p => p.type === subscriptionType);
-            setSelectedPlan(plan || null);
+            setSelectedPlan(plan);
             setPaymentUrl(paymentData.paymentUrl);
 
             // Открываем модальное окно оплаты
