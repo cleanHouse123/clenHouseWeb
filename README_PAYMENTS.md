@@ -4,9 +4,7 @@
 
 ## 🚀 Быстрый старт для фронтенда
 
-### ⚠️ КРИТИЧЕСКИ ВАЖНО! Не используйте iframe для оплаты
-
-**YooKassa НЕ ПОДДЕРЖИВАЕТ iframe!** Это приведет к ошибкам и неработающим платежам.
+### Важно! Не используйте iframe для оплаты
 
 **❌ Неправильно:**
 
@@ -237,94 +235,6 @@ const PaymentComponent = ({
 export default PaymentComponent;
 ```
 
-### Правильный компонент для подписок (без iframe!)
-
-```jsx
-import React, { useState } from "react";
-import { ExternalLink } from "lucide-react";
-
-const SubscriptionPaymentModal = ({
-  isOpen,
-  onClose,
-  subscriptionType,
-  paymentUrl,
-  amount,
-}) => {
-  const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const handlePaymentRedirect = () => {
-    if (!paymentUrl) {
-      console.error("Ссылка на оплату не найдена");
-      return;
-    }
-
-    setIsRedirecting(true);
-
-    // Сохраняем данные для возврата
-    sessionStorage.setItem("returnUrl", window.location.pathname);
-    sessionStorage.setItem("paymentType", "subscription");
-
-    // Прямое перенаправление на YooKassa
-    window.location.href = paymentUrl;
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <div className="text-center">
-          <div className="bg-blue-50 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <ExternalLink className="h-8 w-8 text-blue-600" />
-          </div>
-
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Перенаправление на оплату подписки
-          </h3>
-
-          <p className="text-gray-600 mb-4">
-            Вы будете перенаправлены на безопасную страницу оплаты YooKassa
-          </p>
-
-          {subscriptionType && (
-            <p className="text-sm text-gray-500 mb-4">
-              Тип подписки:{" "}
-              {subscriptionType === "monthly" ? "Ежемесячная" : "Годовая"}
-            </p>
-          )}
-
-          {amount && (
-            <p className="text-sm text-gray-500 mb-6">
-              Сумма: {amount / 100} ₽
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <button
-            onClick={handlePaymentRedirect}
-            disabled={isRedirecting || !paymentUrl}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            {isRedirecting ? "Перенаправление..." : "Перейти к оплате"}
-          </button>
-
-          <button
-            onClick={onClose}
-            className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300"
-          >
-            Отмена
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default SubscriptionPaymentModal;
-```
-
 ### Хук для управления платежами
 
 ```jsx
@@ -349,46 +259,24 @@ const usePayment = () => {
   }, []);
 
   const createPayment = useCallback(
-    async (
-      id,
-      amount,
-      onSuccess,
-      onError,
-      type = "order",
-      subscriptionType = null
-    ) => {
+    async (orderId, amount, onSuccess, onError) => {
       setIsProcessing(true);
 
       try {
-        const endpoint =
-          type === "subscription"
-            ? "/subscription/payment/create"
-            : "/orders/payment/create";
-
-        const body =
-          type === "subscription"
-            ? { subscriptionId: id, subscriptionType, amount }
-            : { orderId: id, amount };
-
-        const response = await fetch(endpoint, {
+        const response = await fetch("/orders/payment/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ orderId, amount }),
         });
 
         const payment = await response.json();
 
         if (payment.paymentUrl) {
           // Подписываемся на обновления статуса
-          const eventName =
-            type === "subscription"
-              ? `subscription_payment_${payment.paymentId}`
-              : `order_payment_${payment.paymentId}`;
-
-          socket?.on(eventName, (data) => {
+          socket?.on(`order_payment_${payment.paymentId}`, (data) => {
             if (data.status === "success") {
               onSuccess?.(data);
             } else if (data.status === "error") {
@@ -401,7 +289,7 @@ const usePayment = () => {
           window.location.href = payment.paymentUrl;
         }
       } catch (error) {
-        console.error(`Ошибка создания платежа ${type}:`, error);
+        console.error("Ошибка создания платежа:", error);
         onError?.(error.message);
         setIsProcessing(false);
       }
@@ -430,13 +318,7 @@ const OrderComponent = ({ orderId, amount }) => {
   };
 
   const handlePayClick = () => {
-    createPayment(
-      orderId,
-      amount,
-      handlePaymentSuccess,
-      handlePaymentError,
-      "order"
-    );
+    createPayment(orderId, amount, handlePaymentSuccess, handlePaymentError);
   };
 
   return (
@@ -724,7 +606,7 @@ Response:
 }
 ```
 
-### Проверка статуса платежа заказа
+### Проверка статуса платежа
 
 ```
 GET /orders/payment/status/:paymentId
@@ -735,23 +617,6 @@ Response:
   "id": "uuid-платежа",
   "orderId": "uuid-заказа",
   "amount": 1500,
-  "status": "paid", // pending, paid, failed, canceled
-  "createdAt": "2024-01-01T00:00:00.000Z"
-}
-```
-
-### Проверка статуса платежа подписки
-
-```
-GET /subscription/payment/status/:paymentId
-Authorization: Bearer <token>
-
-Response:
-{
-  "id": "uuid-платежа",
-  "subscriptionId": "uuid-подписки",
-  "subscriptionType": "premium",
-  "amount": 29900,
   "status": "paid", // pending, paid, failed, canceled
   "createdAt": "2024-01-01T00:00:00.000Z"
 }
@@ -877,11 +742,6 @@ socket.on(`order_payment_${paymentId}`, (data) => {
   clearTimeout(paymentTimeout);
   // Обработка события
 });
-
-socket.on(`subscription_payment_${paymentId}`, (data) => {
-  clearTimeout(paymentTimeout);
-  // Обработка события
-});
 ```
 
 ## 🔧 Отладка
@@ -899,18 +759,11 @@ docker logs -f your-container-name | grep "YooKassa"
 ### Проверка статуса платежа
 
 ```javascript
-// Ручная проверка статуса платежа заказа
-const checkOrderPaymentStatus = async (paymentId) => {
+// Ручная проверка статуса
+const checkPaymentStatus = async (paymentId) => {
   const response = await fetch(`/orders/payment/status/${paymentId}`);
   const status = await response.json();
-  console.log("Статус платежа заказа:", status);
-};
-
-// Ручная проверка статуса платежа подписки
-const checkSubscriptionPaymentStatus = async (paymentId) => {
-  const response = await fetch(`/subscription/payment/status/${paymentId}`);
-  const status = await response.json();
-  console.log("Статус платежа подписки:", status);
+  console.log("Статус платежа:", status);
 };
 ```
 

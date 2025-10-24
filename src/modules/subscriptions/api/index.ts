@@ -3,7 +3,6 @@ import {
   UserSubscription,
   CreateSubscriptionRequest,
   CreateSubscriptionResponse,
-  PaymentLinkRequest,
   PaymentLinkResponse,
   SubscriptionPlan,
 } from "../types";
@@ -40,15 +39,22 @@ export const subscriptionApi = {
     return response.data;
   },
 
-  // Создать ссылку на оплату
-  createPaymentLink: async (
-    data: PaymentLinkRequest
+  // Создать ссылку на оплату подписки (новый endpoint согласно документации)
+  createSubscriptionPayment: async (
+    subscriptionId: string,
+    subscriptionType: "monthly" | "yearly",
+    amount: number
   ): Promise<PaymentLinkResponse> => {
-    console.log("API createPaymentLink request data:", data);
-    const response = await axiosInstance.post(
-      "/subscriptions/payment/create",
-      data
-    );
+    console.log("API createSubscriptionPayment request data:", {
+      subscriptionId,
+      subscriptionType,
+      amount,
+    });
+    const response = await axiosInstance.post("/subscription/payment/create", {
+      subscriptionId,
+      subscriptionType,
+      amount,
+    });
     return response.data;
   },
 
@@ -90,29 +96,15 @@ export const subscriptionApi = {
     return response.data;
   },
 
-  // Создать платеж с планом подписки (новая оптимизированная функция)
+  // Создать платеж с планом подписки (упрощенная функция)
   createPaymentWithPlan: async (
     subscriptionId: string,
     plan: SubscriptionPlan
   ): Promise<PaymentLinkResponse> => {
-    console.log("API createPaymentWithPlan request data:", {
+    return subscriptionApi.createSubscriptionPayment(
       subscriptionId,
-      planId: plan.id,
-      subscriptionType: plan.type,
-      amount: plan.priceInKopecks,
-    });
-
-    const paymentData: PaymentLinkRequest = {
-      subscriptionId,
-      planId: plan.id,
-      subscriptionType: plan.type as "monthly" | "yearly",
-      amount: plan.priceInKopecks, // Используем цену в копейках напрямую
-    };
-
-    const response = await axiosInstance.post(
-      "/subscriptions/payment/create",
-      paymentData
+      plan.type as "monthly" | "yearly",
+      plan.priceInKopecks
     );
-    return response.data;
   },
 };

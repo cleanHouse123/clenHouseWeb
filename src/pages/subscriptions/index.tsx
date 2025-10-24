@@ -52,10 +52,11 @@ export const SubscriptionsPage = () => {
 
             console.log('Subscription created:', subscriptionResult);
 
-            // Создаем платеж с планом (новая оптимизированная функция)
-            const paymentData = await subscriptionApi.createPaymentWithPlan(
+            // Создаем платеж подписки через новый API
+            const paymentData = await subscriptionApi.createSubscriptionPayment(
                 subscriptionResult.id,
-                plan
+                type,
+                priceInKopecks
             );
 
             console.log('Payment link created:', paymentData);
@@ -78,6 +79,7 @@ export const SubscriptionsPage = () => {
     const handlePayExistingSubscription = async (subscriptionId: string) => {
         try {
             const subscriptionType = userSubscription?.type || 'monthly';
+            const amount = userSubscription?.price || 0;
 
             // Используем paymentUrl из подписки, если он есть
             if (userSubscription?.paymentUrl) {
@@ -90,21 +92,17 @@ export const SubscriptionsPage = () => {
                 return;
             }
 
-            // Если paymentUrl нет, создаем новую ссылку на оплату
-            const plans = await subscriptionApi.getSubscriptionPlans();
-            const plan = plans.find(p => p.type === subscriptionType);
-
-            if (!plan) {
-                throw new Error('План подписки не найден');
-            }
-
-            // Создаем платеж с планом (новая оптимизированная функция)
-            const paymentData = await subscriptionApi.createPaymentWithPlan(
+            // Если paymentUrl нет, создаем новую ссылку на оплату через новый API
+            const paymentData = await subscriptionApi.createSubscriptionPayment(
                 subscriptionId,
-                plan
+                subscriptionType as 'monthly' | 'yearly',
+                amount
             );
 
-            setSelectedPlan(plan);
+            // Получаем план подписки для отображения
+            const plans = await subscriptionApi.getSubscriptionPlans();
+            const plan = plans.find(p => p.type === subscriptionType);
+            setSelectedPlan(plan || null);
             setPaymentUrl(paymentData.paymentUrl);
 
             // Открываем модальное окно оплаты
