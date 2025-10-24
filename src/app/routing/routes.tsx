@@ -9,6 +9,7 @@ import { ContactsPage } from "@/pages/contacts";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { createBrowserRouter } from "react-router-dom";
 import { SubscriptionsPage } from "@/pages/subscriptions";
+import { AppLayout } from "@/core/components/layout/AppLayout";
 
 export const router = createBrowserRouter([
   {
@@ -53,14 +54,26 @@ export const router = createBrowserRouter([
   },
   {
     path: "privacy-policy",
-    element: <PrivacyPolicyPage />,
+    element: (
+      <AppLayout>
+        <PrivacyPolicyPage />
+      </AppLayout>
+    ),
   },
   {
     path: "terms-of-service",
-    element: <TermsOfServicePage />,
+    element: (
+      <AppLayout>
+        <TermsOfServicePage />
+      </AppLayout>
+    ),
   },
   {
     path: "contacts",
-    element: <ContactsPage />,
+    element: (
+      <AppLayout>
+        <ContactsPage />
+      </AppLayout>
+    ),
   }
 ]);
