@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/core/components/ui/button/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
-import { CreditCard, Wifi, WifiOff } from 'lucide-react';
+import { CreditCard, Wifi, WifiOff, ExternalLink } from 'lucide-react';
 import { webSocketService } from '../services/websocket';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useQueryClient } from '@tanstack/react-query';
@@ -23,6 +23,7 @@ export const PaymentModal = ({
 }: PaymentModalProps) => {
     const [paymentStatus, setPaymentStatus] = useState<string>('pending');
     const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     const { data: user } = useGetMe();
     const queryClient = useQueryClient();
@@ -36,6 +37,25 @@ export const PaymentModal = ({
     // Извлекаем paymentId из URL
     const getPaymentId = () => {
         return paymentUrl?.split('/').pop() || 'mock-payment-id';
+    };
+
+    // Обработка прямого перенаправления на оплату
+    const handlePaymentRedirect = () => {
+        if (!paymentUrl) {
+            toast.error('Ссылка на оплату не найдена');
+            return;
+        }
+
+        setIsRedirecting(true);
+
+        // Сохраняем текущий URL для возврата
+        sessionStorage.setItem('returnUrl', window.location.pathname);
+        sessionStorage.setItem('pendingPaymentId', getPaymentId());
+        sessionStorage.setItem('paymentType', 'subscription');
+
+        // Прямое перенаправление на страницу оплаты YooKassa
+        // YooKassa автоматически перенаправит на /payment-return?paymentId=...&type=subscription
+        window.location.href = paymentUrl;
     };
 
     // Подключение к WebSocket комнате платежа
@@ -253,32 +273,37 @@ export const PaymentModal = ({
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-4">
-                    {/* Iframe с оплатой */}
-                    {paymentUrl ? (
-                        <div className="border rounded-lg overflow-hidden">
-                            <iframe
-                                src={paymentUrl}
-                                className="w-full h-[600px] border-0"
-                                title="Страница оплаты"
-                                sandbox="allow-scripts allow-forms allow-same-origin allow-top-navigation"
-                            />
+                <div className="space-y-6">
+                    <div className="text-center">
+                        <div className="bg-blue-50 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                            <ExternalLink className="h-8 w-8 text-blue-600" />
                         </div>
-                    ) : (
-                        <div className="bg-gray-50 rounded-lg p-8 text-center">
-                            <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                            <p className="text-lg text-gray-600">
-                                Загрузка ссылки на оплату...
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            Перенаправление на оплату подписки
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                            Вы будете перенаправлены на безопасную страницу оплаты YooKassa
+                        </p>
+                        {subscriptionType && (
+                            <p className="text-sm text-gray-500">
+                                Тип подписки: {subscriptionType === 'monthly' ? 'Ежемесячная' : 'Годовая'}
                             </p>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
+                    <div className="space-y-3">
+                        <Button
+                            onClick={handlePaymentRedirect}
+                            disabled={isRedirecting || !paymentUrl}
+                            className="w-full"
+                            size="lg"
+                        >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            {isRedirecting ? 'Перенаправление...' : 'Перейти к оплате'}
+                        </Button>
 
-
-                    {/* Кнопки */}
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={onClose} className="flex-1">
-                            Закрыть
+                        <Button variant="outline" onClick={onClose} className="w-full">
+                            Отмена
                         </Button>
                     </div>
                 </div>
