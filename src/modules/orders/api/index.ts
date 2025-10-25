@@ -60,6 +60,15 @@ export const ordersApi = {
     return response.data;
   },
 
+  // Обновить статус заказа
+  updateOrderStatus: async (
+    id: string,
+    data: UpdateOrderStatusDto
+  ): Promise<OrderResponseDto> => {
+    const response = await axiosInstance.patch(`/orders/${id}/status`, data);
+    return response.data;
+  },
+
   // Удалить заказ
   deleteOrder: async (id: string): Promise<{ message: string }> => {
     const response = await axiosInstance.delete(`/orders/${id}`);

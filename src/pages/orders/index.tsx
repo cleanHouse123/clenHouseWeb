@@ -45,16 +45,17 @@ const OrdersContent = () => {
     };
 
     // Фильтрация заказов на фронтенде
-    const filteredOrders = customerOrders?.orders?.filter(order =>
+    const filteredOrders = customerOrders?.filter(order =>
         statusFilter === 'all' || order.status === statusFilter
     ) || [];
+
 
     // Функция для подсчета заказов по статусу
     const getOrdersCountByStatus = (status: OrderStatus | 'all') => {
         if (status === 'all') {
-            return customerOrders?.orders?.length || 0;
+            return customerOrders?.length || 0;
         }
-        return customerOrders?.orders?.filter(order => order.status === status).length || 0;
+        return customerOrders?.filter(order => order.status === status).length || 0;
     };
 
     const handleStatusUpdate = async (orderId: string, status: OrderStatus) => {

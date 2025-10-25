@@ -42,13 +42,13 @@ export const SubscriptionsPage = () => {
 
             setSelectedPlan(plan);
 
-            // Создаем подписку
+            // Создаем временную подписку со статусом "pending"
             const subscriptionResult = await createSubscription({
                 type,
                 price: priceInKopecks
             });
 
-            console.log('Subscription created:', subscriptionResult);
+            console.log('Temporary subscription created:', subscriptionResult);
 
             // Создаем платеж подписки через обновленный API
             const paymentData = await subscriptionApi.createSubscriptionPayment(
@@ -73,6 +73,12 @@ export const SubscriptionsPage = () => {
         setIsPaymentModalOpen(false);
         setSelectedPlan(null);
         setPaymentUrl(null);
+    };
+
+    const handlePaymentSuccess = () => {
+        // Обновляем данные подписки после успешной оплаты
+        console.log('Payment success callback triggered');
+        // WebSocket уже обновляет кэш, но можно добавить дополнительную логику
     };
 
     const handlePayExistingSubscription = async (subscriptionId: string) => {
@@ -186,7 +192,7 @@ export const SubscriptionsPage = () => {
                             <CardContent>
                                 <SubscriptionTypeSelector
                                     onSelect={handleSelectSubscription}
-                                    isLoading={isCreatingSubscription || isCreatingPaymentLink}
+                                    isLoading={isCreatingSubscription}
                                 />
                             </CardContent>
                         </Card>
@@ -205,6 +211,7 @@ export const SubscriptionsPage = () => {
                 onClose={handleClosePaymentModal}
                 subscriptionType={selectedPlan?.type as 'monthly' | 'yearly' | null}
                 paymentUrl={paymentUrl}
+                onPaymentSuccess={handlePaymentSuccess}
             />
         </div>
     );

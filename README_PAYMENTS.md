@@ -35,7 +35,7 @@
 POST /orders/payment/create
 {
   "orderId": "uuid",
-  "amount": 150000  // в копейках (1500 рублей)
+  "amount": 20000  // в копейках (200 рублей)
 }
 
 Response:
@@ -51,16 +51,16 @@ Response:
 ```
 POST /subscriptions/payment/create
 {
-  "subscriptionId": "uuid",
-  "subscriptionType": "monthly",
-  "planId": "uuid",
-  "amount": 100000  // в копейках (1000 рублей)
+  "subscriptionId": "ff11450c-6f20-4813-bccd-53a8bbae615b",
+  "subscriptionType": "yearly",
+  "planId": "cc93f854-9af3-450c-82dd-d20343334cc6",
+  "amount": 960000  // в копейках (9600 рублей)
 }
 
 Response:
 {
-  "paymentUrl": "https://yoomoney.ru/checkout/...",
-  "paymentId": "uuid",
+  "paymentUrl": "https://yoomoney.ru/checkout/payments/v2/contract?orderId=...",
+  "paymentId": "2300dc72-8421-482f-96ce-c3e4ef5d273d",
   "status": "pending"
 }
 ```
@@ -246,34 +246,76 @@ https://your-domain.com/webhooks/yookassa
 
 ## 💻 Использование на фронтенде
 
-### Простой flow без WebSocket'ов
+### Полный flow с реальными примерами
 
 ```javascript
-// 1. Создание платежа
-const createPayment = async (orderId, amount) => {
+// 1. Создание подписки
+const createSubscription = async (userId, type, price, startDate, endDate) => {
+  const response = await fetch("/subscriptions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      userId: "4abf56cd-ed2c-4d08-87a6-e31db9b77ef2",
+      type: "yearly",
+      price: 9600, // в рублях
+      startDate: "2025-10-25T14:00:25.000",
+      endDate: "2026-10-25T14:00:25.000",
+    }),
+  });
+
+  const subscription = await response.json();
+  return subscription; // { id: "ff11450c-6f20-4813-bccd-53a8bbae615b", ... }
+};
+
+// 2. Создание платежа для заказа (единый стандарт!)
+const createOrderPayment = async (orderId) => {
   const response = await fetch("/orders/payment/create", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ orderId, amount }),
+    body: JSON.stringify({
+      orderId: "739c65f2-383d-4272-a8d4-ca88d7c2a54e",
+      amount: 20000, // в копейках (200 рублей)
+    }),
   });
 
-  const { paymentUrl, paymentId } = await response.json();
-
-  // 2. Перенаправление на оплату
-  window.location.href = paymentUrl;
+  const payment = await response.json();
+  window.location.href = payment.paymentUrl;
 };
 
-// 3. Проверка статуса после возврата
+// 3. Создание платежа для подписки (единый стандарт!)
+const createSubscriptionPayment = async (subscriptionId, planId) => {
+  const response = await fetch("/subscriptions/payment/create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      subscriptionId: "ff11450c-6f20-4813-bccd-53a8bbae615b",
+      subscriptionType: "yearly",
+      planId: "cc93f854-9af3-450c-82dd-d20343334cc6",
+      amount: 960000, // в копейках (9600 рублей)
+    }),
+  });
+
+  const payment = await response.json();
+  window.location.href = payment.paymentUrl;
+};
+
+// 4. Проверка статуса после возврата
 const checkPaymentStatus = async (paymentId) => {
   const response = await fetch(`/payment-status/${paymentId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
   const payment = await response.json();
-  return payment.status; // 'paid', 'pending', 'failed'
+  return payment.status; // 'success', 'pending', 'failed'
 };
 ```
 
@@ -395,7 +437,28 @@ curl -X POST http://localhost:3000/orders/payment/create \
 - **Фронтенд → API**: сумма в копейках (integer)
 - **API → Фронтенд**: все суммы как числа (не строки!)
 - **API → YooKassa**: сумма в рублях как число
-- **Конвертация**: `Number((amount / 100).toFixed(2))`
+- **Конвертация**: `amount / 100` → `9600`
+
+### ✅ Единый стандарт: ВСЕ платежи в копейках
+
+```javascript
+// Подписка создается в РУБЛЯХ (только для создания entity)
+const subscription = {
+  price: 9600, // рубли
+};
+
+// ВСЕ платежи создаются в КОПЕЙКАХ (единый стандарт!)
+const orderPayment = {
+  amount: 20000, // копейки (200 рублей)
+};
+
+const subscriptionPayment = {
+  amount: 960000, // копейки (9600 рублей)
+};
+
+// Backend конвертирует ВСЕ суммы одинаково
+const yookassaAmount = amount / 100; // копейки → рубли
+```
 
 ### Работа с суммами на фронтенде
 

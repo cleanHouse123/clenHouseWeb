@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ordersApi } from '../api';
-import { CreateOrderDto, OrderQueryParams, UpdateOrderStatusDto, OrderPaymentRequest, OrderPaymentResponse, OrderPaymentStatus } from '../types';
+import { CreateOrderDto, OrderQueryParams, UpdateOrderStatusDto, OrderPaymentRequest } from '../types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { toast } from 'sonner';
 
@@ -28,7 +28,7 @@ export const useCustomerOrders = (params?: Omit<OrderQueryParams, 'customerId'>)
 
     return useQuery({
         queryKey: ['customer-orders', user?.userId, params],
-        queryFn: () => ordersApi.getCustomerOrders(user!.userId, params),
+        queryFn: () => ordersApi.getCustomerOrders(user!.userId),
         enabled: !!user?.userId,
     });
 };
@@ -125,7 +125,7 @@ export const useCreateOrderPayment = () => {
 
     return useMutation({
         mutationFn: (data: OrderPaymentRequest) => ordersApi.createPaymentLink(data.orderId, data.amount),
-        onSuccess: (data: OrderPaymentResponse) => {
+        onSuccess: () => {
             toast.success('Ссылка на оплату создана!', {
                 description: 'Перенаправляем на страницу оплаты...',
                 duration: 3000,
@@ -149,6 +149,16 @@ export const useCreateOrderPayment = () => {
 export const useCheckOrderPaymentStatus = () => {
     return useMutation({
         mutationFn: (paymentId: string) => ordersApi.checkPaymentStatus(paymentId),
+        onError: (error: any) => {
+            console.error('Ошибка проверки статуса платежа:', error);
+        },
+    });
+};
+
+// Универсальная проверка статуса платежа (для любых типов платежей)
+export const useCheckUniversalPaymentStatus = () => {
+    return useMutation({
+        mutationFn: (paymentId: string) => ordersApi.checkUniversalPaymentStatus(paymentId),
         onError: (error: any) => {
             console.error('Ошибка проверки статуса платежа:', error);
         },

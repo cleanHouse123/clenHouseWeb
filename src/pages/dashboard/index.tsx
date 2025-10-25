@@ -62,7 +62,7 @@ const DashboardContent = () => {
                 {/* Recent Orders */}
                 <div className="max-w-4xl">
                     <RecentOrders
-                        orders={customerOrders?.orders || []}
+                        orders={customerOrders || []}
                         isLoading={isLoadingOrders}
                     />
                 </div>

@@ -17,14 +17,13 @@ export const useUserSubscription = () => {
         queryKey: ["user-subscription", user?.userId],
         queryFn: () => subscriptionApi.getUserSubscriptionByUserId(user?.userId || ''),
         enabled: !!user?.userId && !isLoadingUser,
-        retry: (failureCount, error: any) => {
+        retry: (failureCount) => {
             return failureCount < 2;
         },
     });
 };
 
 export const useCreateSubscription = () => {
-    const queryClient = useQueryClient();
     const { data: user, isLoading: isLoadingUser } = useGetMe();
 
     return useMutation({
@@ -79,14 +78,15 @@ export const useCreateSubscription = () => {
                 type: data.type,
                 price: data.price / 100,
                 startDate,
-                endDate: endDateString
+                endDate: endDateString,
+                status: 'pending' // Добавляем статус pending для временной подписки
             };
 
 
             console.log('Creating subscription with data:', requestData);
             return subscriptionApi.createSubscription(requestData);
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             // toast.success('Подписка создана!', {
             //     description: data.message || 'Подписка успешно создана',
             //     duration: 4000,
@@ -116,8 +116,6 @@ export const useCreateSubscription = () => {
 };
 
 export const useCreatePaymentLink = () => {
-    const { data: user } = useGetMe();
-
     return useMutation({
         mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; planId: string; amount: number }) =>
             subscriptionApi.createSubscriptionPayment(
@@ -126,7 +124,7 @@ export const useCreatePaymentLink = () => {
                 data.planId,
                 data.amount
             ),
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast.success('Ссылка на оплату создана!', {
                 description: 'Перенаправляем на страницу оплаты...',
                 duration: 4000,
@@ -173,6 +171,16 @@ export const useCheckSubscriptionPaymentStatus = () => {
         mutationFn: (paymentId: string) => subscriptionApi.checkPaymentStatus(paymentId),
         onError: (error: any) => {
             console.error('Ошибка проверки статуса платежа подписки:', error);
+        },
+    });
+};
+
+// Универсальная проверка статуса платежа (для любых типов платежей)
+export const useCheckUniversalPaymentStatus = () => {
+    return useMutation({
+        mutationFn: (paymentId: string) => subscriptionApi.checkUniversalPaymentStatus(paymentId),
+        onError: (error: any) => {
+            console.error('Ошибка проверки статуса платежа:', error);
         },
     });
 };
