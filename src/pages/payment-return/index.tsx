@@ -13,6 +13,7 @@ export const PaymentReturnPage = () => {
     const navigate = useNavigate();
     const [status, setStatus] = useState<PaymentStatus>('processing');
     const [error, setError] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState(0);
 
     const paymentId = searchParams.get('paymentId');
     const paymentType = searchParams.get('type') || sessionStorage.getItem('paymentType') || 'order';
@@ -66,7 +67,25 @@ export const PaymentReturnPage = () => {
                 }
             } catch (error: any) {
                 console.error('Ошибка проверки статуса платежа:', error);
-                // Не выставляем ошибку сразу, продолжаем проверку
+
+                // Увеличиваем счетчик неудачных попыток
+                const newRetryCount = retryCount + 1;
+                setRetryCount(newRetryCount);
+
+                // Если достигли 3 неудачных попыток, редиректим на dashboard
+                if (newRetryCount >= 3) {
+                    console.log('Достигнуто максимальное количество попыток, редирект на dashboard');
+                    toast.error('Не удалось проверить статус платежа', {
+                        description: 'Перенаправляем на главную страницу',
+                        duration: 3000,
+                    });
+                    setTimeout(() => {
+                        navigate('/dashboard');
+                    }, 2000);
+                    return;
+                }
+
+                console.log(`Попытка ${newRetryCount}/3 неудачна, повторяем через 2 секунды`);
             }
         };
 
@@ -77,7 +96,7 @@ export const PaymentReturnPage = () => {
         const interval = setInterval(checkPaymentStatus, 2000);
 
         return () => clearInterval(interval);
-    }, [paymentId, paymentType, navigate]);
+    }, [paymentId, paymentType, navigate, retryCount]);
 
     return (
         <AppLayout>
@@ -85,13 +104,18 @@ export const PaymentReturnPage = () => {
                 <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
                     {status === 'processing' && (
                         <div>
-                            <Loader2 className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-spin" />
+                            <Loader2 className="h-16 w-16 text-orange-500 mx-auto mb-4 animate-spin" />
                             <h2 className="text-xl font-semibold text-gray-900 mb-2">
                                 Обработка платежа...
                             </h2>
                             <p className="text-gray-600">
                                 Пожалуйста, подождите
                             </p>
+                            {retryCount > 0 && (
+                                <p className="text-sm text-orange-600 mt-2">
+                                    Попытка {retryCount}/3 проверки статуса
+                                </p>
+                            )}
                         </div>
                     )}
 
