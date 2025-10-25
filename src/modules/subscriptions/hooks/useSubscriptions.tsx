@@ -77,10 +77,11 @@ export const useCreateSubscription = () => {
             const requestData = {
                 userId: user.userId,
                 type: data.type,
-                price: data.price, // цена в копейках
+                price: data.price / 100,
                 startDate,
                 endDate: endDateString
             };
+
 
             console.log('Creating subscription with data:', requestData);
             return subscriptionApi.createSubscription(requestData);

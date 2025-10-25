@@ -56,7 +56,7 @@ export const subscriptionApi = {
       subscriptionId,
       subscriptionType,
       planId,
-      amount,
+      amount: amount,
     });
     return response.data;
   },
