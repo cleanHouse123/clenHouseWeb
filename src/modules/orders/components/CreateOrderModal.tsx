@@ -86,7 +86,7 @@ export const CreateOrderModal = ({
             paymentMethod: data.paymentMethod
         };
 
-        console.log('Order data to submit:', orderData);
+
         onSubmit(orderData);
     };
 

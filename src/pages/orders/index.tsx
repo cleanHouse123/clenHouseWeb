@@ -1,21 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button/button';
 import { OrderDetailsModal } from '@/modules/orders/components';
 import { OrderCard } from '@/pages/dashboard/components/OrderCard';
-import { useCustomerOrders, useUpdateOrderStatus, useCancelOrder } from '@/modules/orders/hooks/useOrders';
+import { useCustomerOrders, useCreateOrderPayment } from '@/modules/orders/hooks/useOrders';
 import { OrderStatus, OrderResponseDto } from '@/modules/orders/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import {
-    Plus,
     Package,
-    Filter,
     ChevronRight
 } from 'lucide-react';
 import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
 import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext';
+import { toast } from 'sonner';
 
 const OrdersContent = () => {
     const navigate = useNavigate();
@@ -29,8 +27,7 @@ const OrdersContent = () => {
         refetch: refetchOrders
     } = useCustomerOrders();
 
-    const { mutateAsync: updateOrderStatus } = useUpdateOrderStatus();
-    const { mutateAsync: cancelOrder } = useCancelOrder();
+    const { mutateAsync: createOrderPayment } = useCreateOrderPayment();
     const { data: user } = useGetMe();
     const { openCreateOrderModal } = useCreateOrderModal();
 
@@ -58,24 +55,6 @@ const OrdersContent = () => {
         return customerOrders?.filter(order => order.status === status).length || 0;
     };
 
-    const handleStatusUpdate = async (orderId: string, status: OrderStatus) => {
-        try {
-            await updateOrderStatus({
-                id: orderId,
-                data: { status },
-            });
-        } catch (error) {
-            console.error('Ошибка обновления статуса:', error);
-        }
-    };
-
-    const handleCancelOrder = async (orderId: string) => {
-        try {
-            await cancelOrder(orderId);
-        } catch (error) {
-            console.error('Ошибка отмены заказа:', error);
-        }
-    };
 
 
     const handleOrderClick = (order: OrderResponseDto) => {
@@ -90,6 +69,29 @@ const OrdersContent = () => {
 
     const handlePaymentSuccess = () => {
         refetchOrders();
+    };
+
+    const handlePayOrder = async (order: OrderResponseDto) => {
+        try {
+            const payment = await createOrderPayment({
+                orderId: order.id,
+                amount: order.price
+            });
+
+            // Сохраняем данные платежа в sessionStorage для возврата
+            sessionStorage.setItem('returnUrl', window.location.pathname);
+            sessionStorage.setItem('paymentType', 'order');
+            sessionStorage.setItem('pendingPaymentId', payment.paymentId);
+
+            // Перенаправляем на оплату
+            window.location.href = payment.paymentUrl;
+        } catch (error) {
+            console.error('Ошибка создания платежа:', error);
+            toast.error('Ошибка создания платежа', {
+                description: 'Не удалось создать ссылку на оплату. Попробуйте еще раз.',
+                duration: 5000,
+            });
+        }
     };
 
 
@@ -222,6 +224,7 @@ const OrdersContent = () => {
                                         key={order.id}
                                         order={order}
                                         onClick={handleOrderClick}
+                                        onPay={handlePayOrder}
                                         showBorder={false}
                                     />
                                 ))}

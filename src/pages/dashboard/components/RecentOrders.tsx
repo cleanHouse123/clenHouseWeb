@@ -6,6 +6,8 @@ import { OrderResponseDto } from '@/modules/orders/types';
 import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
 import { OrderCard } from './OrderCard';
 import { OrderDetailsModal } from '@/modules/orders/components';
+import { useCreateOrderPayment } from '@/modules/orders/hooks/useOrders';
+import { toast } from 'sonner';
 
 interface RecentOrdersProps {
     orders: OrderResponseDto[];
@@ -15,6 +17,7 @@ interface RecentOrdersProps {
 export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
     const navigate = useNavigate();
     const { openCreateOrderModal } = useCreateOrderModal();
+    const { mutateAsync: createOrderPayment } = useCreateOrderPayment();
     const [selectedOrder, setSelectedOrder] = useState<OrderResponseDto | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
@@ -30,6 +33,29 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
 
     const handlePaymentSuccess = () => {
         // Можно добавить логику обновления данных
+    };
+
+    const handlePayOrder = async (order: OrderResponseDto) => {
+        try {
+            const payment = await createOrderPayment({
+                orderId: order.id,
+                amount: order.price
+            });
+
+            // Сохраняем данные платежа в sessionStorage для возврата
+            sessionStorage.setItem('returnUrl', window.location.pathname);
+            sessionStorage.setItem('paymentType', 'order');
+            sessionStorage.setItem('pendingPaymentId', payment.paymentId);
+
+            // Перенаправляем на оплату
+            window.location.href = payment.paymentUrl;
+        } catch (error) {
+            console.error('Ошибка создания платежа:', error);
+            toast.error('Ошибка создания платежа', {
+                description: 'Не удалось создать ссылку на оплату. Попробуйте еще раз.',
+                duration: 5000,
+            });
+        }
     };
 
     // Общий компонент модального окна
@@ -145,6 +171,7 @@ export const RecentOrders = ({ orders, isLoading }: RecentOrdersProps) => {
                         key={order.id}
                         order={order}
                         onClick={handleOrderClick}
+                        onPay={handlePayOrder}
                         showBorder={false}
                     />
                 ))}

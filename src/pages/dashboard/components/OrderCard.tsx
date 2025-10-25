@@ -1,17 +1,24 @@
-import { Calendar, MapPin, Clock } from 'lucide-react';
+import { Calendar, MapPin, Clock, CreditCard } from 'lucide-react';
 import { OrderResponseDto } from '@/modules/orders/types';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateShort } from '@/core/utils/dateUtils';
 import { OrderStatusBadge } from '@/modules/orders/components/OrderStatusBadge';
+import { Button } from '@/core/components/ui/button/button';
 
 interface OrderCardProps {
     order: OrderResponseDto;
     onClick: (order: OrderResponseDto) => void;
+    onPay?: (order: OrderResponseDto) => void;
     showBorder?: boolean;
 }
 
-export const OrderCard = ({ order, onClick, showBorder = true }: OrderCardProps) => {
+export const OrderCard = ({ order, onClick, onPay, showBorder = true }: OrderCardProps) => {
     const { locale } = useLocale();
+
+    const handlePayClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Предотвращаем всплытие события клика по карточке
+        onPay?.(order);
+    };
 
 
     const formatTimeRange = (scheduledAt: string) => {
@@ -81,10 +88,22 @@ export const OrderCard = ({ order, onClick, showBorder = true }: OrderCardProps)
             </div>
 
             {/* Status badges */}
-            <div className="flex flex-row justify-between gap-2 ">
+            <div className="flex flex-row justify-between gap-2 items-center">
                 <OrderStatusBadge status={order.status} />
-                <div className="text-xs text-gray-400 text-right">
-                    Создан {formatDateShort(order.createdAt.toString(), locale)}
+                <div className="flex items-center gap-2">
+                    {order.status === 'new' && onPay && (
+                        <Button
+                            onClick={handlePayClick}
+                            size="sm"
+                            className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1 h-7"
+                        >
+                            <CreditCard className="h-3 w-3 mr-1" />
+                            Оплатить
+                        </Button>
+                    )}
+                    <div className="text-xs text-gray-400 text-right">
+                        Создан {formatDateShort(order.createdAt.toString(), locale)}
+                    </div>
                 </div>
             </div>
 
