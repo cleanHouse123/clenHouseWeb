@@ -57,11 +57,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "payment/result",
-    element: (
-      <ProtectedRoute>
-        <PaymentReturnPage />
-      </ProtectedRoute>
-    ),
+    element: <PaymentReturnPage />,
   },
   {
     path: "privacy-policy",

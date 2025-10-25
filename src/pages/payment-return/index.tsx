@@ -4,6 +4,7 @@ import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
 import { toast } from 'sonner';
 import { axiosInstance } from '@/core/config/axios';
+import { AppLayout } from '@/core/components/layout/AppLayout';
 
 type PaymentStatus = 'processing' | 'success' | 'error';
 
@@ -79,62 +80,64 @@ export const PaymentReturnPage = () => {
     }, [paymentId, paymentType, navigate]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-                {status === 'processing' && (
-                    <div>
-                        <Loader2 className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-spin" />
-                        <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                            Обработка платежа...
-                        </h2>
-                        <p className="text-gray-600">
-                            Пожалуйста, подождите
-                        </p>
-                    </div>
-                )}
-
-                {status === 'success' && (
-                    <div>
-                        <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                        <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                            ✅ Платеж успешно завершен!
-                        </h2>
-                        <p className="text-gray-600 mb-4">
-                            {paymentType === 'subscription'
-                                ? 'Спасибо за оплату! Ваша подписка активирована.'
-                                : 'Спасибо за оплату. Ваш заказ принят в обработку.'
-                            }
-                        </p>
-                        <p className="text-gray-600 mb-4">
-                            Вы будете перенаправлены на главную страницу через несколько секунд...
-                        </p>
-                        <div className="flex justify-center">
-                            <Loader2 className="h-6 w-6 text-green-500 animate-spin" />
+        <AppLayout>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+                    {status === 'processing' && (
+                        <div>
+                            <Loader2 className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-spin" />
+                            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                                Обработка платежа...
+                            </h2>
+                            <p className="text-gray-600">
+                                Пожалуйста, подождите
+                            </p>
                         </div>
-                        <Button
-                            onClick={() => navigate('/dashboard')}
-                            className="mt-4"
-                        >
-                            Перейти на главную
-                        </Button>
-                    </div>
-                )}
+                    )}
 
-                {status === 'error' && (
-                    <div>
-                        <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-                        <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                            ❌ Ошибка при оплате
-                        </h2>
-                        <p className="text-gray-600 mb-4">
-                            {error || 'К сожалению, произошла ошибка при обработке платежа.'}
-                        </p>
-                        <Button onClick={() => navigate('/dashboard')} className="w-full">
-                            Вернуться на главную
-                        </Button>
-                    </div>
-                )}
+                    {status === 'success' && (
+                        <div>
+                            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                                ✅ Платеж успешно завершен!
+                            </h2>
+                            <p className="text-gray-600 mb-4">
+                                {paymentType === 'subscription'
+                                    ? 'Спасибо за оплату! Ваша подписка активирована.'
+                                    : 'Спасибо за оплату. Ваш заказ принят в обработку.'
+                                }
+                            </p>
+                            <p className="text-gray-600 mb-4">
+                                Вы будете перенаправлены на главную страницу через несколько секунд...
+                            </p>
+                            <div className="flex justify-center">
+                                <Loader2 className="h-6 w-6 text-green-500 animate-spin" />
+                            </div>
+                            <Button
+                                onClick={() => navigate('/dashboard')}
+                                className="mt-4"
+                            >
+                                Перейти на главную
+                            </Button>
+                        </div>
+                    )}
+
+                    {status === 'error' && (
+                        <div>
+                            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                                ❌ Ошибка при оплате
+                            </h2>
+                            <p className="text-gray-600 mb-4">
+                                {error || 'К сожалению, произошла ошибка при обработке платежа.'}
+                            </p>
+                            <Button onClick={() => navigate('/dashboard')} className="w-full">
+                                Вернуться на главную
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </AppLayout>
     );
 };
