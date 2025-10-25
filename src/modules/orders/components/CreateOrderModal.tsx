@@ -22,8 +22,11 @@ import AutocompleteAddress from '@/modules/address/ui/autocomplete';
 const createOrderSchema = z.object({
     address: z.string().min(1, 'Адрес обязателен').max(500, 'Адрес слишком длинный'),
     description: z.string().max(1000, 'Описание слишком длинное').optional(),
-    scheduledDate: z.date().optional(),
-    scheduledTime: z.string().optional(),
+    scheduledDate: z.date({
+        required_error: 'Дата обязательна',
+        invalid_type_error: 'Выберите корректную дату',
+    }),
+    scheduledTime: z.string().min(1, 'Время обязательно'),
     notes: z.string().max(500, 'Заметки слишком длинные').optional(),
     paymentMethod: z.enum(['subscription', 'online'] as const),
 });
@@ -59,23 +62,21 @@ export const CreateOrderModal = ({
     });
 
     const handleSubmit = (data: CreateOrderFormData) => {
-        let scheduledAt: string | undefined;
+        console.log('Form data received:', data);
 
-        if (data.scheduledDate && data.scheduledTime) {
-            const [hours, minutes] = data.scheduledTime.split(':');
-            const scheduledDateTime = new Date(data.scheduledDate);
-            scheduledDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-            // Создаем строку в локальном формате без суффикса Z
-            const year = scheduledDateTime.getFullYear();
-            const month = String(scheduledDateTime.getMonth() + 1).padStart(2, '0');
-            const day = String(scheduledDateTime.getDate()).padStart(2, '0');
-            const hour = String(scheduledDateTime.getHours()).padStart(2, '0');
-            const minute = String(scheduledDateTime.getMinutes()).padStart(2, '0');
-            const second = String(scheduledDateTime.getSeconds()).padStart(2, '0');
-            scheduledAt = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
-        } else if (data.scheduledDate) {
-            scheduledAt = data.scheduledDate.toISOString();
-        }
+        // Теперь scheduledDate и scheduledTime обязательны
+        const [hours, minutes] = data.scheduledTime.split(':');
+        const scheduledDateTime = new Date(data.scheduledDate);
+        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+        // Создаем строку в локальном формате без суффикса Z
+        const year = scheduledDateTime.getFullYear();
+        const month = String(scheduledDateTime.getMonth() + 1).padStart(2, '0');
+        const day = String(scheduledDateTime.getDate()).padStart(2, '0');
+        const hour = String(scheduledDateTime.getHours()).padStart(2, '0');
+        const minute = String(scheduledDateTime.getMinutes()).padStart(2, '0');
+        const second = String(scheduledDateTime.getSeconds()).padStart(2, '0');
+        const scheduledAt = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
 
         const orderData: OrderFormData = {
             address: data.address,
@@ -85,6 +86,7 @@ export const CreateOrderModal = ({
             paymentMethod: data.paymentMethod
         };
 
+        console.log('Order data to submit:', orderData);
         onSubmit(orderData);
     };
 
@@ -190,7 +192,7 @@ export const CreateOrderModal = ({
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="text-sm font-medium text-gray-700">
-                                                    Дата
+                                                    Дата *
                                                 </FormLabel>
                                                 <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                                     <PopoverTrigger asChild>
@@ -240,7 +242,7 @@ export const CreateOrderModal = ({
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="text-sm font-medium text-gray-700">
-                                                    Время
+                                                    Время *
                                                 </FormLabel>
                                                 <FormControl>
                                                     <TimePicker

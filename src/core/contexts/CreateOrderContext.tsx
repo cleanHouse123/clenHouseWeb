@@ -41,11 +41,17 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
     const handleCreateOrder = async (data: OrderFormData) => {
         if (!user?.userId) return;
 
+        console.log('CreateOrderContext received data:', data);
+
         try {
-            const order = await createOrder({
+            const orderData = {
                 customerId: user.userId,
                 ...data,
-            });
+            };
+
+            console.log('Order data to API:', orderData);
+
+            const order = await createOrder(orderData);
 
             // Проверяем есть ли активная подписка
             const hasActiveSubscription = userSubscription?.status === 'active';
