@@ -1,31 +1,23 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { subscriptionApi } from '../api';
-import { CreateSubscriptionRequest, SubscriptionPaymentStatus } from '../types';
-import { useGetMe } from '@/modules/auth/hooks/useGetMe';
-import { toast } from 'sonner';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { subscriptionApi } from "../api";
+import { useGetMe } from "@/modules/auth/hooks/useGetMe";
+import { toast } from "sonner";
+
+export const useSubscriptionPlans = () => {
+    return useQuery({
+        queryKey: ["subscription-plans"],
+        queryFn: () => subscriptionApi.getSubscriptionPlans(),
+    });
+};
 
 export const useUserSubscription = () => {
-    const { data: user } = useGetMe();
+    const { data: user, isLoading: isLoadingUser } = useGetMe();
 
     return useQuery({
-        queryKey: ['user-subscription', user?.userId],
-        queryFn: async () => {
-            console.log('Getting user subscription for user:', user);
-            const result = await subscriptionApi.getUserSubscriptionByUserId(user!.userId);
-            console.log('API returned:', result);
-            return result;
-        },
-        enabled: !!user?.userId, // Выполнять запрос только если есть пользователь
-        staleTime: 2 * 60 * 1000, // 2 минуты
-        gcTime: 5 * 60 * 1000, // 5 минут
-        refetchOnWindowFocus: false, // не перезагружать при фокусе окна
-        refetchOnMount: false, // не перезагружать при монтировании
+        queryKey: ["user-subscription", user?.userId],
+        queryFn: () => subscriptionApi.getUserSubscriptionByUserId(user?.userId || ''),
+        enabled: !!user?.userId && !isLoadingUser,
         retry: (failureCount, error: any) => {
-            // Не повторять запрос при 401 ошибке (неавторизован)
-            if (error?.response?.status === 401) {
-                return false;
-            }
-            // Повторить максимум 2 раза для других ошибок
             return failureCount < 2;
         },
     });
@@ -85,7 +77,7 @@ export const useCreateSubscription = () => {
             const requestData = {
                 userId: user.userId,
                 type: data.type,
-                price: data.price,
+                price: 200,
                 startDate,
                 endDate: endDateString
             };
@@ -94,12 +86,12 @@ export const useCreateSubscription = () => {
             return subscriptionApi.createSubscription(requestData);
         },
         onSuccess: (data) => {
-            toast.success('Подписка создана!', {
-                description: data.message || 'Подписка успешно создана',
-                duration: 4000,
-            });
-            // Обновляем подписку пользователя
-            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
+            // toast.success('Подписка создана!', {
+            //     description: data.message || 'Подписка успешно создана',
+            //     duration: 4000,
+            // });
+            // // Обновляем подписку пользователя
+            // queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
         },
         onError: (error: any) => {
             console.error('Subscription creation error:', error);
@@ -126,15 +118,16 @@ export const useCreatePaymentLink = () => {
     const { data: user } = useGetMe();
 
     return useMutation({
-        mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; amount: number }) =>
-            subscriptionApi.createPaymentLink({
-                subscriptionId: data.subscriptionId,
-                subscriptionType: data.subscriptionType,
-                amount: data.amount
-            }),
+        mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; planId: string; amount: number }) =>
+            subscriptionApi.createSubscriptionPayment(
+                data.subscriptionId,
+                data.subscriptionType,
+                data.planId,
+                data.amount
+            ),
         onSuccess: (data) => {
             toast.success('Ссылка на оплату создана!', {
-                description: data.message,
+                description: 'Перенаправляем на страницу оплаты...',
                 duration: 4000,
             });
         },

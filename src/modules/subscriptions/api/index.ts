@@ -78,6 +78,21 @@ export const subscriptionApi = {
     return response.data;
   },
 
+  // Универсальная проверка статуса платежа (для любых типов платежей)
+  checkUniversalPaymentStatus: async (
+    paymentId: string
+  ): Promise<{
+    id: string;
+    subscriptionId?: string;
+    orderId?: string;
+    amount: number;
+    status: "pending" | "paid" | "success" | "failed" | "canceled" | "refunded";
+    createdAt: string;
+  }> => {
+    const response = await axiosInstance.get(`/payment-status/${paymentId}`);
+    return response.data;
+  },
+
   // Удалить подписку
   deleteSubscription: async (
     subscriptionId: string

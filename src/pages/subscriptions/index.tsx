@@ -4,7 +4,6 @@ import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
 import {
     useUserSubscription,
     useCreateSubscription,
-    useCreatePaymentLink,
     useDeleteSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
@@ -27,7 +26,6 @@ export const SubscriptionsPage = () => {
     const { data: user, isLoading: isLoadingUser } = useGetMe();
     const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
     const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
-    const { isPending: isCreatingPaymentLink } = useCreatePaymentLink();
     const { mutateAsync: deleteSubscription } = useDeleteSubscription();
 
     usePaymentWebSocket();

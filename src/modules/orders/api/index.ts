@@ -37,59 +37,8 @@ export const ordersApi = {
   },
 
   // Получить заказы клиента
-  getCustomerOrders: async (
-    customerId: string,
-    params?: Omit<OrderQueryParams, "customerId">
-  ): Promise<OrderListResponse> => {
-    const queryParams = new URLSearchParams();
-
-    if (params?.page) queryParams.append("page", params.page.toString());
-    if (params?.limit) queryParams.append("limit", params.limit.toString());
-    if (params?.status) queryParams.append("status", params.status);
-
-    const response = await axiosInstance.get(
-      `/orders/customer/${customerId}?${queryParams.toString()}`
-    );
-
-    // Сервер возвращает массив заказов, преобразуем в ожидаемый формат
-    const orders = Array.isArray(response.data) ? response.data : [];
-    return {
-      orders,
-      total: orders.length,
-      page: params?.page || 1,
-      limit: params?.limit || 10,
-    };
-  },
-
-  // Получить заказы курьера
-  getCurrierOrders: async (
-    currierId: string,
-    params?: Omit<OrderQueryParams, "currierId">
-  ): Promise<OrderListResponse> => {
-    const queryParams = new URLSearchParams();
-
-    if (params?.page) queryParams.append("page", params.page.toString());
-    if (params?.limit) queryParams.append("limit", params.limit.toString());
-    if (params?.status) queryParams.append("status", params.status);
-
-    const response = await axiosInstance.get(
-      `/orders/currier/${currierId}?${queryParams.toString()}`
-    );
-    return response.data;
-  },
-
-  // Обновить статус заказа
-  updateOrderStatus: async (
-    id: string,
-    data: UpdateOrderStatusDto
-  ): Promise<OrderResponseDto> => {
-    const response = await axiosInstance.patch(`/orders/${id}/status`, data);
-    return response.data;
-  },
-
-  // Курьер берет заказ
-  takeOrder: async (id: string): Promise<OrderResponseDto> => {
-    const response = await axiosInstance.patch(`/orders/${id}/take`);
+  getCustomerOrders: async (id: string): Promise<OrderResponseDto[]> => {
+    const response = await axiosInstance.get(`/orders/customer/${id}`);
     return response.data;
   },
 
@@ -146,6 +95,21 @@ export const ordersApi = {
     const response = await axiosInstance.get(
       `/orders/payment/status/${paymentId}`
     );
+    return response.data;
+  },
+
+  // Универсальная проверка статуса платежа (для любых типов платежей)
+  checkUniversalPaymentStatus: async (
+    paymentId: string
+  ): Promise<{
+    id: string;
+    subscriptionId?: string;
+    orderId?: string;
+    amount: number;
+    status: "pending" | "paid" | "success" | "failed" | "canceled" | "refunded";
+    createdAt: string;
+  }> => {
+    const response = await axiosInstance.get(`/payment-status/${paymentId}`);
     return response.data;
   },
 };

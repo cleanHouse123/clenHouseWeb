@@ -34,6 +34,7 @@ export const PaymentIframe = ({
         // Сохраняем текущий URL для возврата
         sessionStorage.setItem('returnUrl', window.location.pathname);
         sessionStorage.setItem('pendingPaymentId', paymentId || '');
+        sessionStorage.setItem('paymentType', 'order'); // Указываем тип платежа
 
         // Прямое перенаправление на страницу оплаты YooKassa
         // YooKassa автоматически перенаправит на /payment-return?paymentId=...

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
 import { toast } from 'sonner';
+import { axiosInstance } from '@/core/config/axios';
 
 type PaymentStatus = 'processing' | 'success' | 'error';
 
@@ -13,43 +14,64 @@ export const PaymentReturnPage = () => {
     const [error, setError] = useState<string | null>(null);
 
     const paymentId = searchParams.get('paymentId');
-    const paymentStatus = searchParams.get('status');
-    const paymentType = searchParams.get('type'); // 'order' или 'subscription'
-    const errorParam = searchParams.get('error');
+    const paymentType = searchParams.get('type') || sessionStorage.getItem('paymentType') || 'order';
     const returnUrl = sessionStorage.getItem('returnUrl') || (paymentType === 'subscription' ? '/subscriptions' : '/orders');
 
     useEffect(() => {
+        if (!paymentId) {
+            setStatus('error');
+            setError('Payment ID не найден');
+            return;
+        }
+
         // Очищаем sessionStorage при загрузке страницы
         sessionStorage.removeItem('pendingPaymentId');
         sessionStorage.removeItem('returnUrl');
 
-        if (errorParam) {
-            setStatus('error');
-            setError('Произошла ошибка при обработке платежа');
-            return;
-        }
+        // Проверяем статус платежа каждые 2 секунды
+        const checkPaymentStatus = async () => {
+            try {
+                const response = await axiosInstance.get(`/payment-status/${paymentId}`);
+                const payment = response.data;
 
-        if (paymentId && paymentStatus === 'success') {
-            setStatus('success');
+                // Проверяем успешные статусы
+                if (payment.status === 'paid' || payment.status === 'success') {
+                    setStatus('success');
 
-            const isSubscription = paymentType === 'subscription';
+                    const isSubscription = paymentType === 'subscription';
 
-            // Показываем уведомление об успешной оплате
-            toast.success(isSubscription ? 'Подписка успешно оплачена!' : 'Заказ успешно оплачен!', {
-                description: isSubscription ? 'Ваша подписка активирована' : 'Ваш заказ принят в обработку',
-                duration: 5000,
-            });
+                    // Показываем уведомление об успешной оплате
+                    toast.success(
+                        isSubscription ? 'Подписка успешно оплачена!' : 'Заказ успешно оплачен!',
+                        {
+                            description: isSubscription ? 'Ваша подписка активирована' : 'Ваш заказ принят в обработку',
+                            duration: 5000,
+                        }
+                    );
 
-            // Перенаправляем на соответствующую страницу через 3 секунды
-            setTimeout(() => {
-                navigate(returnUrl);
-            }, 3000);
-        } else {
-            // Если нет параметров или статус не success, показываем ошибку
-            setStatus('error');
-            setError('Платеж не был завершен');
-        }
-    }, [paymentId, paymentStatus, errorParam, navigate, returnUrl]);
+                    // Перенаправляем на соответствующую страницу через 3 секунды
+                    setTimeout(() => {
+                        navigate(returnUrl);
+                    }, 3000);
+                } else if (payment.status === 'failed' || payment.status === 'canceled') {
+                    // Ошибка платежа
+                    setStatus('error');
+                    setError('Платеж не был завершен');
+                }
+            } catch (error: any) {
+                console.error('Ошибка проверки статуса платежа:', error);
+                // Не выставляем ошибку сразу, продолжаем проверку
+            }
+        };
+
+        // Проверяем сразу
+        checkPaymentStatus();
+
+        // Проверяем каждые 2 секунды, пока не получим финальный статус
+        const interval = setInterval(checkPaymentStatus, 2000);
+
+        return () => clearInterval(interval);
+    }, [paymentId, paymentType, navigate, returnUrl]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
