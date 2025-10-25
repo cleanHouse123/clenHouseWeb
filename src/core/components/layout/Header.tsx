@@ -109,12 +109,12 @@ export const Header = () => {
                             </div>
 
                             {/* Центральное меню (десктоп) */}
-                            <nav className="hidden mobile-menu:flex items-center gap-4 xl:gap-6">
+                            <nav className="hidden semi-xl:flex items-center gap-2 tablet:gap-3 semi-lg:gap-4 xl:gap-6">
                                 {menuItems.map((item) => (
                                     <button
                                         key={item.key}
                                         onClick={() => handleScrollToSection(item.href)}
-                                        className="text-[rgba(0,0,0,0.9)] text-sm xl:text-base leading-[1.4] font-normal transition-colors hover:text-primary whitespace-nowrap"
+                                        className="text-[rgba(0,0,0,0.9)] text-xs tablet:text-sm semi-lg:text-sm xl:text-base leading-[1.4] font-normal transition-colors hover:text-primary whitespace-nowrap"
                                     >
                                         {item.label}
                                     </button>
@@ -122,17 +122,18 @@ export const Header = () => {
                             </nav>
 
                             {/* Десктопная навигация */}
-                            <div className="hidden mobile-menu:flex items-center gap-3">
+                            <div className="hidden semi-xl:flex items-center gap-1 tablet:gap-2 semi-lg:gap-3">
                                 <Button
                                     onClick={handleCallCourier}
                                     variant="primary"
-                                    size="lg"
-                                    className="whitespace-nowrap"
+                                    size="sm"
+                                    className="whitespace-nowrap text-xs tablet:text-sm semi-lg:text-sm px-2 tablet:px-3 semi-lg:px-4"
                                 >
-                                    Вызвать курьера
+                                    <span className="hidden tablet:inline">Вызвать курьера</span>
+                                    <span className="tablet:hidden">Курьер</span>
                                 </Button>
 
-                                <div className="h-6 w-px bg-border"></div>
+                                <div className="h-4 tablet:h-5 semi-lg:h-6 w-px bg-border"></div>
 
                                 <div>
                                     {!user ? (
@@ -140,77 +141,76 @@ export const Header = () => {
                                         <Button
                                             onClick={handleLogin}
                                             variant="outline"
-                                            size="lg"
-                                            className="flex items-center gap-2 whitespace-nowrap"
+                                            size="sm"
+                                            className="flex items-center gap-1 tablet:gap-2 whitespace-nowrap text-xs tablet:text-sm px-2 tablet:px-3"
                                             data-testid="sms-login-button"
                                         >
                                             Войти
                                         </Button>
                                     ) : isLoading ? (
                                         // Загрузка данных пользователя
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1 tablet:gap-2">
                                             <LoadingIndicator />
-                                            <span className="text-sm text-muted-foreground">Загрузка...</span>
+                                            <span className="text-xs tablet:text-sm text-muted-foreground">Загрузка...</span>
                                         </div>
                                     ) : user ? (
                                         // Авторизованный пользователь
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-1 tablet:gap-2 semi-lg:gap-3">
                                             <button
                                                 onClick={handleProfileClick}
-                                                className="flex items-center gap-2 hover:bg-muted/50 rounded-lg px-3 py-2 transition-colors group"
+                                                className="flex items-center gap-1 tablet:gap-2 hover:bg-muted/50 rounded-lg px-1 tablet:px-2 semi-lg:px-3 py-1 tablet:py-2 transition-colors group"
                                             >
                                                 <div className="text-right">
-                                                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                                    <p className="text-xs tablet:text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate max-w-[60px] tablet:max-w-[80px] semi-lg:max-w-none">
                                                         {user.name}
                                                     </p>
-
                                                 </div>
-                                                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center group-hover:bg-primary/90 transition-colors">
-                                                    <User className="h-4 w-4 text-primary-foreground" />
+                                                <div className="w-6 h-6 tablet:w-7 tablet:h-7 semi-lg:w-8 semi-lg:h-8 bg-primary rounded-full flex items-center justify-center group-hover:bg-primary/90 transition-colors">
+                                                    <User className="h-3 w-3 tablet:h-3.5 tablet:w-3.5 semi-lg:h-4 semi-lg:w-4 text-primary-foreground" />
                                                 </div>
                                             </button>
 
-                                            <div className="h-6 w-px bg-border"></div>
+                                            <div className="h-4 tablet:h-5 semi-lg:h-6 w-px bg-border"></div>
 
                                             <Button
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={handleDashboard}
-                                                className="flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors"
+                                                className="flex items-center gap-1 tablet:gap-2 hover:bg-primary hover:text-primary-foreground transition-colors px-1 tablet:px-2"
                                             >
-                                                <Home className="h-4 w-4" />
-                                                <span className="hidden xl:inline">Личный кабинет</span>
+                                                <Home className="h-3 w-3 tablet:h-3.5 tablet:w-3.5 semi-lg:h-4 semi-lg:w-4" />
+                                                <span className="hidden semi-lg:inline text-xs tablet:text-sm">Личный кабинет</span>
                                             </Button>
 
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={handleLogout}
-                                                className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                                className="flex items-center gap-1 tablet:gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors px-1 tablet:px-2"
                                             >
-                                                <LogOut className="h-4 w-4" />
-                                                <span className="hidden xl:inline">Выйти</span>
+                                                <LogOut className="h-3 w-3 tablet:h-3.5 tablet:w-3.5 semi-lg:h-4 semi-lg:w-4" />
+                                                <span className="hidden semi-lg:inline text-xs tablet:text-sm">Выйти</span>
                                             </Button>
                                         </div>
                                     ) : (
                                         // Ошибка загрузки данных пользователя
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1 tablet:gap-2">
                                             <Button
                                                 variant="outline"
-                                                size="md"
+                                                size="sm"
                                                 onClick={handleLogin}
-                                                className="flex items-center gap-2"
+                                                className="flex items-center gap-1 tablet:gap-2 text-xs tablet:text-sm px-2 tablet:px-3"
                                             >
                                                 Войти
                                             </Button>
                                             <Button
                                                 variant="ghost"
-                                                size="md"
+                                                size="sm"
                                                 onClick={handleLogout}
-                                                className="flex items-center gap-2 text-destructive hover:text-destructive/80"
+                                                className="flex items-center gap-1 tablet:gap-2 text-destructive hover:text-destructive/80 text-xs tablet:text-sm px-1 tablet:px-2"
                                             >
-                                                <LogOut className="h-4 w-4" />
-                                                Выйти
+                                                <LogOut className="h-3 w-3 tablet:h-3.5 tablet:w-3.5" />
+                                                <span className="hidden tablet:inline">Выйти</span>
                                             </Button>
                                         </div>
                                     )}
@@ -219,7 +219,7 @@ export const Header = () => {
 
                             {/* Мобильная кнопка меню */}
                             <motion.div
-                                className="mobile-menu:hidden"
+                                className="semi-xl:hidden"
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4, delay: 0.6 }}
@@ -259,7 +259,7 @@ export const Header = () => {
                                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
                                 transition={{ duration: 0.3, ease: "easeOut" }}
                             >
-                                <Card radius="r16" padding="sm" background="white" className="mobile-menu:hidden mt-2 px-3 py-2 font-onest relative z-50">
+                                <Card radius="r16" padding="sm" background="white" className="semi-xl:hidden mt-2 px-3 py-2 font-onest relative z-50">
                                     <div className="px-2 pt-2 pb-3 space-y-1">
                                         {/* Мобильное меню: пункты навигации */}
                                         <div className="px-1 py-1">
