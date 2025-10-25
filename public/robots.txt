@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Главные страницы для индексации
+Allow: /
+Allow: /orders
+Allow: /dashboard
+Allow: /subscriptions
+Allow: /contacts
+
+# Sitemap
+Sitemap: https://cleandom.ru/sitemap.xml
+
+# Отключить индексацию служебных страниц
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /payment-return/
+
+# Crawl-delay
+Crawl-delay: 1

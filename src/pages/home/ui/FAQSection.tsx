@@ -6,7 +6,7 @@ interface FAQItem { question: string; answer: string; }
 
 const FAQ_DATA: FAQItem[] = [
   { question: 'Как я могу заказать вызов мусора?', answer: 'Оформите заказ в личном кабинете: укажите адрес и время. Курьер подтвердит время и приедет в выбранный слот.' },
-  { question: 'Какие есть способы оплаты?', answer: 'Доступна безопасная оплата картой на сайте. Также поддерживается подписка с автоплатежом.' },
+  { question: 'Какие есть способы оплаты?', answer: 'Доступна безопасная оплата картой на сайте. Также поддерживается подписка на услуги' },
   { question: 'Как быстро приедет курьер?', answer: 'Обычно в день заказа. Точный слот времени подтверждается после оформления в личном кабинете.' },
   { question: 'Хочу связаться с поддержкой', answer: 'Напишите на help@chistodoma.ru или позвоните по номеру, указанному в подвале сайта.' },
 ];
@@ -19,7 +19,7 @@ export const FAQSection: React.FC = () => {
     <section id="faq" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
       <div className="mx-auto px-4 sm:px-8 lg:px-16">
         {/* Заголовок */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -53,21 +53,21 @@ export const FAQSection: React.FC = () => {
                       {item.question}
                     </div>
                     {/* Плюс/минус 24px в контейнере 48px */}
-                    <motion.div 
-                      className="w-12 h-12 flex items-center justify-center" 
+                    <motion.div
+                      className="w-12 h-12 flex items-center justify-center"
                       aria-hidden
                       animate={{ rotate: isOpen ? 45 : 0 }}
                       transition={{ duration: 0.2 }}
                     >
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 4V20" stroke="#FF5D00" strokeWidth="3" strokeLinecap="round"/>
-                        <path d="M4 12H20" stroke="#FF5D00" strokeWidth="3" strokeLinecap="round"/>
+                        <path d="M12 4V20" stroke="#FF5D00" strokeWidth="3" strokeLinecap="round" />
+                        <path d="M4 12H20" stroke="#FF5D00" strokeWidth="3" strokeLinecap="round" />
                       </svg>
                     </motion.div>
                   </button>
                   <AnimatePresence>
                     {isOpen && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}

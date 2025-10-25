@@ -6,9 +6,11 @@ import { Toaster } from 'sonner'
 import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext'
 import { Suspense } from 'react'
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
+import { useYandexMetrika } from '@/core/hooks/useYandexMetrika'
 
 function App() {
     useWindowHeight();
+    useYandexMetrika();
 
     return (
         <CreateOrderProvider>

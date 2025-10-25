@@ -11,9 +11,10 @@ import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 import { useSearchParams } from 'react-router-dom';
 
+
 function formatRubles(kopecks: number) {
-  const rubles = Math.round(kopecks / 100);
-  return `${rubles} рублей`;
+  const rubles = kopecks / 100;
+  return `${rubles} ₽`;
 }
 
 export const SubscriptionPlansSection: React.FC = () => {

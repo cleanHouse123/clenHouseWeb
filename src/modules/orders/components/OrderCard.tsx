@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateTime, formatDateRelativeLocal } from '@/core/utils/dateUtils';
+import { kopecksToRubles } from '@/core/utils/priceUtils';
 
 export const OrderCard = ({
     order,
@@ -109,7 +110,7 @@ export const OrderCard = ({
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                     <div>
                         <p className="text-sm font-medium">Стоимость</p>
-                        <p className="text-lg font-bold text-primary">{order.price}₽</p>
+                        <p className="text-lg font-bold text-primary">{kopecksToRubles(order.price)}₽</p>
                     </div>
                 </div>
 

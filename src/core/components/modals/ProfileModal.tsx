@@ -131,7 +131,7 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                     </div>
 
                     {/* Дополнительная информация */}
-                    <Card radius="r20" padding="lg" background="white" bordered shadow>
+                    {/* <Card radius="r20" padding="lg" background="white" bordered shadow>
                         <CardContent className="p-0">
                             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">Дополнительная информация</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -156,7 +156,7 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>
+                    </Card> */}
 
                     {/* Действия */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">

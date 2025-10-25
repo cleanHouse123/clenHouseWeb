@@ -43,7 +43,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="text-[24px] sm:text-[30px] md:text-[30px] tablet:text-[30px] semi-lg:text-[33px] semi-lg2:text-[37px] lg:text-[40px] xl:text-[42px] semi-xl:text-[45px] font-medium font-onest text-[#000000] leading-[1.1em] lg:leading-[1em]"
               >
-                ЧистоДома — выброс мусора и клининговые услуги в России
+                ЧистоДома — выброс мусора и клининговые услуги в Санкт-Петербурге
               </motion.h1>
 
               <motion.p
@@ -52,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
                 className="text-[16px] sm:text-[17px] md:text-[17px] tablet:text-[17px] semi-lg:text-[18px] semi-lg2:text-[19px] lg:text-[19px] xl:text-[19px] semi-xl:text-[20px] font-normal font-onest text-[rgba(0,0,0,0.7)] leading-[1.4em]"
               >
-                ЧистоДома — современная платформа для заказа клининга онлайн с удобным личным кабинетом и системой подписки
+                ЧистоДома — современная платформа для заказа клининга онлайн в Санкт-Петербурге с удобным личным кабинетом и системой подписки
               </motion.p>
             </div>
 

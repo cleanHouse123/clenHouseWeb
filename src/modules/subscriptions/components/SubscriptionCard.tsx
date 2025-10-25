@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/c
 import { Badge } from '@/core/components/ui/badge';
 import { Check, Star, Zap } from 'lucide-react';
 import { Subscription } from '../types';
-import { kopecksToRubles } from '../utils/priceUtils';
+
 
 interface SubscriptionCardProps {
     subscription: Subscription;
@@ -59,7 +59,7 @@ export const SubscriptionCard = ({
                 </Badge>
                 <div className="mt-4">
                     <span className="text-3xl font-bold text-primary">
-                        {kopecksToRubles(subscription.price)}
+                        {subscription.price} ₽
                     </span>
                     <span className="text-muted-foreground ml-1">
                         /{subscription.duration} дней

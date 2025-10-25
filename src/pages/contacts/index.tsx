@@ -141,7 +141,7 @@ export const ContactsPage = () => {
                 </Card>
 
                 {/* Услуги */}
-                <Card>
+                {/* <Card>
                     <CardHeader>
                         <CardTitle>Наши услуги</CardTitle>
                     </CardHeader>
@@ -150,21 +150,16 @@ export const ContactsPage = () => {
                             <div className="bg-blue-50 p-4 rounded-lg">
                                 <h3 className="font-semibold text-blue-900 mb-2">Генеральная уборка</h3>
                                 <p className="text-blue-700 text-sm">Полная уборка квартир и домов</p>
-                            </div>
+                            </div> 
 
                             <div className="bg-green-50 p-4 rounded-lg">
-                                <h3 className="font-semibold text-green-900 mb-2">Еженедельная уборка</h3>
-                                <p className="text-green-700 text-sm">Поддерживающая уборка помещений</p>
-                            </div>
-
-                            <div className="bg-purple-50 p-4 rounded-lg">
-                                <h3 className="font-semibold text-purple-900 mb-2">Уборка после ремонта</h3>
-                                <p className="text-purple-700 text-sm">Специализированная уборка</p>
+                                <h3 className="font-semibold text-green-900 mb-2">Выброс мусора</h3>
+                                <p className="text-green-700 text-sm">Вынос мусора из квартир и домов</p>
                             </div>
 
                         </div>
                     </CardContent>
-                </Card>
+                </Card> */}
             </div>
         </div>
     );

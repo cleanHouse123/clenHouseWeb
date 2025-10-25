@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateTime, formatDateRelativeLocal } from '@/core/utils/dateUtils';
+import { kopecksToRubles } from '@/core/utils/priceUtils';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -100,7 +101,7 @@ export const OrderDetailsModal = ({
 
                             </div>
                             <div className="text-left sm:text-right">
-                                <div className="text-xl sm:text-2xl font-bold text-primary">{order.price}₽</div>
+                                <div className="text-xl sm:text-2xl font-bold text-primary">{kopecksToRubles(order.price)}₽</div>
                                 <div className="text-xs sm:text-sm ">Стоимость</div>
                             </div>
                         </div>

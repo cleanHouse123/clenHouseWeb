@@ -4,7 +4,7 @@ import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { Button } from '@/core/components/ui/button/button';
 import { Card } from '@/core/components/ui/card';
 import { LogOut, Menu, X, User, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { ProfileModal } from '@/core/components/modals/ProfileModal';
@@ -14,6 +14,7 @@ import { Logo } from '@/core/components/ui';
 export const Header = () => {
     const { data: user, isLoading } = useGetMe();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSmsLoginModalOpen, setIsSmsLoginModalOpen] = useState(false);
@@ -69,17 +70,26 @@ export const Header = () => {
 
     const handleScrollToSection = (href: string) => {
         const id = href.replace('#', '');
-        const element = document.getElementById(id);
-        if (element) {
-            const headerHeight = 100; // Высота header + отступ
-            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-            const offsetPosition = elementPosition - headerHeight;
 
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+        // Проверяем, находимся ли мы на главной странице
+        if (location.pathname === '/') {
+            // Если на главной странице, выполняем обычную прокрутку
+            const element = document.getElementById(id);
+            if (element) {
+                const headerHeight = 100; // Высота header + отступ
+                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                const offsetPosition = elementPosition - headerHeight;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // Если не на главной странице, перенаправляем на главную с якорем
+            navigate(`/${href}`);
         }
+
         setIsMobileMenuOpen(false);
     };
 

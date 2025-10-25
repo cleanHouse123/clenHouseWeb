@@ -5,7 +5,7 @@ import { Button } from '@/core/components/ui/button/button';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { UserSubscription } from '../types';
 import { DeleteSubscriptionModal } from './DeleteSubscriptionModal';
-import { kopecksToRubles } from '../utils/priceUtils';
+
 
 interface UserSubscriptionCardProps {
     userSubscription: UserSubscription;
@@ -158,7 +158,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                             <span>Стоимость</span>
                         </div>
                         <p className="text-lg font-bold text-primary">
-                            {kopecksToRubles(userSubscription.price)}
+                            {userSubscription.price} ₽
                         </p>
                     </div>
 

@@ -5,7 +5,7 @@ import { Badge } from '@/core/components/ui/badge';
 import { Check, Calendar, Zap, Star, Crown, Diamond, Shield, Rocket, Heart } from 'lucide-react';
 import { useSubscriptionPlans } from '../hooks/useSubscriptionPlans';
 import { SubscriptionPlan } from '../types';
-import { kopecksToRubles } from '../utils/priceUtils';
+
 
 interface SubscriptionTypeSelectorProps {
     onSelect: (type: 'monthly' | 'yearly', priceInKopecks: number) => void;
@@ -131,7 +131,7 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                             </Badge>
                             <div className="mt-4">
                                 <span className="text-3xl font-bold text-primary">
-                                    {kopecksToRubles(plan.priceInKopecks)}
+                                    {plan.priceInKopecks}
                                 </span>
                             </div>
                         </CardHeader>

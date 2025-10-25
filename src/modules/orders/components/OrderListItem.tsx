@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateRelative, formatDateNumeric, formatDateRelativeLocal } from '@/core/utils/dateUtils';
+import { kopecksToRubles } from '@/core/utils/priceUtils';
 
 interface OrderListItemProps extends OrderCardProps {
     onClick: () => void;
@@ -70,7 +71,7 @@ export const OrderListItem = ({
                     {/* Правая часть - цена и стрелка */}
                     <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
                         <div className="text-left sm:text-right">
-                            <div className="text-lg sm:text-xl font-bold text-primary">{order.price}₽</div>
+                            <div className="text-lg sm:text-xl font-bold text-primary">{kopecksToRubles(order.price)}₽</div>
                             <div className="text-xs text-muted-foreground">
                                 {order.payments.length > 0 ? (
                                     order.payments.some(p => p.status === 'paid') ? 'Оплачен' : 'Ожидает оплаты'

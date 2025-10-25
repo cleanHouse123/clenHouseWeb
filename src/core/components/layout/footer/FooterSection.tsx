@@ -45,7 +45,7 @@ export const FooterSection: React.FC = () => {
 
                 {/* Нижняя полоса */}
                 <div className="pt-6 sm:pt-8 md:pt-10 lg:pt-[50px] flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[40px]">
-                    <FooterText opacity="40" className="order-2 sm:order-1">2025</FooterText>
+                    <FooterText opacity="40" className="order-2 sm:order-1">Все права защищены © 2025</FooterText>
                     <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-[40px] order-1 sm:order-2">
                         {footerLegalLinks.map((link) => (
                             <FooterLink

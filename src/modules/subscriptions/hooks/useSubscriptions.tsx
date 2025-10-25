@@ -3,6 +3,7 @@ import { subscriptionApi } from "../api";
 import { useGetMe } from "@/modules/auth/hooks/useGetMe";
 import { toast } from "sonner";
 
+
 export const useSubscriptionPlans = () => {
     return useQuery({
         queryKey: ["subscription-plans"],
@@ -76,7 +77,7 @@ export const useCreateSubscription = () => {
             const requestData = {
                 userId: user.userId,
                 type: data.type,
-                price: data.price / 100,
+                price: data.price,
                 startDate,
                 endDate: endDateString,
                 status: 'pending' // Добавляем статус pending для временной подписки

@@ -104,7 +104,7 @@ export const PaymentIframe = ({
                                 <span>Безопасная оплата</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span>Стоимость: 200₽</span>
+                                <span>Стоимость: 149₽</span>
                             </div>
                         </div>
                     </div>
