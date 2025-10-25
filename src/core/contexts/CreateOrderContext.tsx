@@ -66,7 +66,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                 // Если способ оплаты "online", создаем ссылку на оплату
                 const payment = await createOrderPayment({
                     orderId: order.id,
-                    amount: 200
+                    amount: order.price // цена в копейках
                 });
 
                 // Сохраняем данные платежа

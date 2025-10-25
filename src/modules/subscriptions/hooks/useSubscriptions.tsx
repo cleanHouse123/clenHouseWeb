@@ -77,7 +77,7 @@ export const useCreateSubscription = () => {
             const requestData = {
                 userId: user.userId,
                 type: data.type,
-                price: 200,
+                price: data.price, // цена в копейках
                 startDate,
                 endDate: endDateString
             };

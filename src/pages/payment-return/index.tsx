@@ -15,7 +15,6 @@ export const PaymentReturnPage = () => {
 
     const paymentId = searchParams.get('paymentId');
     const paymentType = searchParams.get('type') || sessionStorage.getItem('paymentType') || 'order';
-    const returnUrl = sessionStorage.getItem('returnUrl') || (paymentType === 'subscription' ? '/subscriptions' : '/orders');
 
     useEffect(() => {
         if (!paymentId) {
@@ -27,6 +26,7 @@ export const PaymentReturnPage = () => {
         // Очищаем sessionStorage при загрузке страницы
         sessionStorage.removeItem('pendingPaymentId');
         sessionStorage.removeItem('returnUrl');
+        sessionStorage.removeItem('paymentType');
 
         // Проверяем статус платежа каждые 2 секунды
         const checkPaymentStatus = async () => {
@@ -40,18 +40,23 @@ export const PaymentReturnPage = () => {
 
                     const isSubscription = paymentType === 'subscription';
 
-                    // Показываем уведомление об успешной оплате
-                    toast.success(
-                        isSubscription ? 'Подписка успешно оплачена!' : 'Заказ успешно оплачен!',
-                        {
-                            description: isSubscription ? 'Ваша подписка активирована' : 'Ваш заказ принят в обработку',
+                    // Показываем уведомление об успешной оплате с деталями
+                    if (isSubscription) {
+                        toast.success('Подписка успешно оформлена!', {
+                            description: 'Ваша подписка активирована и готова к использованию',
                             duration: 5000,
-                        }
-                    );
+                        });
+                    } else if (payment.orderId) {
+                        // Для заказов показываем информацию о заказе
+                        toast.success('Заказ успешно оплачен!', {
+                            description: `Ваш заказ принят в обработку`,
+                            duration: 5000,
+                        });
+                    }
 
-                    // Перенаправляем на соответствующую страницу через 3 секунды
+                    // Перенаправляем на dashboard через 3 секунды
                     setTimeout(() => {
-                        navigate(returnUrl);
+                        navigate('/dashboard');
                     }, 3000);
                 } else if (payment.status === 'failed' || payment.status === 'canceled') {
                     // Ошибка платежа
@@ -71,7 +76,7 @@ export const PaymentReturnPage = () => {
         const interval = setInterval(checkPaymentStatus, 2000);
 
         return () => clearInterval(interval);
-    }, [paymentId, paymentType, navigate, returnUrl]);
+    }, [paymentId, paymentType, navigate]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -101,16 +106,16 @@ export const PaymentReturnPage = () => {
                             }
                         </p>
                         <p className="text-gray-600 mb-4">
-                            Вы будете перенаправлены на страницу {paymentType === 'subscription' ? 'подписок' : 'заказов'} через несколько секунд...
+                            Вы будете перенаправлены на главную страницу через несколько секунд...
                         </p>
                         <div className="flex justify-center">
                             <Loader2 className="h-6 w-6 text-green-500 animate-spin" />
                         </div>
                         <Button
-                            onClick={() => navigate(returnUrl)}
+                            onClick={() => navigate('/dashboard')}
                             className="mt-4"
                         >
-                            {paymentType === 'subscription' ? 'Перейти к подпискам' : 'Перейти к заказам'} сейчас
+                            Перейти на главную
                         </Button>
                     </div>
                 )}
@@ -124,8 +129,8 @@ export const PaymentReturnPage = () => {
                         <p className="text-gray-600 mb-4">
                             {error || 'К сожалению, произошла ошибка при обработке платежа.'}
                         </p>
-                        <Button onClick={() => navigate(returnUrl)} className="w-full">
-                            Вернуться к {paymentType === 'subscription' ? 'подпискам' : 'заказам'}
+                        <Button onClick={() => navigate('/dashboard')} className="w-full">
+                            Вернуться на главную
                         </Button>
                     </div>
                 )}
