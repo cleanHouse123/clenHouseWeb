@@ -45,7 +45,8 @@ export const SubscriptionsPage = () => {
             // Создаем временную подписку со статусом "pending"
             const subscriptionResult = await createSubscription({
                 type,
-                price: priceInKopecks
+                price: priceInKopecks,
+                ordersLimit: plan.ordersLimit || 10
             });
 
             console.log('Temporary subscription created:', subscriptionResult);

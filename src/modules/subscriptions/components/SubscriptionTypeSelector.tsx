@@ -156,6 +156,25 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                                 </ul>
                             </div>
 
+                            {/* Информация о лимитах заказов */}
+                            {plan.ordersLimit !== undefined && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <div className="flex items-center gap-2">
+                                        <Check className="h-4 w-4 text-blue-600" />
+                                        <div>
+                                            <span className="text-sm font-medium text-blue-800">
+                                                {plan.ordersLimit === -1 ? 'Безлимитные заказы' : `До ${plan.ordersLimit} заказов`}
+                                            </span>
+                                            {plan.usedOrders !== undefined && plan.ordersLimit !== -1 && (
+                                                <p className="text-xs text-blue-600 mt-1">
+                                                    Использовано: {plan.usedOrders}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <Button
                                 onClick={() => handleSelect(plan.type as 'monthly' | 'yearly', plan.priceInKopecks)}
                                 className="w-full"

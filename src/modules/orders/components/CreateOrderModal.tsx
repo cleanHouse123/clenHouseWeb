@@ -17,6 +17,7 @@ import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { SubscriptionStatusCard } from './SubscriptionStatusCard';
+import { OrdersInfo } from '@/modules/subscriptions/components/OrdersInfo';
 import AutocompleteAddress from '@/modules/address/ui/autocomplete';
 
 const createOrderSchema = z.object({
@@ -301,6 +302,11 @@ export const CreateOrderModal = ({
                                                 </p>
                                             </div>
                                         </div>
+                                        <OrdersInfo 
+                                                    ordersLimit={userSubscription?.ordersLimit}
+                                                    usedOrders={userSubscription?.usedOrders}
+                                                    className="mt-4"
+                                                />
                                         {/* Скрытое поле для формы */}
                                         <input type="hidden" {...form.register('paymentMethod')} value="subscription" />
                                     </div>

@@ -28,7 +28,7 @@ export const useCreateSubscription = () => {
     const { data: user, isLoading: isLoadingUser } = useGetMe();
 
     return useMutation({
-        mutationFn: (data: { type: "monthly" | "yearly"; price: number }) => {
+        mutationFn: (data: { type: "monthly" | "yearly"; price: number; ordersLimit: number }) => {
             if (isLoadingUser) {
                 throw new Error('Загрузка данных пользователя...');
             }
@@ -80,6 +80,7 @@ export const useCreateSubscription = () => {
                 price: data.price,
                 startDate,
                 endDate: endDateString,
+                ordersLimit: data.ordersLimit,
                 status: 'pending' // Добавляем статус pending для временной подписки
             };
 

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/badge';
 import { Button } from '@/core/components/ui/button/button';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { UserSubscription } from '../types';
 import { DeleteSubscriptionModal } from './DeleteSubscriptionModal';
+import { OrdersInfo } from './OrdersInfo';
 import { kopecksToRubles } from '../utils/priceUtils';
 
 
@@ -83,7 +84,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                 month: 'long',
                 day: 'numeric',
             });
-        } catch (error) {
+        } catch (_error) {
             console.error('Invalid date:', dateString);
             return 'Неверная дата';
         }
@@ -162,6 +163,12 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                             {kopecksToRubles(userSubscription.price)}
                         </p>
                     </div>
+
+                    {/* Информация о лимитах заказов */}
+                    <OrdersInfo 
+                        ordersLimit={userSubscription.ordersLimit}
+                        usedOrders={userSubscription.usedOrders}
+                    />
 
                     {userSubscription.status === 'pending' && onPay && (
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
