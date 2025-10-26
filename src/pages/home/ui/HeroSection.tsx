@@ -60,7 +60,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+              className="flex flex-col gap-3"
             >
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl sm:text-4xl font-bold text-orange-500">149</span>
+                  <span className="text-sm sm:text-lg text-gray-600">₽</span>
+                </div>
+                <span className="text-sm sm:text-base text-gray-500 line-through">299₽</span>
+                <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs sm:text-sm font-medium">
+                  -50%
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-600">Разовый вынос мусора</p>
               <Button
                 onClick={onCallCourier}
                 variant="primary"

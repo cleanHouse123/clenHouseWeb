@@ -98,7 +98,7 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
 
       <main className="bg-background">
         <HeroSection onCallCourier={onCallCourier} />
-        <PriceSection onCallCourier={onCallCourier} />
+        {/* <PriceSection onCallCourier={onCallCourier} /> */}
         <BenefitsSection />
         <HowItWorksSection />
         <SubscriptionPlansSection />

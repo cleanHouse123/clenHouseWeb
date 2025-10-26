@@ -11,10 +11,10 @@ export const kopecksToRubles = (
   const rubles = kopecks / 100;
 
   if (showDecimals) {
-    return `₽${rubles.toFixed(2)}`;
+    return `${rubles.toFixed(2)}₽`;
   }
 
-  return `₽${Math.round(rubles)}`;
+  return `${Math.round(rubles)}₽`;
 };
 
 /**
