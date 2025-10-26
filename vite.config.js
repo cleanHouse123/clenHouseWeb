@@ -104,11 +104,38 @@ export default defineConfig({
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
     emptyOutDir: true,
+    // Генерируем хеши для всех файлов
+    assetsInlineLimit: 4096,
+    cssCodeSplit: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: false,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       input: {
         main: './index.html'
       },
       output: {
+        // Добавляем хеш к именам файлов
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return `images/[name]-[hash].${ext}`;
+          }
+          if (/woff2?|eot|ttf|otf/i.test(ext)) {
+            return `fonts/[name]-[hash].${ext}`;
+          }
+          if (ext === 'css') {
+            return `assets/[name]-[hash].${ext}`;
+          }
+          return `assets/[name]-[hash].${ext}`;
+        },
         manualChunks: {
           // Основные библиотеки React
           'react-vendor': ['react', 'react-dom'],
