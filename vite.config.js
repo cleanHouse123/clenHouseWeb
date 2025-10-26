@@ -119,22 +119,23 @@ export default defineConfig({
         main: './index.html'
       },
       output: {
-        // Добавляем хеш к именам файлов
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
+        // Добавляем timestamp к именам файлов для уникальности
+        entryFileNames: `assets/[name]-${Date.now()}.js`,
+        chunkFileNames: `assets/[name]-${Date.now()}.js`,
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
+          const timestamp = Date.now();
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `images/[name]-[hash].${ext}`;
+            return `images/[name]-${timestamp}.${ext}`;
           }
           if (/woff2?|eot|ttf|otf/i.test(ext)) {
-            return `fonts/[name]-[hash].${ext}`;
+            return `fonts/[name]-${timestamp}.${ext}`;
           }
           if (ext === 'css') {
-            return `assets/[name]-[hash].${ext}`;
+            return `assets/[name]-${timestamp}.${ext}`;
           }
-          return `assets/[name]-[hash].${ext}`;
+          return `assets/[name]-${timestamp}.${ext}`;
         },
         manualChunks: {
           // Основные библиотеки React
