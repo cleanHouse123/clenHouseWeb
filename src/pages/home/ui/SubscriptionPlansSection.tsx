@@ -3,13 +3,14 @@ import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
 import { useSubscriptionPlans } from '@/modules/subscriptions/hooks/useSubscriptionPlans';
-import { useCreateSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
+import { useCreateSubscriptionByPlan } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan } from '@/modules/subscriptions/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 import { useSearchParams } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 
 
 function formatRubles(kopecks: number) {
@@ -21,7 +22,7 @@ export const SubscriptionPlansSection: React.FC = () => {
   const { data: plans, isLoading, error } = useSubscriptionPlans();
   const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
   const { data: user } = useGetMe();
-  const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
+  const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscription } = useCreateSubscriptionByPlan();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
@@ -44,11 +45,8 @@ export const SubscriptionPlansSection: React.FC = () => {
 
       setSelectedPlan(plan);
 
-      // Создаем подписку
-      const subscriptionResult = await createSubscription({
-        type: plan.type as 'monthly' | 'yearly',
-        price: plan.priceInKopecks
-      });
+      // Создаем подписку по ID плана (новый упрощенный метод)
+      const subscriptionResult = await createSubscriptionByPlan(plan.id);
 
       // Создаем ссылку на оплату
       const paymentData = await subscriptionApi.createPaymentWithPlan(
@@ -60,6 +58,11 @@ export const SubscriptionPlansSection: React.FC = () => {
       setIsPaymentModalOpen(true);
     } catch (error) {
       console.error('Ошибка при оформлении подписки:', error);
+      
+      if (isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Ошибка при оформлении подписки';
+        console.error('API Error:', errorMessage);
+      }
     }
   };
 

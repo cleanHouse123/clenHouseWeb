@@ -4,6 +4,7 @@ import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
 import {
     useUserSubscription,
     useCreateSubscription,
+    useCreateSubscriptionByPlan,
     useDeleteSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
@@ -26,6 +27,7 @@ export const SubscriptionsPage = () => {
     const { data: user, isLoading: isLoadingUser } = useGetMe();
     const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
     const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
+    const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
     const { mutateAsync: deleteSubscription } = useDeleteSubscription();
 
     usePaymentWebSocket();
@@ -42,14 +44,10 @@ export const SubscriptionsPage = () => {
 
             setSelectedPlan(plan);
 
-            // Создаем временную подписку со статусом "pending"
-            const subscriptionResult = await createSubscription({
-                type,
-                price: priceInKopecks,
-                ordersLimit: plan.ordersLimit || 10
-            });
+            // Создаем подписку по ID плана (новый упрощенный метод)
+            const subscriptionResult = await createSubscriptionByPlan(plan.id);
 
-            console.log('Temporary subscription created:', subscriptionResult);
+            console.log('Subscription created by plan:', subscriptionResult);
 
             // Создаем платеж подписки через обновленный API
             const paymentData = await subscriptionApi.createSubscriptionPayment(
@@ -193,7 +191,7 @@ export const SubscriptionsPage = () => {
                             <CardContent>
                                 <SubscriptionTypeSelector
                                     onSelect={handleSelectSubscription}
-                                    isLoading={isCreatingSubscription}
+                                    isLoading={isCreatingSubscription || isCreatingSubscriptionByPlan}
                                 />
                             </CardContent>
                         </Card>
