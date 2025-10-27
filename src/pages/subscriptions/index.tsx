@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/c
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import {
     useUserSubscription,
-    useCreateSubscription,
+    // useCreateSubscription,
     useCreateSubscriptionByPlan,
     useDeleteSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
@@ -26,7 +26,7 @@ export const SubscriptionsPage = () => {
 
     const { data: user, isLoading: isLoadingUser } = useGetMe();
     const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
-    const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
+    // const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
     const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
     const { mutateAsync: deleteSubscription } = useDeleteSubscription();
 
@@ -191,7 +191,7 @@ export const SubscriptionsPage = () => {
                             <CardContent>
                                 <SubscriptionTypeSelector
                                     onSelect={handleSelectSubscription}
-                                    isLoading={isCreatingSubscription || isCreatingSubscriptionByPlan}
+                                    isLoading={isCreatingSubscriptionByPlan}
                                 />
                             </CardContent>
                         </Card>
