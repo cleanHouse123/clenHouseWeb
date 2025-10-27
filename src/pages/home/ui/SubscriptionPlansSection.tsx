@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
@@ -30,7 +30,7 @@ export const SubscriptionPlansSection: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const handleSubscribe = async (plan: SubscriptionPlan) => {
+  const handleSubscribe = useCallback(async (plan: SubscriptionPlan) => {
     try {
       // Проверяем авторизацию
       if (!user) {
@@ -64,7 +64,7 @@ export const SubscriptionPlansSection: React.FC = () => {
         console.error('API Error:', errorMessage);
       }
     }
-  };
+  }, [user, searchParams, setSearchParams, createSubscriptionByPlan]);
 
   const handleClosePaymentModal = () => {
     setIsPaymentModalOpen(false);
@@ -98,7 +98,7 @@ export const SubscriptionPlansSection: React.FC = () => {
         setSearchParams(newSearchParams);
       }
     }
-  }, [user, searchParams, subscriptionPlans]);
+  }, [user, searchParams, subscriptionPlans, handleSubscribe, setSearchParams]);
 
   return (
     <section id="subscription" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
@@ -132,7 +132,13 @@ export const SubscriptionPlansSection: React.FC = () => {
           </div>
         )}
 
-        {!isLoading && !error && subscriptionPlans && (
+        {!isLoading && !error && subscriptionPlans && subscriptionPlans.length === 0 && (
+          <div className="mt-[42px] flex h-40 items-center justify-center text-[16px] text-[rgba(0,0,0,0.6)]">
+            Планы подписок временно недоступны
+          </div>
+        )}
+
+        {!isLoading && !error && subscriptionPlans && subscriptionPlans.length > 0 && (
           <div className={`mt-[42px] grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :
             subscriptionPlans.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
               subscriptionPlans.length === 3 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
@@ -141,7 +147,7 @@ export const SubscriptionPlansSection: React.FC = () => {
             }`}>
             {subscriptionPlans.map((plan: SubscriptionPlan, idx) => (
               <motion.div
-                key={plan.id}
+                key={`${plan.id || 'unknown'}-${idx}`}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{
@@ -175,13 +181,13 @@ export const SubscriptionPlansSection: React.FC = () => {
                     <p className="text-[13px] sm:text-[14px] md:text-[15px] text-gray-600">{plan.description}</p>
 
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {plan.features.map((tag: string, index: number) => {
-                        const isLastTwo = index >= plan.features.length - 2;
+                      {(plan.features || []).map((tag: string, index: number) => {
+                        const isLastTwo = index >= (plan.features || []).length - 2;
                         const isGreenFeature = plan.badgeColor === 'green' && isLastTwo;
 
                         return (
                           <div
-                            key={tag}
+                            key={`${tag}-${index}`}
                             className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full ${isGreenFeature ? 'bg-[#E5F8E3]' : 'bg-[#EDF6FC]'
                               }`}
                           >

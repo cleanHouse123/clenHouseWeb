@@ -13,6 +13,7 @@ import { TimePicker } from '@/core/components/ui/time-picker';
 import { CalendarIcon, Plus, MapPin, X, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { createUTCFromDateTimeInput, formatDateOnly } from '@/core/utils/dateUtils';
 import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
@@ -65,19 +66,8 @@ export const CreateOrderModal = ({
     const handleSubmit = (data: CreateOrderFormData) => {
         console.log('Form data received:', data);
 
-        // Теперь scheduledDate и scheduledTime обязательны
-        const [hours, minutes] = data.scheduledTime.split(':');
-        const scheduledDateTime = new Date(data.scheduledDate);
-        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
-        // Создаем строку в локальном формате без суффикса Z
-        const year = scheduledDateTime.getFullYear();
-        const month = String(scheduledDateTime.getMonth() + 1).padStart(2, '0');
-        const day = String(scheduledDateTime.getDate()).padStart(2, '0');
-        const hour = String(scheduledDateTime.getHours()).padStart(2, '0');
-        const minute = String(scheduledDateTime.getMinutes()).padStart(2, '0');
-        const second = String(scheduledDateTime.getSeconds()).padStart(2, '0');
-        const scheduledAt = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
+        // Используем новую утилиту для создания UTC даты
+        const scheduledAt = createUTCFromDateTimeInput(`${data.scheduledDate}T${data.scheduledTime}`);
 
         const orderData: OrderFormData = {
             address: data.address,
@@ -86,7 +76,6 @@ export const CreateOrderModal = ({
             notes: data.notes,
             paymentMethod: data.paymentMethod
         };
-
 
         onSubmit(orderData);
     };
@@ -294,11 +283,7 @@ export const CreateOrderModal = ({
                                             <div>
                                                 <p className="font-semibold text-green-900">Оплата по подписке</p>
                                                 <p className="text-sm text-green-700">
-                                                    Подписка активна до {userSubscription.endDate ? new Date(userSubscription.endDate).toLocaleDateString('ru-RU', {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric'
-                                                    }) : 'неизвестно'}
+                                                    Подписка активна до {userSubscription.endDate ? formatDateOnly(userSubscription.endDate) : 'Не указано'}
                                                 </p>
                                             </div>
                                         </div>

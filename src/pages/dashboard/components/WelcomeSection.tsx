@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Plus, RotateCcw, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
 
@@ -21,6 +20,10 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
 
     const handleSubscriptions = () => {
         navigate('/subscriptions');
+    };
+
+    const handleScheduledOrders = () => {
+        navigate('/scheduled-orders');
     };
 
     const cardVariants = {
@@ -47,7 +50,7 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
             </motion.div>
 
             {/* Action Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                 {/* Создать заказ - Основная карточка */}
                 <motion.div
                     variants={cardVariants}
@@ -56,7 +59,7 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
                     whileHover="hover"
                     transition={{ duration: 0.3, delay: 0.1 }}
                     onClick={handleCreateOrder}
-                    className="sm:col-span-2 lg:col-span-1 cursor-pointer group"
+                    className="cursor-pointer group"
                 >
                     <div className=" bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-2xl p-4 h-[99px] flex flex-row justify-between transition-all duration-300 shadow-lg hover:shadow-xl">
                         <div>
@@ -137,6 +140,38 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
                                 </svg>
 
 
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Расписания заказов */}
+                <motion.div
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    whileHover="hover"
+                    transition={{ duration: 0.3, delay: 0.4 }}
+                    onClick={handleScheduledOrders}
+                    className="cursor-pointer group"
+                >
+                    <div className="bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-4 h-[99px] flex flex-row justify-between transition-all duration-300 shadow-sm hover:shadow-md">
+                        <div>
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+                                Расписания
+                            </h3>
+                            <p className="text-gray-500 text-sm sm:text-base">
+                                Автоматические заказы
+                            </p>
+                        </div>
+                        <div className="flex justify-end">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M26.6667 5.33325H5.33337C3.86061 5.33325 2.66671 6.52715 2.66671 7.99992V25.3333C2.66671 26.806 3.86061 27.9999 5.33337 27.9999H26.6667C28.1395 27.9999 29.3334 26.806 29.3334 25.3333V7.99992C29.3334 6.52715 28.1395 5.33325 26.6667 5.33325Z" stroke="#FF5D00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M22.6667 1.33325V9.33325" stroke="#FF5D00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M9.33337 1.33325V9.33325" stroke="#FF5D00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M2.66671 15.9999H29.3334" stroke="#FF5D00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
                             </div>
                         </div>
                     </div>

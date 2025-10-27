@@ -3,6 +3,7 @@ import { useCustomerOrders } from '@/modules/orders/hooks/useOrders';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { WelcomeSection } from './components/WelcomeSection';
 import { RecentOrders } from './components/RecentOrders';
+import { QuickActions } from './components/QuickActions';
 import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext';
 
 const DashboardContent = () => {
@@ -58,6 +59,11 @@ const DashboardContent = () => {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Welcome Section */}
                 <WelcomeSection userName={user.name} />
+
+                {/* Quick Actions */}
+                <div className="mb-8">
+                    <QuickActions />
+                </div>
 
                 {/* Recent Orders */}
                 <div className="max-w-4xl">

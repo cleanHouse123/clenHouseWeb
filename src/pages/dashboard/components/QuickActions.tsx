@@ -1,6 +1,6 @@
 import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
-import { Package, CreditCard, Settings, Zap } from 'lucide-react';
+import { Package, CreditCard, Settings, Zap, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
 
@@ -24,6 +24,13 @@ export const QuickActions = () => {
             isPrimary: false
         },
         {
+            title: 'Расписания',
+            description: 'Автоматические заказы',
+            icon: Clock,
+            onClick: () => navigate('/scheduled-orders'),
+            isPrimary: false
+        },
+        {
             title: 'Подписки',
             description: 'Управление',
             icon: CreditCard,
@@ -43,7 +50,7 @@ export const QuickActions = () => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {actions.map((action, index) => {
                         const Icon = action.icon;
                         return (

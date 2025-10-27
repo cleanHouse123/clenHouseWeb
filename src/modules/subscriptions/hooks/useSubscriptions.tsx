@@ -3,6 +3,7 @@ import { subscriptionApi } from "../api";
 import { useGetMe } from "@/modules/auth/hooks/useGetMe";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
+import { createUTCDate, createUTCDateWithMonths, createUTCDateWithYears } from "@/core/utils/dateUtils";
 
 
 export const useSubscriptionPlans = () => {
@@ -48,32 +49,11 @@ export const useCreateSubscription = () => {
                 throw new Error(`Неверный формат ID пользователя: ${user.userId}`);
             }
 
-            const now = new Date();
-
-            // Создаем строку в локальном формате без суффикса Z
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hour = String(now.getHours()).padStart(2, '0');
-            const minute = String(now.getMinutes()).padStart(2, '0');
-            const second = String(now.getSeconds()).padStart(2, '0');
-            const startDate = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
-
-            // Вычисляем дату окончания в зависимости от типа подписки
-            const endDate = new Date(now);
-            if (data.type === 'monthly') {
-                endDate.setMonth(endDate.getMonth() + 1);
-            } else {
-                endDate.setFullYear(endDate.getFullYear() + 1);
-            }
-
-            const endYear = endDate.getFullYear();
-            const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
-            const endDay = String(endDate.getDate()).padStart(2, '0');
-            const endHour = String(endDate.getHours()).padStart(2, '0');
-            const endMinute = String(endDate.getMinutes()).padStart(2, '0');
-            const endSecond = String(endDate.getSeconds()).padStart(2, '0');
-            const endDateString = `${endYear}-${endMonth}-${endDay}T${endHour}:${endMinute}:${endSecond}.000`;
+            // Используем новые утилиты для корректной работы с UTC
+            const startDate = createUTCDate();
+            const endDateString = data.type === 'monthly' 
+                ? createUTCDateWithMonths(1)
+                : createUTCDateWithYears(1);
 
             const requestData = {
                 userId: user.userId,

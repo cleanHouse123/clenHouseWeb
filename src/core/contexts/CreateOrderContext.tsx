@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { CreateOrderModal, PaymentIframe } from '@/modules/orders/components';
+import { CreateOrderModalWithTabs, PaymentIframe } from '@/modules/orders/components';
 import { useCreateOrder, useCreateOrderPayment } from '@/modules/orders/hooks/useOrders';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
@@ -116,7 +116,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
             {children}
 
             {/* Глобальное модальное окно создания заказа */}
-            <CreateOrderModal
+            <CreateOrderModalWithTabs
                 isOpen={isCreateOrderModalOpen}
                 onClose={closeCreateOrderModal}
                 onSubmit={handleCreateOrder}
