@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button';
 import { CreditCard, CheckCircle, ExternalLink } from 'lucide-react';
 import { useOrderPrice } from '@/modules/price';
@@ -56,6 +56,9 @@ export const PaymentIframe = ({
                         <CreditCard className="h-5 w-5" />
                         Оплата заказа
                     </DialogTitle>
+                    <DialogDescription>
+                        Перенаправление на безопасную страницу оплаты YooKassa
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6">

@@ -56,35 +56,21 @@ export const ScheduledOrderList = ({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Мои расписания
-          </h2>
-        </div>
-        <div className="grid gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-gray-200 rounded-lg h-32"></div>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse bg-white rounded-[16px] border border-gray-100 p-4">
+            <div className="space-y-3">
+              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          Мои расписания
-        </h2>
-        <Button onClick={handleCreate} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Создать расписание
-        </Button>
-      </div>
 
       {scheduledOrders.length === 0 ? (
         <div className="text-center py-12">
@@ -95,7 +81,10 @@ export const ScheduledOrderList = ({
           <p className="text-gray-600 mb-4">
             Создайте расписание для автоматического создания заказов
           </p>
-          <Button onClick={handleCreate} className="flex items-center gap-2">
+          <Button 
+            onClick={handleCreate} 
+            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white mx-auto"
+          >
             <Plus className="h-4 w-4" />
             Создать первое расписание
           </Button>
