@@ -3,12 +3,16 @@ import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button/button';
 import { Trash2, Clock, Shield, Star } from 'lucide-react';
+import { useOrderPrice } from '@/modules/price';
+import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 
 interface PriceSectionProps {
     onCallCourier: () => void;
 }
 
 export const PriceSection: React.FC<PriceSectionProps> = ({ onCallCourier }) => {
+    const { orderPrice, isLoading } = useOrderPrice();
+
     return (
         <section className="pt-[20px] sm:pt-[30px]">
             <div className="mx-auto px-2 xs:px-4 sm:px-8 lg:px-16 max-w-6xl">
@@ -44,7 +48,9 @@ export const PriceSection: React.FC<PriceSectionProps> = ({ onCallCourier }) => 
                                         </div>
 
                                         <div className="flex items-baseline justify-center lg:justify-start gap-1 sm:gap-2 mb-2">
-                                            <span className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-bold text-orange-500">149</span>
+                                            <span className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-bold text-orange-500">
+                                                {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}
+                                            </span>
                                             <span className="text-lg sm:text-2xl text-gray-600">₽</span>
                                         </div>
 
@@ -117,8 +123,12 @@ export const PriceSection: React.FC<PriceSectionProps> = ({ onCallCourier }) => 
                                     size="sm"
                                     className="bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-8 py-2 sm:py-4 text-sm sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                                 >
-                                    <span className="hidden xs:inline">Заказать вынос мусора за 149₽</span>
-                                    <span className="xs:hidden">Заказать за 149₽</span>
+                                    <span className="hidden xs:inline">
+                                        Заказать вынос мусора за {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}₽
+                                    </span>
+                                    <span className="xs:hidden">
+                                        Заказать за {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}₽
+                                    </span>
                                 </Button>
 
 

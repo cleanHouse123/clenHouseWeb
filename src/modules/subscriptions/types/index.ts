@@ -25,6 +25,10 @@ export interface UserSubscription {
   updatedAt: string;
 }
 
+export interface CreateSubscriptionByPlanRequest {
+  planId: string;
+}
+
 export interface CreateSubscriptionRequest {
   userId: string;
   type: "monthly" | "yearly";

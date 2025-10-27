@@ -6,6 +6,8 @@ import { BenefitsSection } from './BenefitsSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { SubscriptionPlansSection } from './SubscriptionPlansSection';
 import { FAQSection } from './FAQSection';
+import { useOrderPrice } from '@/modules/price';
+import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 
 
 interface MainSectionProps {
@@ -13,17 +15,23 @@ interface MainSectionProps {
 }
 
 export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
+  const { orderPrice, isLoading } = useOrderPrice();
+  
+  // Используем цену с бэкенда или fallback на 149
+  const currentPrice = orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : 149;
+  const priceText = isLoading ? '149' : currentPrice.toString();
+
   return (
     <>
       <Helmet>
         {/* Основные SEO мета-теги */}
-        <title>ЧистоДома - Вынос мусора за 149₽ | Клининговые услуги в Санкт-Петербурге</title>
-        <meta name="description" content="ЧистоДома - современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за 149₽. Быстро, удобно, надежно. Закажите курьера онлайн!" />
+        <title>ЧистоДома - Вынос мусора за {priceText}₽ | Клининговые услуги в Санкт-Петербурге</title>
+        <meta name="description" content={`ЧистоДома - современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за ${priceText}₽. Быстро, удобно, надежно. Закажите курьера онлайн!`} />
         <meta name="keywords" content="вынос мусора, клининг, уборка, курьер, мусор, бытовые отходы, ЧистоДома, Санкт-Петербург, СПб, онлайн заказ" />
 
         {/* Open Graph мета-теги для социальных сетей */}
-        <meta property="og:title" content="ЧистоДома - Вынос мусора за 149₽ | Клининговые услуги в Санкт-Петербурге" />
-        <meta property="og:description" content="Современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за 149₽. Быстро, удобно, надежно." />
+        <meta property="og:title" content={`ЧистоДома - Вынос мусора за ${priceText}₽ | Клининговые услуги в Санкт-Петербурге`} />
+        <meta property="og:description" content={`Современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за ${priceText}₽. Быстро, удобно, надежно.`} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://xn--80ad4adfbofbt7f.xn--p1ai" />
         <meta property="og:image" content="https://xn--80ad4adfbofbt7f.xn--p1ai/images/og-image.jpg" />
@@ -31,8 +39,8 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
 
         {/* Twitter Card мета-теги */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="ЧистоДома - Вынос мусора за 149₽ в Санкт-Петербурге" />
-        <meta name="twitter:description" content="Современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за 149₽." />
+        <meta name="twitter:title" content={`ЧистоДома - Вынос мусора за ${priceText}₽ в Санкт-Петербурге`} />
+        <meta name="twitter:description" content={`Современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за ${priceText}₽.`} />
         <meta name="twitter:image" content="https://xn--80ad4adfbofbt7f.xn--p1ai/images/twitter-image.jpg" />
 
         {/* Дополнительные SEO мета-теги */}
@@ -88,7 +96,7 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
             },
             "offers": {
               "@type": "Offer",
-              "price": "149",
+              "price": priceText,
               "priceCurrency": "RUB",
               "description": "Первый вынос мусора со скидкой 50%"
             }
@@ -98,7 +106,7 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
 
       <main className="bg-background">
         <HeroSection onCallCourier={onCallCourier} />
-        {/* <PriceSection onCallCourier={onCallCourier} /> */}
+        <PriceSection onCallCourier={onCallCourier} />
         <BenefitsSection />
         <HowItWorksSection />
         <SubscriptionPlansSection />

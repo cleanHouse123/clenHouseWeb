@@ -2,12 +2,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/core/components/ui/button/button';
 import { Card } from '@/core/components/ui/card';
+import { useOrderPrice } from '@/modules/price';
+import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 
 interface HeroSectionProps {
   onCallCourier: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
+  const { orderPrice, isLoading } = useOrderPrice();
+
   return (
     <section className="relative bg-background  pt-[102px] sm:pt-[48px] md:pt-[58px]">
       <div className="mx-auto px-4 sm:px-8 lg:px-16 mt-12 md:mt-24">
@@ -64,7 +68,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
             >
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl sm:text-4xl font-bold text-orange-500">149</span>
+                  <span className="text-3xl sm:text-4xl font-bold text-orange-500">
+                    {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}
+                  </span>
                   <span className="text-sm sm:text-lg text-gray-600">₽</span>
                 </div>
                 <span className="text-sm sm:text-base text-gray-500 line-through">299₽</span>
