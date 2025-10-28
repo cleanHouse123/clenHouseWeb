@@ -13,12 +13,10 @@ import { TimePicker } from '@/core/components/ui/time-picker';
 import { CalendarIcon, Plus, MapPin, CreditCard, Clock, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { createUTCFromDateTimeInput, formatDateOnly } from '@/core/utils/dateUtils';
+import { createUTCFromDateTimeInput } from '@/core/utils/dateUtils';
 import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
-import { SubscriptionStatusCard } from './SubscriptionStatusCard';
-import { OrdersInfo } from '@/modules/subscriptions/components/OrdersInfo';
 import AutocompleteAddress from '@/modules/address/ui/autocomplete';
 import { Tabs } from '@/core/components/ui/tabs';
 import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
@@ -89,7 +87,10 @@ export const CreateOrderModalWithTabs = ({
         console.log('Form data received:', data);
 
         // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
-        const datePart = formatDateOnly(data.scheduledDate);
+        const year = data.scheduledDate.getFullYear();
+        const month = String(data.scheduledDate.getMonth() + 1).padStart(2, '0');
+        const day = String(data.scheduledDate.getDate()).padStart(2, '0');
+        const datePart = `${year}-${month}-${day}`;
         const scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
 
         const orderData: OrderFormData = {
