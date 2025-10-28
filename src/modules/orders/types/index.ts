@@ -52,6 +52,10 @@ export interface CreateOrderDto {
   scheduledAt?: string;
   notes?: string;
   paymentMethod: PaymentMethod;
+  coordinates?: {
+    geo_lat: string;
+    geo_lon: string;
+  };
 }
 
 // Update Order Status DTO
@@ -84,6 +88,10 @@ export interface OrderFormData {
   scheduledAt?: string;
   notes?: string;
   paymentMethod: PaymentMethod;
+  coordinates?: {
+    geo_lat: string;
+    geo_lon: string;
+  };
 }
 
 // Order Status Badge Props

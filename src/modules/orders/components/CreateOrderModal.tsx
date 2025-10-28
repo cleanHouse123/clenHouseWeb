@@ -18,6 +18,7 @@ import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { SubscriptionStatusCard } from './SubscriptionStatusCard';
 import AutocompleteAddress from '@/modules/address/ui/autocomplete';
+import { Address } from '@/modules/address/types';
 
 const createOrderSchema = z.object({
     address: z.string().min(1, 'Адрес обязателен').max(500, 'Адрес слишком длинный'),
@@ -47,6 +48,7 @@ export const CreateOrderModal = ({
     isLoading = false
 }: CreateOrderModalProps) => {
     const [calendarOpen, setCalendarOpen] = useState(false);
+    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
     const { data: userSubscription } = useUserSubscription();
 
     const form = useForm<CreateOrderFormData>({
@@ -60,6 +62,12 @@ export const CreateOrderModal = ({
             paymentMethod: userSubscription?.status === 'active' ? 'subscription' : 'online',
         },
     });
+
+    const handleClose = () => {
+        setSelectedAddress(null);
+        form.reset();
+        onClose();
+    };
 
     const handleSubmit = (data: CreateOrderFormData) => {
         console.log('Form data received:', data);
@@ -83,11 +91,19 @@ export const CreateOrderModal = ({
             description: data.description,
             scheduledAt,
             notes: data.notes,
-            paymentMethod: data.paymentMethod
+            paymentMethod: data.paymentMethod,
+            coordinates: selectedAddress?.geo_lat && selectedAddress?.geo_lon
+                ? {
+                    geo_lat: selectedAddress.geo_lat,
+                    geo_lon: selectedAddress.geo_lon,
+                }
+                : undefined,
         };
 
-
         onSubmit(orderData);
+
+        setSelectedAddress(null);
+        form.reset();
     };
 
     const hasActiveSubscription = userSubscription?.status === 'active';
@@ -99,7 +115,7 @@ export const CreateOrderModal = ({
         ];
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="bg-white max-w-4xl max-h-[95vh] overflow-y-auto p-0 gap-0">
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
@@ -116,7 +132,7 @@ export const CreateOrderModal = ({
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={onClose}
+                            onClick={handleClose}
                             className="h-8 w-8 p-0 hover:bg-gray-100"
                         >
                             <X className="h-4 w-4" />
@@ -146,6 +162,7 @@ export const CreateOrderModal = ({
                                                 <AutocompleteAddress
                                                     value={field.value}
                                                     onChange={field.onChange}
+                                                    onAddressSelect={setSelectedAddress}
                                                 />
                                             </div>
                                         </FormControl>
@@ -339,7 +356,7 @@ export const CreateOrderModal = ({
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={onClose}
+                                    onClick={handleClose}
                                     className="flex-1 h-12 text-base font-medium"
                                     disabled={isLoading}
                                 >
