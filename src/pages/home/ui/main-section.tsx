@@ -16,7 +16,7 @@ interface MainSectionProps {
 
 export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
   const { orderPrice, isLoading } = useOrderPrice();
-  
+
   // Используем цену с бэкенда или fallback на 149
   const currentPrice = orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : 149;
   const priceText = isLoading ? '149' : currentPrice.toString();
@@ -106,7 +106,7 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
 
       <main className="bg-background">
         <HeroSection onCallCourier={onCallCourier} />
-        <PriceSection onCallCourier={onCallCourier} />
+        {/* <PriceSection onCallCourier={onCallCourier} /> */}
         <BenefitsSection />
         <HowItWorksSection />
         <SubscriptionPlansSection />

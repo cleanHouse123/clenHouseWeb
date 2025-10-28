@@ -53,6 +53,13 @@ export const CreateOrderModal = ({
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
     const { data: userSubscription } = useUserSubscription();
 
+    const handleAddressSelect = (address: Address) => {
+        console.log('Address selected in modal, full address:', address);
+        console.log('Address geo_lat:', address.geo_lat);
+        console.log('Address geo_lon:', address.geo_lon);
+        setSelectedAddress(address);
+    };
+
     const form = useForm<CreateOrderFormData>({
         resolver: zodResolver(createOrderSchema),
         defaultValues: {
@@ -73,6 +80,7 @@ export const CreateOrderModal = ({
 
     const handleSubmit = (data: CreateOrderFormData) => {
         console.log('Form data received:', data);
+        console.log('Selected address:', selectedAddress);
 
         // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
         const year = data.scheduledDate.getFullYear();
@@ -81,19 +89,25 @@ export const CreateOrderModal = ({
         const datePart = `${year}-${month}-${day}`;
         const scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
 
+        const coordinates = selectedAddress?.geo_lat && selectedAddress?.geo_lon
+            ? {
+                geo_lat: selectedAddress.geo_lat,
+                geo_lon: selectedAddress.geo_lon,
+            }
+            : undefined;
+
+        console.log('Coordinates to send:', coordinates);
+
         const orderData: OrderFormData = {
             address: data.address,
             description: data.description,
             scheduledAt,
             notes: data.notes,
             paymentMethod: data.paymentMethod,
-            coordinates: selectedAddress?.geo_lat && selectedAddress?.geo_lon
-                ? {
-                    geo_lat: selectedAddress.geo_lat,
-                    geo_lon: selectedAddress.geo_lon,
-                }
-                : undefined,
+            coordinates,
         };
+
+        console.log('Final order data:', orderData);
 
         onSubmit(orderData);
 
@@ -138,8 +152,8 @@ export const CreateOrderModal = ({
                 {/* Content */}
                 <div className="p-6">
                     {/* Статус подписки */}
-                    <SubscriptionStatusCard 
-                        hasActiveSubscription={hasActiveSubscription} 
+                    <SubscriptionStatusCard
+                        hasActiveSubscription={hasActiveSubscription}
                         onNavigateToSubscriptions={() => window.location.href = '/subscriptions'}
                     />
 
@@ -159,8 +173,17 @@ export const CreateOrderModal = ({
                                             <div className="relative">
                                                 <AutocompleteAddress
                                                     value={field.value}
-                                                    onChange={field.onChange}
-                                                    onAddressSelect={setSelectedAddress}
+                                                    onChange={(value) => {
+                                                        console.log('Address onChange:', value);
+                                                        // Если адрес изменился вручную, очищаем selectedAddress
+                                                        // чтобы координаты не передавались для вручную введенных адресов
+                                                        if (selectedAddress && selectedAddress.display !== value) {
+                                                            console.log('Address changed manually, clearing selected address');
+                                                            setSelectedAddress(null);
+                                                        }
+                                                        field.onChange(value);
+                                                    }}
+                                                    onAddressSelect={handleAddressSelect}
                                                 />
                                             </div>
                                         </FormControl>
@@ -312,11 +335,11 @@ export const CreateOrderModal = ({
                                                 </p>
                                             </div>
                                         </div>
-                                        <OrdersInfo 
-                                                    ordersLimit={userSubscription?.ordersLimit}
-                                                    usedOrders={userSubscription?.usedOrders}
-                                                    className="mt-4"
-                                                />
+                                        <OrdersInfo
+                                            ordersLimit={userSubscription?.ordersLimit}
+                                            usedOrders={userSubscription?.usedOrders}
+                                            className="mt-4"
+                                        />
                                         {/* Скрытое поле для формы */}
                                         <input type="hidden" {...form.register('paymentMethod')} value="subscription" />
                                     </div>

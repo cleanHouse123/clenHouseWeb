@@ -49,6 +49,7 @@ export default function AutocompleteAddress({
   }, []);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+
     const newValue = e.target.value;
     setInputValue(newValue);
     setIsOpen(true);
@@ -56,9 +57,13 @@ export default function AutocompleteAddress({
     if (onChange) {
       onChange(newValue);
     }
+
   }, [onChange]);
 
+
+
   const handleAddressSelect = useCallback((address: Address) => {
+
     setInputValue(address.display);
     setIsOpen(false);
 
@@ -67,11 +72,13 @@ export default function AutocompleteAddress({
     }
 
     if (onAddressSelect) {
+
       onAddressSelect(address);
     }
   }, [onChange, onAddressSelect]);
 
   const handleInputFocus = useCallback(() => {
+
     setIsOpen(true);
   }, []);
 
