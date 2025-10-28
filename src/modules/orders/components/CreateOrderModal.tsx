@@ -66,8 +66,9 @@ export const CreateOrderModal = ({
     const handleSubmit = (data: CreateOrderFormData) => {
         console.log('Form data received:', data);
 
-        // Используем новую утилиту для создания UTC даты
-        const scheduledAt = createUTCFromDateTimeInput(`${data.scheduledDate}T${data.scheduledTime}`);
+        // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
+        const datePart = formatDateOnly(data.scheduledDate);
+        const scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
 
         const orderData: OrderFormData = {
             address: data.address,
