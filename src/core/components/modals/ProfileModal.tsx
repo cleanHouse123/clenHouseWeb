@@ -44,10 +44,10 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-3xl max-h-[95vh] overflow-y-auto  sm:mx-auto p-0">
-                <DialogHeader className="px-6 py-4 border-b border-border">
+            <DialogContent className="max-w-3xl max-h-[95vh] overflow-y-auto sm:mx-auto p-0">
+                <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
                     <DialogTitle className="flex items-center gap-3 text-xl font-semibold text-foreground">
-                        <div className="p-2 bg-primary/10 rounded-full">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                             <UserCircle className="h-6 w-6 text-primary" />
                         </div>
                         Профиль пользователя

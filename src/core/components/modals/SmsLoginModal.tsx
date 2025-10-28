@@ -249,8 +249,8 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="max-w-md mx-auto">
-                <DialogHeader>
+            <DialogContent className="max-w-md">
+                <DialogHeader className="px-6 pt-6 pb-4">
                     <div className="flex items-center justify-between">
                         <DialogTitle className="flex items-center gap-2">
                             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
@@ -289,7 +289,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                     )} */}
                 </DialogHeader>
 
-                <div className="space-y-6">
+                <div className="px-6 pb-6 space-y-6">
                     {step === 'phone' ? (
                         <Form {...phoneForm}>
                             <form className="space-y-4" noValidate>

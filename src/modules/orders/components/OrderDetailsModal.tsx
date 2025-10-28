@@ -74,8 +74,8 @@ export const OrderDetailsModal = ({
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto z-[9999]  sm:mx-auto">
-                    <DialogHeader className="pb-4">
+                <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto z-[9999] sm:mx-auto">
+                    <DialogHeader className="px-6 pt-6 pb-4">
                         <div className="flex items-center justify-between">
                             <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
                                 <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -92,7 +92,7 @@ export const OrderDetailsModal = ({
                         </div>
                     </DialogHeader>
 
-                    <div className="space-y-4 sm:space-y-6">
+                    <div className="px-6 pb-6 space-y-4 sm:space-y-6">
                         {/* Статус и цена */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4  rounded-lg">
                             <div className="flex items-center gap-3">
