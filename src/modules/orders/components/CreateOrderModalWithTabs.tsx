@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/core/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { TimePicker } from '@/core/components/ui/time-picker';
-import { CalendarIcon, Plus, MapPin, X, CreditCard, Clock } from 'lucide-react';
+import { CalendarIcon, Plus, MapPin, CreditCard, Clock, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { createUTCFromDateTimeInput, formatDateOnly } from '@/core/utils/dateUtils';
@@ -140,31 +140,21 @@ export const CreateOrderModalWithTabs = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-white max-w-4xl max-h-[95vh] overflow-y-auto p-0 gap-0">
+            <DialogContent className="bg-white max-w-4xl max-h-[95vh] p-0 gap-0 shadow-2xl flex flex-col">
                 {/* Header */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                                <Plus className="h-5 w-5 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-semibold text-gray-900">
-                                    Создать заказ
-                                </h2>
-                                <p className="text-sm text-gray-600">
-                                    Заполните форму для создания нового заказа
-                                </p>
-                            </div>
+                <div className="flex-shrink-0 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100 px-6 py-6 rounded-t-[24px]">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-orange-500 rounded-[12px] flex items-center justify-center">
+                            <Plus className="h-5 w-5 text-white" />
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={onClose}
-                            className="h-8 w-8 p-0"
-                        >
-                            <X className="h-4 w-4" />
-                        </Button>
+                        <div>
+                            <h2 className="text-xl font-semibold text-gray-900">
+                                Создать заказ
+                            </h2>
+                            <p className="text-sm text-gray-600">
+                                Заполните форму для создания нового заказа
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -177,17 +167,15 @@ export const CreateOrderModalWithTabs = ({
                 />
 
                 {/* Content */}
-                <div className="px-6 py-6">
+                <div className="flex-1 overflow-y-auto px-6 py-6 pr-8 pb-4 mb-4 custom-scrollbar">
                     {activeTab === 'single' ? (
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                                 {/* Subscription Status */}
                                 {hasActiveSubscription && (
-                                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                        <SubscriptionStatusCard hasActiveSubscription={hasActiveSubscription} />
-                                        <div className="mt-3">
-                                            <OrdersInfo />
-                                        </div>
+                                    <div className="flex items-center gap-2 text-sm text-green-600 mb-2">
+                                        <CheckCircle className="h-4 w-4" />
+                                        <span>У вас активная подписка</span>
                                     </div>
                                 )}
 

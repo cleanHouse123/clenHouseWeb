@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
+import { useNavigate } from 'react-router-dom';
+import { ChevronRight, CreditCard, Plus } from 'lucide-react';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import {
     useUserSubscription,
-    // useCreateSubscription,
     useCreateSubscriptionByPlan,
     useDeleteSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
@@ -14,19 +14,15 @@ import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { SubscriptionTypeSelector } from '@/modules/subscriptions/components/SubscriptionTypeSelector';
 import { UserSubscriptionCard } from '@/modules/subscriptions/components/UserSubscriptionCard';
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
-import {
-    CreditCard,
-    Plus
-} from 'lucide-react';
 
 export const SubscriptionsPage = () => {
+    const navigate = useNavigate();
     const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     const { data: user, isLoading: isLoadingUser } = useGetMe();
     const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
-    // const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
     const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
     const { mutateAsync: deleteSubscription } = useDeleteSubscription();
 
@@ -130,79 +126,71 @@ export const SubscriptionsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background">
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h1 className="text-3xl font-bold text-foreground">Подписки</h1>
-                            <p className="text-muted-foreground mt-2">
+        <div className="min-h-screen ">
+            <main className="container mx-auto px-4 py-4 sm:py-8">
+                <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+                    {/* Хлебные крошки */}
+                    <div className="flex flex-col gap-[20px] bg-white rounded-[32px] p-[16px] md:p-[36px]">
+                        <nav className="flex items-center space-x-2 text-sm text-gray-500">
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="hover:text-gray-700 transition-colors cursor-pointer"
+                            >
+                                Личный кабинет
+                            </button>
+                            <ChevronRight className="h-4 w-4" />
+                            <span className="text-gray-900 font-medium">Мои подписки</span>
+                        </nav>
+
+                        {/* Заголовок и описание */}
+                        <div className="space-y-2">
+                            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                                Мои подписки
+                            </h1>
+                            <p className="text-lg text-gray-600">
                                 У вас может быть только одна активная подписка
                             </p>
                         </div>
-
-                        {/* <div className="flex items-center gap-2">
-                            {isConnected ? (
-                                <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                                    <Wifi className="h-3 w-3 mr-1" />
-
-                                </Badge>
-                            ) : (
-                                <Badge variant="outline" className="text-orange-600 border-orange-200">
-                                    <WifiOff className="h-3 w-3 mr-1" />
-
-                                </Badge>
-                            )}
-                        </div> */}
                     </div>
-                </div>
 
-                {(isLoadingUser || isLoadingUserSubscription) ? (
-                    <div className="flex justify-center py-8">
-                        <LoadingIndicator />
-                    </div>
-                ) : userSubscription ? (
-                    <div className="space-y-8">
-                        <Card className="shadow-lg">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <CreditCard className="h-5 w-5" />
-                                    Текущая подписка
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
+                    {/* Контент */}
+                    <div className="bg-white rounded-[32px] p-[18px] md:p-[36px]">
+                        {(isLoadingUser || isLoadingUserSubscription) ? (
+                            <div className="flex justify-center py-8">
+                                <LoadingIndicator />
+                            </div>
+                        ) : userSubscription ? (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <CreditCard className="h-5 w-5 text-orange-500" />
+                                    <h2 className="text-xl font-semibold text-gray-900">Текущая подписка</h2>
+                                </div>
                                 <UserSubscriptionCard
                                     userSubscription={userSubscription}
                                     onPay={handlePayExistingSubscription}
                                     onDelete={handleDeleteSubscription}
                                 />
-                            </CardContent>
-                        </Card>
-                    </div>
-                ) : user ? (
-                    <div className="space-y-8">
-                        <Card className="shadow-lg">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Plus className="h-5 w-5" />
-                                    Оформить подписку
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
+                            </div>
+                        ) : user ? (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <Plus className="h-5 w-5 text-orange-500" />
+                                    <h2 className="text-xl font-semibold text-gray-900">Оформить подписку</h2>
+                                </div>
                                 <SubscriptionTypeSelector
                                     onSelect={handleSelectSubscription}
                                     isLoading={isCreatingSubscriptionByPlan}
                                 />
-                            </CardContent>
-                        </Card>
+                            </div>
+                        ) : (
+                            <div className="flex justify-center py-8">
+                                <div className="text-center">
+                                    <p className="text-gray-600">Ошибка загрузки данных пользователя</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <div className="flex justify-center py-8">
-                        <div className="text-center">
-                            <p className="text-muted-foreground">Ошибка загрузки данных пользователя</p>
-                        </div>
-                    </div>
-                )}
+                </div>
             </main>
 
             <PaymentModal

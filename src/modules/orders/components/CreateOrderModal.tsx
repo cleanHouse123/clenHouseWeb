@@ -118,7 +118,10 @@ export const CreateOrderModal = ({
                 {/* Content */}
                 <div className="p-6">
                     {/* Статус подписки */}
-                    <SubscriptionStatusCard hasActiveSubscription={hasActiveSubscription} />
+                    <SubscriptionStatusCard 
+                        hasActiveSubscription={hasActiveSubscription} 
+                        onNavigateToSubscriptions={() => window.location.href = '/subscriptions'}
+                    />
 
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">

@@ -81,15 +81,25 @@ export const PaymentModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-md">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <CreditCard className="h-5 w-5" />
-                        Оплата подписки
-                    </DialogTitle>
+            <DialogContent className="max-w-lg shadow-2xl [&>button]:hidden">
+                <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-gray-900">
+                            <CreditCard className="h-5 w-5 text-orange-500" />
+                            Оплата подписки
+                        </DialogTitle>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onClose}
+                            className="h-8 w-8 p-0"
+                        >
+                            <span className="text-2xl leading-none">×</span>
+                        </Button>
+                    </div>
                 </DialogHeader>
 
-                <div className="space-y-6">
+                <div className="px-6 py-6 space-y-6">
                     {paymentSuccess ? (
                         <div className="text-center">
                             <div className="bg-green-50 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -124,18 +134,22 @@ export const PaymentModal = ({
                                 )}
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-3 pt-2">
                                 <Button
                                     onClick={handlePaymentRedirect}
                                     disabled={isRedirecting || !paymentUrl}
-                                    className="w-full"
+                                    className="w-full rounded-[12px] bg-orange-500 hover:bg-orange-600 h-12 text-base font-medium"
                                     size="lg"
                                 >
                                     <ExternalLink className="h-4 w-4 mr-2" />
                                     {isRedirecting ? 'Перенаправление...' : 'Перейти к оплате'}
                                 </Button>
 
-                                <Button variant="outline" onClick={onClose} className="w-full">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={onClose} 
+                                    className="w-full rounded-[12px] h-11 font-medium"
+                                >
                                     Отмена
                                 </Button>
                             </div>

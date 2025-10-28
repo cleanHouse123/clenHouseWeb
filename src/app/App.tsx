@@ -3,7 +3,6 @@ import { router } from './routing/routes'
 import { useWindowHeight } from '@/core/hooks/ui/useWindowHeight'
 import { PWAInstallPrompt } from '@/core/components/ui/PWAInstallPrompt'
 import { Toaster } from 'sonner'
-import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext'
 import { Suspense } from 'react'
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
 import { useYandexMetrika } from '@/core/hooks/useYandexMetrika'
@@ -13,7 +12,7 @@ function App() {
     useYandexMetrika();
 
     return (
-        <CreateOrderProvider>
+        <>
             <Suspense fallback={<LoadingIndicator />}>
                 <RouterProvider router={router} />
             </Suspense>
@@ -24,7 +23,7 @@ function App() {
                 richColors={true}
                 closeButton={true}
             />
-        </CreateOrderProvider>
+        </>
     )
 }
 

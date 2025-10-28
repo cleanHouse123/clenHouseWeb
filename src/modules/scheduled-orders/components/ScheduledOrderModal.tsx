@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/core/components/ui/dialog";
 import {
   Form,
@@ -146,19 +147,23 @@ export const ScheduledOrderModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
+      <DialogContent className="max-w-2xl max-h-[90vh] shadow-2xl flex flex-col">
+        <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100 rounded-t-[24px]">
+          <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-gray-900">
+            <Clock className="h-5 w-5 text-orange-500" />
             {title}
           </DialogTitle>
+          <DialogDescription className="text-sm text-gray-600">
+            Настройте расписание для автоматических заказов
+          </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6"
-          >
+        <div className="flex-1 overflow-y-auto px-6 pb-6 pr-8 mb-4 custom-scrollbar">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-6"
+            >
             {/* Адрес */}
             <FormField
               control={form.control}
@@ -409,17 +414,18 @@ export const ScheduledOrderModal = ({
               )}
             />
 
-            {/* Кнопки */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={handleClose}>
-                Отмена
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Сохранение..." : "Сохранить"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+              {/* Кнопки */}
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={handleClose} className="rounded-[12px]">
+                  Отмена
+                </Button>
+                <Button type="submit" disabled={isLoading} className="rounded-[12px] bg-orange-500 hover:bg-orange-600">
+                  {isLoading ? "Сохранение..." : "Сохранить"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
