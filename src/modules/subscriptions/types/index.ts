@@ -19,8 +19,14 @@ export interface UserSubscription {
   startDate: string;
   endDate: string;
   paymentUrl?: string; // Ссылка на оплату, если подписка не оплачена
+  ordersLimit?: number; // -1 = безлимит, null/undefined = не установлен
+  usedOrders?: number; // количество использованных заказов
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreateSubscriptionByPlanRequest {
+  planId: string;
 }
 
 export interface CreateSubscriptionRequest {
@@ -29,6 +35,7 @@ export interface CreateSubscriptionRequest {
   price: number;
   startDate: string;
   endDate: string;
+  ordersLimit?: number;
 }
 
 export interface CreateSubscriptionResponse extends UserSubscription {
@@ -48,12 +55,14 @@ export interface PaymentLinkResponse {
   status: "pending";
 }
 
-export interface SubscriptionPaymentStatus {
-  id: string;
-  subscriptionId: string;
-  amount: number;
-  status: "pending" | "paid" | "failed";
-  createdAt: string;
+export interface SimulatePaymentRequest {
+  paymentId: string;
+  success: boolean;
+}
+
+export interface SimulatePaymentResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface PaymentWebSocketEvent {
@@ -83,15 +92,46 @@ export interface LeavePaymentRoomRequest {
 // Типы для планов подписок
 export interface SubscriptionPlan {
   id: string;
-  type: string;
+  type: "monthly" | "yearly";
   name: string;
   description: string;
-  priceInKopecks: number; // Цена в копейках
+  priceInKopecks: number;
   duration: string;
   features: string[];
   icon: string;
-  badgeColor: string;
+  badgeColor: "blue" | "green";
   popular: boolean;
+  ordersLimit?: number; // -1 = безлимит, null/undefined = не установлен
+  usedOrders?: number; // количество использованных заказов
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreateSubscriptionPlanDto {
+  type: "monthly" | "yearly";
+  name: string;
+  description: string;
+  priceInKopecks: number;
+  duration: string;
+  features: string[];
+  icon: string;
+  badgeColor: "blue" | "green";
+  popular: boolean;
+  ordersLimit?: number; // -1 = безлимит, null/undefined = не установлен
+}
+
+export interface UpdateSubscriptionPlanDto
+  extends Partial<CreateSubscriptionPlanDto> {}
+
+export interface SubscriptionPlanFormData {
+  type: "monthly" | "yearly";
+  name: string;
+  description: string;
+  priceInRubles: number;
+  duration: string;
+  features: string[];
+  icon: string;
+  badgeColor: "blue" | "green";
+  popular: boolean;
+  ordersLimit?: number; // -1 = безлимит, null/undefined = не установлен
 }

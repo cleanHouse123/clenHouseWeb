@@ -2,6 +2,7 @@ import { axiosInstance } from "@/core/config/axios";
 import {
   UserSubscription,
   CreateSubscriptionRequest,
+  CreateSubscriptionByPlanRequest,
   CreateSubscriptionResponse,
   PaymentLinkResponse,
   SubscriptionPlan,
@@ -28,6 +29,17 @@ export const subscriptionApi = {
     return data.subscriptions && data.subscriptions.length > 0
       ? data.subscriptions[0]
       : null;
+  },
+
+  // Создать подписку по ID плана (новый упрощенный метод)
+  createSubscriptionByPlan: async (
+    planId: string
+  ): Promise<CreateSubscriptionResponse> => {
+    console.log("API createSubscriptionByPlan request data:", { planId });
+    const response = await axiosInstance.post("/subscriptions/by-plan", {
+      planId,
+    });
+    return response.data;
   },
 
   // Создать подписку

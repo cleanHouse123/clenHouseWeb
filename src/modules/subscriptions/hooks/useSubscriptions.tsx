@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { subscriptionApi } from "../api";
 import { useGetMe } from "@/modules/auth/hooks/useGetMe";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
+import { createUTCDate, createUTCDateWithMonths, createUTCDateWithYears } from "@/core/utils/dateUtils";
 
 
 export const useSubscriptionPlans = () => {
@@ -28,7 +30,7 @@ export const useCreateSubscription = () => {
     const { data: user, isLoading: isLoadingUser } = useGetMe();
 
     return useMutation({
-        mutationFn: (data: { type: "monthly" | "yearly"; price: number }) => {
+        mutationFn: (data: { type: "monthly" | "yearly"; price: number; ordersLimit: number }) => {
             if (isLoadingUser) {
                 throw new Error('Загрузка данных пользователя...');
             }
@@ -47,32 +49,11 @@ export const useCreateSubscription = () => {
                 throw new Error(`Неверный формат ID пользователя: ${user.userId}`);
             }
 
-            const now = new Date();
-
-            // Создаем строку в локальном формате без суффикса Z
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hour = String(now.getHours()).padStart(2, '0');
-            const minute = String(now.getMinutes()).padStart(2, '0');
-            const second = String(now.getSeconds()).padStart(2, '0');
-            const startDate = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
-
-            // Вычисляем дату окончания в зависимости от типа подписки
-            const endDate = new Date(now);
-            if (data.type === 'monthly') {
-                endDate.setMonth(endDate.getMonth() + 1);
-            } else {
-                endDate.setFullYear(endDate.getFullYear() + 1);
-            }
-
-            const endYear = endDate.getFullYear();
-            const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
-            const endDay = String(endDate.getDate()).padStart(2, '0');
-            const endHour = String(endDate.getHours()).padStart(2, '0');
-            const endMinute = String(endDate.getMinutes()).padStart(2, '0');
-            const endSecond = String(endDate.getSeconds()).padStart(2, '0');
-            const endDateString = `${endYear}-${endMonth}-${endDay}T${endHour}:${endMinute}:${endSecond}.000`;
+            // Используем новые утилиты для корректной работы с UTC
+            const startDate = createUTCDate();
+            const endDateString = data.type === 'monthly' 
+                ? createUTCDateWithMonths(1)
+                : createUTCDateWithYears(1);
 
             const requestData = {
                 userId: user.userId,
@@ -80,6 +61,7 @@ export const useCreateSubscription = () => {
                 price: data.price,
                 startDate,
                 endDate: endDateString,
+                ordersLimit: data.ordersLimit,
                 status: 'pending' // Добавляем статус pending для временной подписки
             };
 
@@ -95,12 +77,55 @@ export const useCreateSubscription = () => {
             // // Обновляем подписку пользователя
             // queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             console.error('Subscription creation error:', error);
 
             let errorMessage = 'Ошибка создания подписки';
 
-            if (error?.response?.data?.message) {
+            if (isAxiosError(error) && error.response?.data?.message) {
+                const responseData = error.response.data.message;
+                if (Array.isArray(responseData)) {
+                    errorMessage = responseData.join(', ');
+                } else {
+                    errorMessage = responseData;
+                }
+            }
+
+            toast.error('Ошибка создания подписки', {
+                description: errorMessage,
+                duration: 5000,
+            });
+        },
+    });
+};
+
+export const useCreateSubscriptionByPlan = () => {
+    const queryClient = useQueryClient();
+    const { data: user } = useGetMe();
+
+    return useMutation({
+        mutationFn: (planId: string) => {
+            if (!user?.userId) {
+                throw new Error('Пользователь не найден');
+            }
+
+            console.log('Creating subscription by plan:', { planId });
+            return subscriptionApi.createSubscriptionByPlan(planId);
+        },
+        onSuccess: () => {
+            toast.success('Подписка создана!', {
+                description: 'Подписка успешно создана по выбранному плану',
+                duration: 4000,
+            });
+            // Обновляем подписку пользователя
+            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
+        },
+        onError: (error: Error) => {
+            console.error('Subscription creation by plan error:', error);
+
+            let errorMessage = 'Ошибка создания подписки';
+
+            if (isAxiosError(error) && error.response?.data?.message) {
                 if (Array.isArray(error.response.data.message)) {
                     errorMessage = error.response.data.message.join(', ');
                 } else {
@@ -131,8 +156,8 @@ export const useCreatePaymentLink = () => {
                 duration: 4000,
             });
         },
-        onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message || 'Ошибка создания ссылки на оплату';
+        onError: (error: Error) => {
+            const errorMessage = isAxiosError(error) ? error.response?.data?.message || 'Ошибка создания ссылки на оплату' : 'Ошибка создания ссылки на оплату';
             toast.error('Ошибка', {
                 description: errorMessage,
                 duration: 5000,
@@ -156,8 +181,8 @@ export const useDeleteSubscription = () => {
             // Обновляем подписку пользователя
             queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
         },
-        onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message || 'Ошибка удаления подписки';
+        onError: (error: Error) => {
+            const errorMessage = isAxiosError(error) ? error.response?.data?.message || 'Ошибка удаления подписки' : 'Ошибка удаления подписки';
             toast.error('Ошибка', {
                 description: errorMessage,
                 duration: 5000,
@@ -170,7 +195,7 @@ export const useDeleteSubscription = () => {
 export const useCheckSubscriptionPaymentStatus = () => {
     return useMutation({
         mutationFn: (paymentId: string) => subscriptionApi.checkPaymentStatus(paymentId),
-        onError: (error: any) => {
+        onError: (error: Error) => {
             console.error('Ошибка проверки статуса платежа подписки:', error);
         },
     });
@@ -180,7 +205,7 @@ export const useCheckSubscriptionPaymentStatus = () => {
 export const useCheckUniversalPaymentStatus = () => {
     return useMutation({
         mutationFn: (paymentId: string) => subscriptionApi.checkUniversalPaymentStatus(paymentId),
-        onError: (error: any) => {
+        onError: (error: Error) => {
             console.error('Ошибка проверки статуса платежа:', error);
         },
     });

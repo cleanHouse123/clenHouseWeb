@@ -1,16 +1,18 @@
 import { Button } from '@/core/components/ui/button/button';
 import { CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface SubscriptionStatusCardProps {
     hasActiveSubscription: boolean;
+    onNavigateToSubscriptions?: () => void;
 }
 
-export const SubscriptionStatusCard = ({ hasActiveSubscription }: SubscriptionStatusCardProps) => {
-    const navigate = useNavigate();
-
+export const SubscriptionStatusCard = ({ hasActiveSubscription, onNavigateToSubscriptions }: SubscriptionStatusCardProps) => {
     const handleGoToSubscriptions = () => {
-        navigate('/subscriptions');
+        if (onNavigateToSubscriptions) {
+            onNavigateToSubscriptions();
+        } else {
+            window.location.href = '/subscriptions';
+        }
     };
 
     return (

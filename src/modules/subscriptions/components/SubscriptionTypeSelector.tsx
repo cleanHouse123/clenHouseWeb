@@ -147,14 +147,33 @@ export const SubscriptionTypeSelector = ({ onSelect, isLoading = false }: Subscr
                             <div className="space-y-2">
                                 <h4 className="font-medium text-sm text-foreground">Включено:</h4>
                                 <ul className="space-y-1">
-                                    {plan.features.map((feature, index) => (
-                                        <li key={index} className="flex items-center gap-2 text-sm">
+                                    {(plan.features || []).map((feature, index) => (
+                                        <li key={`${feature}-${index}`} className="flex items-center gap-2 text-sm">
                                             <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
                                             <span className="text-muted-foreground">{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
+
+                            {/* Информация о лимитах заказов */}
+                            {plan.ordersLimit !== undefined && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <div className="flex items-center gap-2">
+                                        <Check className="h-4 w-4 text-blue-600" />
+                                        <div>
+                                            <span className="text-sm font-medium text-blue-800">
+                                                {plan.ordersLimit === -1 ? 'Безлимитные заказы' : `До ${plan.ordersLimit} заказов`}
+                                            </span>
+                                            {plan.usedOrders !== undefined && plan.ordersLimit !== -1 && (
+                                                <p className="text-xs text-blue-600 mt-1">
+                                                    Использовано: {plan.usedOrders}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <Button
                                 onClick={() => handleSelect(plan.type as 'monthly' | 'yearly', plan.priceInKopecks)}

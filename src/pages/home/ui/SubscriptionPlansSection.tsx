@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
 import { useSubscriptionPlans } from '@/modules/subscriptions/hooks/useSubscriptionPlans';
-import { useCreateSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
+import { useCreateSubscriptionByPlan } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan } from '@/modules/subscriptions/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 import { useSearchParams } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 
 
 function formatRubles(kopecks: number) {
@@ -21,7 +22,7 @@ export const SubscriptionPlansSection: React.FC = () => {
   const { data: plans, isLoading, error } = useSubscriptionPlans();
   const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
   const { data: user } = useGetMe();
-  const { mutateAsync: createSubscription, isPending: isCreatingSubscription } = useCreateSubscription();
+  const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscription } = useCreateSubscriptionByPlan();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
@@ -29,7 +30,7 @@ export const SubscriptionPlansSection: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const handleSubscribe = async (plan: SubscriptionPlan) => {
+  const handleSubscribe = useCallback(async (plan: SubscriptionPlan) => {
     try {
       // Проверяем авторизацию
       if (!user) {
@@ -44,11 +45,8 @@ export const SubscriptionPlansSection: React.FC = () => {
 
       setSelectedPlan(plan);
 
-      // Создаем подписку
-      const subscriptionResult = await createSubscription({
-        type: plan.type as 'monthly' | 'yearly',
-        price: plan.priceInKopecks
-      });
+      // Создаем подписку по ID плана (новый упрощенный метод)
+      const subscriptionResult = await createSubscriptionByPlan(plan.id);
 
       // Создаем ссылку на оплату
       const paymentData = await subscriptionApi.createPaymentWithPlan(
@@ -60,8 +58,13 @@ export const SubscriptionPlansSection: React.FC = () => {
       setIsPaymentModalOpen(true);
     } catch (error) {
       console.error('Ошибка при оформлении подписки:', error);
+      
+      if (isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Ошибка при оформлении подписки';
+        console.error('API Error:', errorMessage);
+      }
     }
-  };
+  }, [user, searchParams, setSearchParams, createSubscriptionByPlan]);
 
   const handleClosePaymentModal = () => {
     setIsPaymentModalOpen(false);
@@ -95,7 +98,7 @@ export const SubscriptionPlansSection: React.FC = () => {
         setSearchParams(newSearchParams);
       }
     }
-  }, [user, searchParams, subscriptionPlans]);
+  }, [user, searchParams, subscriptionPlans, handleSubscribe, setSearchParams]);
 
   return (
     <section id="subscription" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
@@ -129,7 +132,13 @@ export const SubscriptionPlansSection: React.FC = () => {
           </div>
         )}
 
-        {!isLoading && !error && subscriptionPlans && (
+        {!isLoading && !error && subscriptionPlans && subscriptionPlans.length === 0 && (
+          <div className="mt-[42px] flex h-40 items-center justify-center text-[16px] text-[rgba(0,0,0,0.6)]">
+            Планы подписок временно недоступны
+          </div>
+        )}
+
+        {!isLoading && !error && subscriptionPlans && subscriptionPlans.length > 0 && (
           <div className={`mt-[42px] grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :
             subscriptionPlans.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
               subscriptionPlans.length === 3 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
@@ -138,7 +147,7 @@ export const SubscriptionPlansSection: React.FC = () => {
             }`}>
             {subscriptionPlans.map((plan: SubscriptionPlan, idx) => (
               <motion.div
-                key={plan.id}
+                key={`${plan.id || 'unknown'}-${idx}`}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{
@@ -172,13 +181,13 @@ export const SubscriptionPlansSection: React.FC = () => {
                     <p className="text-[13px] sm:text-[14px] md:text-[15px] text-gray-600">{plan.description}</p>
 
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {plan.features.map((tag: string, index: number) => {
-                        const isLastTwo = index >= plan.features.length - 2;
+                      {(plan.features || []).map((tag: string, index: number) => {
+                        const isLastTwo = index >= (plan.features || []).length - 2;
                         const isGreenFeature = plan.badgeColor === 'green' && isLastTwo;
 
                         return (
                           <div
-                            key={tag}
+                            key={`${tag}-${index}`}
                             className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full ${isGreenFeature ? 'bg-[#E5F8E3]' : 'bg-[#EDF6FC]'
                               }`}
                           >

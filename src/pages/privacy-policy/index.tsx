@@ -1,3 +1,5 @@
+import { formatDateOnly } from '@/core/utils/dateUtils';
+
 export const PrivacyPolicyPage = () => {
     return (
         <div className="container mx-auto px-4 py-8">
@@ -136,7 +138,7 @@ export const PrivacyPolicyPage = () => {
 
                         <section className="border-t pt-6">
                             <p className="text-sm text-gray-500">
-                                Дата последнего обновления: {new Date().toLocaleDateString('ru-RU')}
+                                Дата последнего обновления: {formatDateOnly(new Date().toISOString())}
                             </p>
                         </section>
                     </div>

@@ -8,6 +8,7 @@ import { AppLayout } from "@/core/components/layout/AppLayout";
 const HomePage = lazy(() => import("@/pages/home").then(module => ({ default: module.HomePage })));
 const DashboardPage = lazy(() => import("@/pages/dashboard").then(module => ({ default: module.DashboardPage })));
 const OrdersPage = lazy(() => import("@/pages/orders").then(module => ({ default: module.OrdersPage })));
+const ScheduledOrdersPage = lazy(() => import("@/pages/scheduled-orders").then(module => ({ default: module.ScheduledOrdersPage })));
 const PaymentReturnPage = lazy(() => import("@/pages/payment-return").then(module => ({ default: module.PaymentReturnPage })));
 const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy").then(module => ({ default: module.PrivacyPolicyPage })));
 const TermsOfServicePage = lazy(() => import("@/pages/terms-of-service").then(module => ({ default: module.TermsOfServicePage })));
@@ -44,6 +45,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <OrdersPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "scheduled-orders",
+    element: (
+      <ProtectedRoute>
+        <ScheduledOrdersPage />
       </ProtectedRoute>
     ),
   },

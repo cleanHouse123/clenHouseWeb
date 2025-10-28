@@ -3,6 +3,7 @@ import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent } from '@/core/components/ui/card';
 import { User, Phone, Mail, Calendar, Settings, CheckCircle, Clock, UserCircle } from 'lucide-react';
 import { memo } from 'react';
+import { formatDateTime } from '@/core/utils/dateUtils';
 
 interface ProfileModalProps {
     isOpen: boolean;
@@ -22,14 +23,8 @@ interface ProfileModalProps {
 const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
 
     const formatDate = (dateString: string | Date) => {
-        const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-        return date.toLocaleDateString('ru-RU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        const dateStr = typeof dateString === 'string' ? dateString : dateString.toISOString();
+        return formatDateTime(dateStr);
     };
 
     const handleEditProfile = () => {

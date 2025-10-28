@@ -13,10 +13,12 @@ import { TimePicker } from '@/core/components/ui/time-picker';
 import { CalendarIcon, Plus, MapPin, X, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { createUTCFromDateTimeInput, formatDateOnly } from '@/core/utils/dateUtils';
 import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { SubscriptionStatusCard } from './SubscriptionStatusCard';
+import { OrdersInfo } from '@/modules/subscriptions/components/OrdersInfo';
 import AutocompleteAddress from '@/modules/address/ui/autocomplete';
 import { Address } from '@/modules/address/types';
 
@@ -72,19 +74,12 @@ export const CreateOrderModal = ({
     const handleSubmit = (data: CreateOrderFormData) => {
         console.log('Form data received:', data);
 
-        // Теперь scheduledDate и scheduledTime обязательны
-        const [hours, minutes] = data.scheduledTime.split(':');
-        const scheduledDateTime = new Date(data.scheduledDate);
-        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
-        // Создаем строку в локальном формате без суффикса Z
-        const year = scheduledDateTime.getFullYear();
-        const month = String(scheduledDateTime.getMonth() + 1).padStart(2, '0');
-        const day = String(scheduledDateTime.getDate()).padStart(2, '0');
-        const hour = String(scheduledDateTime.getHours()).padStart(2, '0');
-        const minute = String(scheduledDateTime.getMinutes()).padStart(2, '0');
-        const second = String(scheduledDateTime.getSeconds()).padStart(2, '0');
-        const scheduledAt = `${year}-${month}-${day}T${hour}:${minute}:${second}.000`;
+        // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
+        const year = data.scheduledDate.getFullYear();
+        const month = String(data.scheduledDate.getMonth() + 1).padStart(2, '0');
+        const day = String(data.scheduledDate.getDate()).padStart(2, '0');
+        const datePart = `${year}-${month}-${day}`;
+        const scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
 
         const orderData: OrderFormData = {
             address: data.address,
@@ -143,7 +138,10 @@ export const CreateOrderModal = ({
                 {/* Content */}
                 <div className="p-6">
                     {/* Статус подписки */}
-                    <SubscriptionStatusCard hasActiveSubscription={hasActiveSubscription} />
+                    <SubscriptionStatusCard 
+                        hasActiveSubscription={hasActiveSubscription} 
+                        onNavigateToSubscriptions={() => window.location.href = '/subscriptions'}
+                    />
 
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -310,14 +308,15 @@ export const CreateOrderModal = ({
                                             <div>
                                                 <p className="font-semibold text-green-900">Оплата по подписке</p>
                                                 <p className="text-sm text-green-700">
-                                                    Подписка активна до {userSubscription.endDate ? new Date(userSubscription.endDate).toLocaleDateString('ru-RU', {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric'
-                                                    }) : 'неизвестно'}
+                                                    Подписка активна до {userSubscription.endDate ? formatDateOnly(userSubscription.endDate) : 'Не указано'}
                                                 </p>
                                             </div>
                                         </div>
+                                        <OrdersInfo 
+                                                    ordersLimit={userSubscription?.ordersLimit}
+                                                    usedOrders={userSubscription?.usedOrders}
+                                                    className="mt-4"
+                                                />
                                         {/* Скрытое поле для формы */}
                                         <input type="hidden" {...form.register('paymentMethod')} value="subscription" />
                                     </div>

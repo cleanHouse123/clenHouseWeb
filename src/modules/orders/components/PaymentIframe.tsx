@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button';
 import { CreditCard, CheckCircle, ExternalLink } from 'lucide-react';
+import { useOrderPrice } from '@/modules/price';
+import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 
 interface PaymentIframeProps {
     isOpen: boolean;
@@ -21,6 +23,7 @@ export const PaymentIframe = ({
     onError
 }: PaymentIframeProps) => {
     const [isRedirecting, setIsRedirecting] = useState(false);
+    const { orderPrice, isLoading } = useOrderPrice();
 
     // Обработка прямого перенаправления на оплату
     const handlePaymentRedirect = () => {
@@ -53,6 +56,9 @@ export const PaymentIframe = ({
                         <CreditCard className="h-5 w-5" />
                         Оплата заказа
                     </DialogTitle>
+                    <DialogDescription>
+                        Перенаправление на безопасную страницу оплаты YooKassa
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6">
@@ -104,7 +110,9 @@ export const PaymentIframe = ({
                                 <span>Безопасная оплата</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span>Стоимость: 149₽</span>
+                                <span>
+                                    Стоимость: {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}₽
+                                </span>
                             </div>
                         </div>
                     </div>

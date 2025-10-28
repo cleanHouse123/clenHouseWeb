@@ -11,8 +11,7 @@ import {
     Package,
     ChevronRight
 } from 'lucide-react';
-import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
-import { CreateOrderProvider } from '@/core/contexts/CreateOrderContext';
+import { useCreateOrderModal, CreateOrderProvider } from '@/core/contexts/CreateOrderContext';
 import { toast } from 'sonner';
 
 const OrdersContent = () => {

@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/badge';
 import { Button } from '@/core/components/ui/button/button';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { UserSubscription } from '../types';
 import { DeleteSubscriptionModal } from './DeleteSubscriptionModal';
+import { OrdersInfo } from './OrdersInfo';
 import { kopecksToRubles } from '../utils/priceUtils';
+import { formatDateOnly, isExpiringSoon } from '@/core/utils/dateUtils';
 
 
 interface UserSubscriptionCardProps {
@@ -65,36 +67,13 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
     };
 
     const formatDate = (dateString: string) => {
-        console.log('Formatting date:', dateString, 'Type:', typeof dateString);
         if (!dateString) return 'Не указано';
-
-        try {
-            // Парсим дату и извлекаем компоненты без конвертации часового пояса
-            const date = new Date(dateString);
-            const year = date.getUTCFullYear();
-            const month = date.getUTCMonth();
-            const day = date.getUTCDate();
-
-            // Создаем локальную дату без конвертации часового пояса
-            const localDate = new Date(year, month, day);
-
-            return localDate.toLocaleDateString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            });
-        } catch (error) {
-            console.error('Invalid date:', dateString);
-            return 'Неверная дата';
-        }
+        return formatDateOnly(dateString);
     };
 
-    const isExpiringSoon = () => {
+    const checkExpiringSoon = () => {
         if (userSubscription.status !== 'active') return false;
-        const endDate = new Date(userSubscription.endDate);
-        const now = new Date();
-        const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        return daysLeft <= 3 && daysLeft > 0;
+        return isExpiringSoon(userSubscription.endDate);
     };
 
     const handleDeleteClick = () => {
@@ -114,7 +93,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
 
     return (
         <>
-            <Card className={`transition-all duration-200 shadow-lg ${isExpiringSoon() ? 'ring-2 ring-yellow-500' : ''}`}>
+            <Card className={`transition-all duration-200 shadow-lg ${checkExpiringSoon() ? 'ring-2 ring-yellow-500' : ''}`}>
                 <CardHeader className="pb-4">
                     <div className="flex justify-between gap-2 items-start">
                         <div>
@@ -162,6 +141,12 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                             {kopecksToRubles(userSubscription.price)}
                         </p>
                     </div>
+
+                    {/* Информация о лимитах заказов */}
+                    <OrdersInfo 
+                        ordersLimit={userSubscription.ordersLimit}
+                        usedOrders={userSubscription.usedOrders}
+                    />
 
                     {userSubscription.status === 'pending' && onPay && (
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
@@ -214,7 +199,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                         </div>
                     )}
 
-                    {isExpiringSoon() && (
+                    {checkExpiringSoon() && (
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <div className="flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4 text-orange-600" />
