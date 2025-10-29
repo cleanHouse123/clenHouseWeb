@@ -2,6 +2,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { readFileSync } from 'fs'
+
+// Читаем версию из package.json
+const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'))
+const buildVersion = packageJson.version || '1.0.0'
+// Используем timestamp для гарантии уникальности при каждом билде
+const buildTimestamp = Date.now().toString(36).slice(-6)
+const buildId = `${buildVersion.replace(/\./g, '-')}-${buildTimestamp}`
 
 export default defineConfig({
   plugins: [
@@ -13,6 +21,7 @@ export default defineConfig({
         name: 'ЧистоДом - Система управления',
         short_name: 'ЧистоДом',
         description: 'Эффективное решение для выноса мусора',
+        version: buildVersion,
         theme_color: '#000000',
         background_color: '#ffffff',
         display: 'standalone',
@@ -119,22 +128,22 @@ export default defineConfig({
         main: './index.html'
       },
       output: {
-        // Добавляем хеш к именам файлов
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
+        // Используем хеши длиной 16 символов + версию + timestamp для уникальности при каждом билде
+        entryFileNames: `assets/[name]-[hash:16]-${buildId}.js`,
+        chunkFileNames: `assets/[name]-[hash:16]-${buildId}.js`,
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `images/[name]-[hash].${ext}`;
+            return `images/[name]-[hash:16]-${buildId}.${ext}`;
           }
           if (/woff2?|eot|ttf|otf/i.test(ext)) {
-            return `fonts/[name]-[hash].${ext}`;
+            return `fonts/[name]-[hash:16]-${buildId}.${ext}`;
           }
           if (ext === 'css') {
-            return `assets/[name]-[hash].${ext}`;
+            return `assets/[name]-[hash:16]-${buildId}.${ext}`;
           }
-          return `assets/[name]-[hash].${ext}`;
+          return `assets/[name]-[hash:16]-${buildId}.${ext}`;
         },
         manualChunks: {
           // Основные библиотеки React

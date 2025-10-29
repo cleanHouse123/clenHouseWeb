@@ -21,13 +21,36 @@
 
 # Cache-Control заголовки для статики
 <IfModule mod_headers.c>
-    # Кешируем файлы с хешем на 1 год
-    <FilesMatch "\.(js|css|woff2?|eot|ttf|otf|ico|png|jpg|jpeg|svg|gif|webp)$">
+    # Кешируем файлы с хешем на 1 год (только файлы в папках assets, images, fonts)
+    <FilesMatch "^/assets/.*\.(js|css)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "^/images/.*\.(png|jpg|jpeg|svg|gif|webp)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "^/fonts/.*\.(woff2?|eot|ttf|otf)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "^/favicon/.*\.(ico|png|svg)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
+    # Статические файлы без хеша кешируем меньше
+    <FilesMatch "\.(js|css|woff2?|eot|ttf|otf|ico|png|jpg|jpeg|svg|gif|webp)$">
+        Header set Cache-Control "public, max-age=86400, must-revalidate"
     </FilesMatch>
     
     # НЕ кешируем HTML файлы
     <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, proxy-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+        Header set ETag ""
+        Header unset Last-Modified
+    </FilesMatch>
+    
+    # НЕ кешируем manifest файлы
+    <FilesMatch "\.(webmanifest|json)$">
         Header set Cache-Control "no-cache, no-store, must-revalidate"
         Header set Pragma "no-cache"
         Header set Expires 0
