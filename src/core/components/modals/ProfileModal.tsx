@@ -44,17 +44,17 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-3xl max-h-[95vh] overflow-y-auto sm:mx-auto p-0">
-                <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
-                    <DialogTitle className="flex items-center gap-3 text-xl font-semibold text-foreground">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                            <UserCircle className="h-6 w-6 text-primary" />
+            <DialogContent className="max-w-3xl max-h-[85vh] sm:max-h-[95vh] overflow-y-auto sm:mx-auto p-0">
+                <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border">
+                    <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-foreground">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                            <UserCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                         </div>
                         Профиль пользователя
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                     {/* Основная информация */}
                     <div className="flex flex-col sm:flex-row gap-6">
                         {/* Аватар и основная информация */}

@@ -166,15 +166,15 @@ export const CreateOrderModalWithTabs = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-white max-w-4xl max-h-[95vh] p-0 gap-0 shadow-2xl flex flex-col">
+            <DialogContent className="bg-white max-w-4xl max-h-[85vh] sm:max-h-[95vh] p-0 gap-0 shadow-2xl flex flex-col">
                 {/* Header */}
-                <div className="flex-shrink-0 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100 px-6 py-6 rounded-t-[24px]">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-orange-500 rounded-[12px] flex items-center justify-center">
-                            <Plus className="h-5 w-5 text-white" />
+                <div className="flex-shrink-0 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100 px-4 sm:px-6 py-4 sm:py-6 rounded-t-[24px]">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500 rounded-[12px] flex items-center justify-center flex-shrink-0">
+                            <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-900">
+                            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                                 Создать заказ
                             </h2>
                             <p className="text-sm text-gray-600">

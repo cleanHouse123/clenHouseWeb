@@ -147,9 +147,9 @@ export const ScheduledOrderModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] shadow-2xl flex flex-col">
-        <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100 rounded-t-[24px]">
-          <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-gray-900">
+      <DialogContent className="max-w-2xl max-h-[85vh] sm:max-h-[90vh] shadow-2xl flex flex-col">
+        <DialogHeader className="flex-shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100 rounded-t-[24px]">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl font-semibold text-gray-900">
             <Clock className="h-5 w-5 text-orange-500" />
             {title}
           </DialogTitle>

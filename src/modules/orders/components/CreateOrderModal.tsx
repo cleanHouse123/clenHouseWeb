@@ -125,17 +125,17 @@ export const CreateOrderModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="bg-white max-w-4xl max-h-[95vh] overflow-y-auto p-0 gap-0">
+            <DialogContent className="bg-white max-w-4xl max-h-[85vh] sm:max-h-[95vh] overflow-y-auto p-0 gap-0">
                 {/* Header */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+                <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 z-10">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                                <Plus className="h-5 w-5 text-white" />
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-gray-900">Создать заказ</h2>
-                                <p className="text-sm text-gray-500">Заполните форму для вызова курьера</p>
+                                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Создать заказ</h2>
+                                <p className="text-xs sm:text-sm text-gray-500">Заполните форму для вызова курьера</p>
                             </div>
                         </div>
                         <Button
@@ -150,7 +150,7 @@ export const CreateOrderModal = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     {/* Статус подписки */}
                     <SubscriptionStatusCard
                         hasActiveSubscription={hasActiveSubscription}

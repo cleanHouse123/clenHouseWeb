@@ -100,8 +100,8 @@ export const PaymentReturnPage = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+                <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 sm:p-8 text-center">
                     {status === 'processing' && (
                         <div>
                             <Loader2 className="h-16 w-16 text-orange-500 mx-auto mb-4 animate-spin" />

@@ -81,17 +81,17 @@ export const PaymentModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-lg shadow-2xl [&>button]:hidden">
-                <DialogHeader className="px-6 pt-6 pb-4">
-                    <DialogTitle className="flex items-center gap-3 text-xl font-semibold">
-                        <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <CreditCard className="h-5 w-5 text-orange-600" />
+            <DialogContent className="max-w-none sm:max-w-lg shadow-2xl [&>button]:hidden">
+                <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
+                    <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
                         </div>
                         <span>Оплата подписки</span>
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="px-6 pb-6 space-y-6">
+                <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-4 sm:space-y-6">
                     {paymentSuccess ? (
                         <div className="text-center">
                             <div className="bg-green-50 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">

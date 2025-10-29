@@ -250,11 +250,11 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="max-w-md">
-                <DialogHeader className="px-6 pt-6 pb-4">
+                <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
                     <div className="flex items-center justify-between">
-                        <DialogTitle className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                                <Shield className="h-4 w-4 text-primary-foreground" />
+                        <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                                <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-foreground" />
                             </div>
                             {step === 'phone' ? 'Вход по SMS' : 'Подтверждение кода'}
                         </DialogTitle>
