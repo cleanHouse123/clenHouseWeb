@@ -15,16 +15,11 @@ const localeMap = {
 /**
  * Создает UTC дату из локального времени браузера
  * Используется для отправки дат на бэкенд
+ * Корректно конвертирует локальное время в UTC с учетом таймзоны
  */
 export const createUTCDate = (localDate: Date = new Date()): string => {
-  const year = localDate.getFullYear();
-  const month = String(localDate.getMonth() + 1).padStart(2, '0');
-  const day = String(localDate.getDate()).padStart(2, '0');
-  const hours = String(localDate.getHours()).padStart(2, '0');
-  const minutes = String(localDate.getMinutes()).padStart(2, '0');
-  const seconds = String(localDate.getSeconds()).padStart(2, '0');
-  
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000Z`;
+  // toISOString() автоматически конвертирует локальное время в UTC
+  return localDate.toISOString();
 };
 
 /**
@@ -95,13 +90,17 @@ export const toISOString = (date: Date | string | null | undefined): string => {
 /**
  * Создает UTC дату только с датой (без времени) из локальной даты
  * Используется для дат расписания, где важен только день
+ * Создает начало дня в локальной таймзоне, конвертированное в UTC
  */
 export const createUTCDateOnly = (localDate: Date): string => {
+  // Создаем дату с началом дня в локальной таймзоне (00:00:00)
   const year = localDate.getFullYear();
   const month = localDate.getMonth();
   const day = localDate.getDate();
-  const utcDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
-  return utcDate.toISOString();
+  const localMidnight = new Date(year, month, day, 0, 0, 0, 0);
+  
+  // Конвертируем локальное начало дня в UTC
+  return localMidnight.toISOString();
 };
 
 /**
@@ -279,7 +278,7 @@ export const formatDateOnly = (date: Date | string | null | undefined, locale: L
 
 /**
  * Форматирует UTC дату с корректной обработкой часового пояса
- * Извлекает UTC компоненты и создает локальную дату для отображения
+ * Конвертирует UTC время в локальное для отображения пользователю
  */
 export const formatDateTimeLocal = (
   dateString: string,
@@ -290,17 +289,13 @@ export const formatDateTimeLocal = (
       return locale === "ru" ? "Неверная дата" : "Invalid date";
     }
 
-    // Парсим дату и извлекаем компоненты без конвертации часового пояса
+    // Парсим UTC дату - Date объект автоматически конвертирует UTC в локальное время
     const date = new Date(dateString);
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
-
+    
     const localeString = locale === "ru" ? "ru-RU" : "en-US";
 
-    return new Date(year, month, day, hours, minutes).toLocaleString(
+    // toLocaleString автоматически использует локальное время из Date объекта
+    return date.toLocaleString(
       localeString,
       {
         year: "numeric",
@@ -343,7 +338,8 @@ export const isExpiringSoon = (dateString: string, daysThreshold: number = 3): b
 
 /**
  * Форматирует UTC дату для использования в input[type="datetime-local"]
- * Возвращает дату в формате YYYY-MM-DDTHH:MM без Z
+ * Конвертирует UTC время в локальное для отображения в форме
+ * Возвращает дату в формате YYYY-MM-DDTHH:MM без Z (локальное время)
  */
 export const formatForDateTimeInput = (dateString: string): string => {
   try {
@@ -351,12 +347,15 @@ export const formatForDateTimeInput = (dateString: string): string => {
       return '';
     }
 
-    const date = new Date(dateString);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    // Парсим UTC дату
+    const utcDate = new Date(dateString);
+    
+    // Конвертируем UTC компоненты в локальное время для отображения
+    const year = utcDate.getFullYear();
+    const month = String(utcDate.getMonth() + 1).padStart(2, '0');
+    const day = String(utcDate.getDate()).padStart(2, '0');
+    const hours = String(utcDate.getHours()).padStart(2, '0');
+    const minutes = String(utcDate.getMinutes()).padStart(2, '0');
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   } catch (error) {
@@ -366,6 +365,10 @@ export const formatForDateTimeInput = (dateString: string): string => {
 
 /**
  * Создает UTC дату из input[type="datetime-local"] значения
+ * Корректно обрабатывает локальное время пользователя и конвертирует в UTC
+ * 
+ * @param dateTimeInput - строка в формате "YYYY-MM-DDTHH:MM" или "YYYY-MM-DD" или "HH:MM"
+ * @returns ISO строка в UTC формате (с окончанием Z)
  */
 export const createUTCFromDateTimeInput = (dateTimeInput: string): string => {
   try {
@@ -373,13 +376,35 @@ export const createUTCFromDateTimeInput = (dateTimeInput: string): string => {
       return createUTCDate();
     }
 
-    // Добавляем секунды и миллисекунды, если их нет
-    const normalizedInput = dateTimeInput.includes(':') 
-      ? `${dateTimeInput}:00.000Z`
-      : `${dateTimeInput}T00:00:00.000Z`;
+    // Создаем Date объект из строки
+    // ВАЖНО: когда строка без Z, JavaScript интерпретирует её как локальное время
+    let localDate: Date;
+    
+    if (dateTimeInput.includes('T') && dateTimeInput.includes(':')) {
+      // Формат: "2024-01-15T14:00" - полная дата и время (локальное)
+      localDate = new Date(dateTimeInput);
+    } else if (dateTimeInput.includes(':')) {
+      // Формат: "14:00" - только время, используем сегодняшнюю дату
+      const [hours, minutes] = dateTimeInput.split(':');
+      const today = new Date();
+      localDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
+                          parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+    } else {
+      // Только дата: "2024-01-15" - используем начало дня
+      localDate = new Date(dateTimeInput + 'T00:00:00');
+    }
 
-    return normalizedInput;
+    // Проверяем валидность
+    if (isNaN(localDate.getTime())) {
+      console.warn('Invalid date input:', dateTimeInput);
+      return createUTCDate();
+    }
+
+    // Конвертируем локальное время в UTC
+    // toISOString() автоматически конвертирует timestamp (который хранится в UTC) в ISO строку UTC
+    return localDate.toISOString();
   } catch (error) {
+    console.error('Error converting local datetime to UTC:', dateTimeInput, error);
     return createUTCDate();
   }
 };
