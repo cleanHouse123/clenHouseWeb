@@ -10,12 +10,19 @@ export interface Subscription {
   updatedAt: string;
 }
 
+export enum SubscriptionStatus {
+  PENDING = "pending",
+  ACTIVE = "active",
+  CANCELLED = "cancelled",
+  EXPIRED = "expired",
+}
+
 export interface UserSubscription {
   id: string;
   userId: string;
   type: "monthly" | "yearly";
   price: number;
-  status: "pending" | "active" | "cancelled" | "expired";
+  status: SubscriptionStatus;
   startDate: string;
   endDate: string;
   paymentUrl?: string; // Ссылка на оплату, если подписка не оплачена

@@ -8,7 +8,7 @@ import {
     useDeleteSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
-import { SubscriptionPlan } from '@/modules/subscriptions/types';
+import { SubscriptionPlan, SubscriptionStatus } from '@/modules/subscriptions/types';
 import { usePaymentWebSocket } from '@/modules/subscriptions/hooks/usePaymentWebSocket';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { SubscriptionTypeSelector } from '@/modules/subscriptions/components/SubscriptionTypeSelector';
@@ -125,6 +125,73 @@ export const SubscriptionsPage = () => {
         }
     };
 
+    const renderSubscriptionProposeContent = () => {
+      if (isLoadingUser || isLoadingUserSubscription) {
+        return (
+          <div className="flex justify-center py-8">
+            <LoadingIndicator />
+          </div>
+        );
+      }
+
+      if (!user) {
+        return (
+          <div className="flex justify-center py-8">
+            <div className="text-center">
+              <p className="text-gray-600">
+                Ошибка загрузки данных пользователя
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Plus className="h-5 w-5 text-orange-500" />
+            <h2 className="text-xl font-semibold text-gray-900">
+              Оформить подписку
+            </h2>
+          </div>
+          <SubscriptionTypeSelector
+            onSelect={handleSelectSubscription}
+            isLoading={isCreatingSubscriptionByPlan}
+          />
+        </div>
+      );
+    };
+
+    const renderCurrentSubscriptionContent = () => {
+        if (isLoadingUser || isLoadingUserSubscription) {
+            return <div className="flex justify-center py-8">
+            <LoadingIndicator />
+        </div>
+        } 
+        
+        if (!userSubscription) {
+            return  <div className="flex justify-center py-8">
+            <div className="text-center">
+                <p className="text-gray-600">Ошибка загрузки данных пользователя</p>
+            </div>
+        </div>
+        }
+   
+        return (
+            <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-6">
+                <CreditCard className="h-5 w-5 text-orange-500" />
+                <h2 className="text-xl font-semibold text-gray-900">Текущая подписка</h2>
+            </div>
+            <UserSubscriptionCard
+                userSubscription={userSubscription}
+                onPay={handlePayExistingSubscription}
+                onDelete={handleDeleteSubscription}
+                />
+        </div>
+        )
+    }
+
     return (
         <div className="min-h-screen ">
             <main className="container mx-auto px-4 py-4 sm:py-8">
@@ -153,42 +220,12 @@ export const SubscriptionsPage = () => {
                         </div>
                     </div>
 
-                    {/* Контент */}
+                    {userSubscription?.status === SubscriptionStatus.ACTIVE ? null :  <div className="bg-white rounded-[32px] p-[18px] md:p-[36px]">
+                        {renderSubscriptionProposeContent()}
+                    </div> }
+                   
                     <div className="bg-white rounded-[32px] p-[18px] md:p-[36px]">
-                        {(isLoadingUser || isLoadingUserSubscription) ? (
-                            <div className="flex justify-center py-8">
-                                <LoadingIndicator />
-                            </div>
-                        ) : userSubscription ? (
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <CreditCard className="h-5 w-5 text-orange-500" />
-                                    <h2 className="text-xl font-semibold text-gray-900">Текущая подписка</h2>
-                                </div>
-                                <UserSubscriptionCard
-                                    userSubscription={userSubscription}
-                                    onPay={handlePayExistingSubscription}
-                                    onDelete={handleDeleteSubscription}
-                                />
-                            </div>
-                        ) : user ? (
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <Plus className="h-5 w-5 text-orange-500" />
-                                    <h2 className="text-xl font-semibold text-gray-900">Оформить подписку</h2>
-                                </div>
-                                <SubscriptionTypeSelector
-                                    onSelect={handleSelectSubscription}
-                                    isLoading={isCreatingSubscriptionByPlan}
-                                />
-                            </div>
-                        ) : (
-                            <div className="flex justify-center py-8">
-                                <div className="text-center">
-                                    <p className="text-gray-600">Ошибка загрузки данных пользователя</p>
-                                </div>
-                            </div>
-                        )}
+                        {renderCurrentSubscriptionContent()}
                     </div>
                 </div>
             </main>

@@ -6,7 +6,9 @@ import {
   CreateSubscriptionResponse,
   PaymentLinkResponse,
   SubscriptionPlan,
+  SubscriptionStatus,
 } from "../types";
+import { AxiosResponse } from "axios";
 
 export const subscriptionApi = {
   // Получить подписку пользователя по subscriptionId
@@ -23,12 +25,15 @@ export const subscriptionApi = {
   getUserSubscriptionByUserId: async (
     userId: string
   ): Promise<UserSubscription | null> => {
-    const response = await axiosInstance.get(`/subscriptions?userId=${userId}`);
+    const response = await axiosInstance.get<{ subscriptions: UserSubscription[] }>(`/subscriptions?userId=${userId}`);
     const data = response.data;
     // Если есть подписки, возвращаем первую (у пользователя может быть только одна)
-    return data.subscriptions && data.subscriptions.length > 0
-      ? data.subscriptions[0]
-      : null;
+
+    if (!data.subscriptions || data.subscriptions.length === 0) {
+      return null;
+    }
+    const activeSubscription = data.subscriptions.find((subscrip) => subscrip.status === SubscriptionStatus.ACTIVE);
+    return activeSubscription ? activeSubscription : data.subscriptions[0];
   },
 
   // Создать подписку по ID плана (новый упрощенный метод)
