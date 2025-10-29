@@ -6,6 +6,7 @@ import { Button } from '@/core/components/ui/button/button';
 import { Dialog, DialogContent } from '@/core/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { Textarea } from '@/core/components/ui/inputs/textarea';
+import { Input } from '@/core/components/ui/inputs/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
 import { Calendar } from '@/core/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
@@ -15,7 +16,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { createUTCFromDateTimeInput } from '@/core/utils/dateUtils';
 import { cn } from '@/core/lib/utils';
-import { OrderFormData } from '../types';
+import { OrderFormData, AddressDetails } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import AutocompleteAddress from '@/modules/address/ui/autocomplete';
 import { Address } from '@/modules/address/types';
@@ -34,10 +35,15 @@ import { ScheduledOrderFormData } from '@/modules/scheduled-orders/types';
 
 const createOrderSchema = z.object({
     address: z.string().min(1, 'Адрес обязателен').max(500, 'Адрес слишком длинный'),
+    building: z.coerce.number().min(1, 'Дом должен быть больше 0').optional(),
+    buildingBlock: z.string().max(50, 'Корпус слишком длинный').optional(),
+    entrance: z.string().max(50, 'Подъезд слишком длинный').optional(),
+    floor: z.coerce.number().min(1, 'Этаж должен быть больше 0').optional(),
+    apartment: z.coerce.number().min(1, 'Квартира должна быть больше 0').optional(),
     description: z.string().max(1000, 'Описание слишком длинное').optional(),
     scheduledDate: z.date({
         required_error: 'Дата обязательна',
-        invalid_type_error: 'Выберите корректную дату',
+        invalid_type_error: 'Дата обязательна',
     }),
     scheduledTime: z.string().min(1, 'Время обязательно'),
     notes: z.string().max(500, 'Заметки слишком длинные').optional(),
@@ -84,6 +90,11 @@ export const CreateOrderModalWithTabs = ({
         resolver: zodResolver(createOrderSchema),
         defaultValues: {
             address: '',
+            building: undefined,
+            buildingBlock: '',
+            entrance: '',
+            floor: undefined,
+            apartment: undefined,
             description: '',
             scheduledDate: undefined,
             scheduledTime: '',
@@ -112,8 +123,19 @@ export const CreateOrderModalWithTabs = ({
 
         console.log('Coordinates to send:', coordinates);
 
+        const addressDetails: AddressDetails = {};
+
+        if (data.building) addressDetails.building = data.building;
+        if (data.buildingBlock) addressDetails.buildingBlock = data.buildingBlock;
+        if (data.entrance) addressDetails.entrance = data.entrance;
+        if (data.floor) addressDetails.floor = data.floor;
+        if (data.apartment) addressDetails.apartment = data.apartment;
+
+        const hasAddressDetails = Object.keys(addressDetails).length > 0;
+
         const orderData: OrderFormData = {
             address: data.address,
+            ...(hasAddressDetails && { addressDetails }),
             description: data.description,
             scheduledAt,
             notes: data.notes,
@@ -235,6 +257,104 @@ export const CreateOrderModalWithTabs = ({
                                         </FormItem>
                                     )}
                                 />
+
+                                {/* Address Details */}
+                                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="building"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Дом</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Дом"
+                                                        className="w-full rounded-lg"
+                                                        {...field}
+                                                        value={field.value || ''}
+                                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="buildingBlock"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Корпус</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Корпус"
+                                                        className="w-full rounded-lg"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="entrance"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Подъезд</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Подъезд"
+                                                        className="w-full rounded-lg"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="floor"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Этаж</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Этаж"
+                                                        className="w-full rounded-lg"
+                                                        {...field}
+                                                        value={field.value || ''}
+                                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="apartment"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Квартира</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Квартира"
+                                                        className="w-full rounded-lg"
+                                                        {...field}
+                                                        value={field.value || ''}
+                                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
 
                                 {/* Description */}
                                 <FormField

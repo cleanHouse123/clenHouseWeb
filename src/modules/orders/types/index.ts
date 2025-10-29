@@ -44,10 +44,20 @@ export interface OrderResponseDto {
   updatedAt: string;
 }
 
+// Address Details
+export interface AddressDetails {
+  building?: number;
+  buildingBlock?: string;
+  entrance?: string;
+  floor?: number;
+  apartment?: number;
+}
+
 // Create Order DTO
 export interface CreateOrderDto {
   customerId: string;
   address: string;
+  addressDetails?: AddressDetails;
   description?: string;
   scheduledAt?: string;
   notes?: string;
@@ -84,6 +94,7 @@ export interface OrderQueryParams {
 // Order Form Data
 export interface OrderFormData {
   address: string;
+  addressDetails?: AddressDetails;
   description?: string;
   scheduledAt?: string;
   notes?: string;
