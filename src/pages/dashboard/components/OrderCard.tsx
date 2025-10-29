@@ -1,7 +1,7 @@
 import { Calendar, MapPin, Clock, CreditCard } from 'lucide-react';
 import { OrderResponseDto } from '@/modules/orders/types';
 import { useLocale } from '@/core/feauture/locale/useLocale';
-import { formatDateShort, formatDateTimeLocal } from '@/core/utils/dateUtils';
+import { formatDateShort, formatTimeRange } from '@/core/utils/dateUtils';
 import { OrderStatusBadge } from '@/modules/orders/components/OrderStatusBadge';
 import { Button } from '@/core/components/ui/button/button';
 import { kopecksToRubles } from '@/core/utils/priceUtils';
@@ -20,22 +20,6 @@ export const OrderCard = ({ order, onClick, onPay, showBorder = true }: OrderCar
         e.stopPropagation(); // Предотвращаем всплытие события клика по карточке
         onPay?.(order);
     };
-
-
-    const formatTimeRange = (scheduledAt: string) => {
-        const date = new Date(scheduledAt);
-        const startHour = date.getUTCHours();
-        const startMinute = date.getUTCMinutes();
-        const endHour = startHour;
-        const endMinute = startMinute + 20;
-
-        const formatTime = (hour: number, minute: number) => {
-            return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        };
-
-        return `${formatTime(startHour, startMinute)}-${formatTime(endHour, endMinute)}`;
-    };
-
 
 
     return (

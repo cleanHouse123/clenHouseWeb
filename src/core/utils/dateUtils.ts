@@ -25,7 +25,10 @@ export const createUTCDate = (localDate: Date = new Date()): string => {
 /**
  * Создает UTC дату с добавлением указанного количества месяцев
  */
-export const createUTCDateWithMonths = (months: number, fromDate: Date = new Date()): string => {
+export const createUTCDateWithMonths = (
+  months: number,
+  fromDate: Date = new Date()
+): string => {
   const futureDate = new Date(fromDate);
   futureDate.setMonth(futureDate.getMonth() + months);
   return createUTCDate(futureDate);
@@ -34,7 +37,10 @@ export const createUTCDateWithMonths = (months: number, fromDate: Date = new Dat
 /**
  * Создает UTC дату с добавлением указанного количества лет
  */
-export const createUTCDateWithYears = (years: number, fromDate: Date = new Date()): string => {
+export const createUTCDateWithYears = (
+  years: number,
+  fromDate: Date = new Date()
+): string => {
   const futureDate = new Date(fromDate);
   futureDate.setFullYear(futureDate.getFullYear() + years);
   return createUTCDate(futureDate);
@@ -46,7 +52,7 @@ export const createUTCDateWithYears = (years: number, fromDate: Date = new Date(
 export const isValidUTCDate = (dateString: string): boolean => {
   if (!dateString) return false;
   const date = new Date(dateString);
-  return !isNaN(date.getTime()) && dateString.includes('T');
+  return !isNaN(date.getTime()) && dateString.includes("T");
 };
 
 /**
@@ -55,16 +61,16 @@ export const isValidUTCDate = (dateString: string): boolean => {
  */
 export const toDate = (date: Date | string | null | undefined): Date => {
   if (!date) return new Date();
-  
+
   if (date instanceof Date) {
     return isNaN(date.getTime()) ? new Date() : date;
   }
-  
-  if (typeof date === 'string') {
+
+  if (typeof date === "string") {
     const parsedDate = new Date(date);
     return isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
   }
-  
+
   return new Date();
 };
 
@@ -74,16 +80,20 @@ export const toDate = (date: Date | string | null | undefined): Date => {
  */
 export const toISOString = (date: Date | string | null | undefined): string => {
   if (!date) return new Date().toISOString();
-  
-  if (typeof date === 'string') {
+
+  if (typeof date === "string") {
     const parsedDate = new Date(date);
-    return isNaN(parsedDate.getTime()) ? new Date().toISOString() : parsedDate.toISOString();
+    return isNaN(parsedDate.getTime())
+      ? new Date().toISOString()
+      : parsedDate.toISOString();
   }
-  
+
   if (date instanceof Date) {
-    return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    return isNaN(date.getTime())
+      ? new Date().toISOString()
+      : date.toISOString();
   }
-  
+
   return new Date().toISOString();
 };
 
@@ -98,7 +108,7 @@ export const createUTCDateOnly = (localDate: Date): string => {
   const month = localDate.getMonth();
   const day = localDate.getDate();
   const localMidnight = new Date(year, month, day, 0, 0, 0, 0);
-  
+
   // Конвертируем локальное начало дня в UTC
   return localMidnight.toISOString();
 };
@@ -110,18 +120,18 @@ export const createUTCDateOnly = (localDate: Date): string => {
 export const createLocalDateOnly = (utcDateString: string): Date => {
   try {
     const utcDate = new Date(utcDateString);
-    
+
     if (isNaN(utcDate.getTime())) {
-      console.warn('Invalid date string:', utcDateString);
+      console.warn("Invalid date string:", utcDateString);
       return new Date();
     }
-    
+
     const year = utcDate.getUTCFullYear();
     const month = utcDate.getUTCMonth();
     const day = utcDate.getUTCDate();
     return new Date(year, month, day, 0, 0, 0, 0);
   } catch (error) {
-    console.error('Error parsing date:', utcDateString, error);
+    console.error("Error parsing date:", utcDateString, error);
     return new Date();
   }
 };
@@ -130,20 +140,26 @@ export const createLocalDateOnly = (utcDateString: string): Date => {
  * Конвертирует локальное время в UTC для отправки на бэкенд
  */
 export const convertLocalTimeToUTC = (localTimeString: string): string => {
-  if (!localTimeString) return '';
-  
+  if (!localTimeString) return "";
+
   try {
-    const [hours, minutes] = localTimeString.split(':');
+    const [hours, minutes] = localTimeString.split(":");
     const localDate = new Date();
     localDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    
+
     const utcHours = localDate.getUTCHours();
     const utcMinutes = localDate.getUTCMinutes();
-    
-    return `${utcHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
+
+    return `${utcHours.toString().padStart(2, "0")}:${utcMinutes
+      .toString()
+      .padStart(2, "0")}`;
   } catch (error) {
-    console.error('Error converting local time to UTC:', localTimeString, error);
-    return '';
+    console.error(
+      "Error converting local time to UTC:",
+      localTimeString,
+      error
+    );
+    return "";
   }
 };
 
@@ -151,25 +167,29 @@ export const convertLocalTimeToUTC = (localTimeString: string): string => {
  * Конвертирует UTC время в локальное для отображения в форме
  */
 export const convertUTCTimeToLocal = (utcTimeString: string): string => {
-  if (!utcTimeString) return '';
-  
+  if (!utcTimeString) return "";
+
   try {
-    const [hours, minutes] = utcTimeString.split(':');
-    const utcDate = new Date(Date.UTC(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth(),
-      new Date().getUTCDate(),
-      parseInt(hours),
-      parseInt(minutes)
-    ));
-    
+    const [hours, minutes] = utcTimeString.split(":");
+    const utcDate = new Date(
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+        parseInt(hours),
+        parseInt(minutes)
+      )
+    );
+
     const localHours = utcDate.getHours();
     const localMinutes = utcDate.getMinutes();
-    
-    return `${localHours.toString().padStart(2, '0')}:${localMinutes.toString().padStart(2, '0')}`;
+
+    return `${localHours.toString().padStart(2, "0")}:${localMinutes
+      .toString()
+      .padStart(2, "0")}`;
   } catch (error) {
-    console.error('Error converting UTC time to local:', utcTimeString, error);
-    return '';
+    console.error("Error converting UTC time to local:", utcTimeString, error);
+    return "";
   }
 };
 
@@ -196,7 +216,10 @@ export const formatDateRelative = (
  * Форматирует UTC дату в полный формат с временем (локальное отображение)
  * Поддерживает строки, Date объекты и null/undefined
  */
-export const formatDateTime = (date: Date | string | null | undefined, locale: Locale = "ru") => {
+export const formatDateTime = (
+  date: Date | string | null | undefined,
+  locale: Locale = "ru"
+) => {
   try {
     const dateObj = toDate(date);
     const localeString = locale === "ru" ? "ru-RU" : "en-US";
@@ -217,7 +240,10 @@ export const formatDateTime = (date: Date | string | null | undefined, locale: L
  * Форматирует UTC дату в короткий формат с временем
  * Поддерживает строки, Date объекты и null/undefined
  */
-export const formatDateShort = (date: Date | string | null | undefined, locale: Locale = "ru") => {
+export const formatDateShort = (
+  date: Date | string | null | undefined,
+  locale: Locale = "ru"
+) => {
   try {
     const dateObj = toDate(date);
     const localeString = locale === "ru" ? "ru-RU" : "en-US";
@@ -261,7 +287,10 @@ export const formatDateNumeric = (
  * Форматирует UTC дату только в дату без времени (локальное отображение)
  * Поддерживает строки, Date объекты и null/undefined
  */
-export const formatDateOnly = (date: Date | string | null | undefined, locale: Locale = "ru") => {
+export const formatDateOnly = (
+  date: Date | string | null | undefined,
+  locale: Locale = "ru"
+) => {
   try {
     const dateObj = toDate(date);
     const localeString = locale === "ru" ? "ru-RU" : "en-US";
@@ -291,20 +320,17 @@ export const formatDateTimeLocal = (
 
     // Парсим UTC дату - Date объект автоматически конвертирует UTC в локальное время
     const date = new Date(dateString);
-    
+
     const localeString = locale === "ru" ? "ru-RU" : "en-US";
 
     // toLocaleString автоматически использует локальное время из Date объекта
-    return date.toLocaleString(
-      localeString,
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    );
+    return date.toLocaleString(localeString, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   } catch (error) {
     return locale === "ru" ? "Неверная дата" : "Invalid date";
   }
@@ -331,7 +357,10 @@ export const getDaysUntil = (dateString: string): number => {
 /**
  * Проверяет, истекает ли подписка в ближайшие дни
  */
-export const isExpiringSoon = (dateString: string, daysThreshold: number = 3): boolean => {
+export const isExpiringSoon = (
+  dateString: string,
+  daysThreshold: number = 3
+): boolean => {
   const daysLeft = getDaysUntil(dateString);
   return daysLeft <= daysThreshold && daysLeft > 0;
 };
@@ -344,29 +373,29 @@ export const isExpiringSoon = (dateString: string, daysThreshold: number = 3): b
 export const formatForDateTimeInput = (dateString: string): string => {
   try {
     if (!isValidUTCDate(dateString)) {
-      return '';
+      return "";
     }
 
     // Парсим UTC дату
     const utcDate = new Date(dateString);
-    
+
     // Конвертируем UTC компоненты в локальное время для отображения
     const year = utcDate.getFullYear();
-    const month = String(utcDate.getMonth() + 1).padStart(2, '0');
-    const day = String(utcDate.getDate()).padStart(2, '0');
-    const hours = String(utcDate.getHours()).padStart(2, '0');
-    const minutes = String(utcDate.getMinutes()).padStart(2, '0');
+    const month = String(utcDate.getMonth() + 1).padStart(2, "0");
+    const day = String(utcDate.getDate()).padStart(2, "0");
+    const hours = String(utcDate.getHours()).padStart(2, "0");
+    const minutes = String(utcDate.getMinutes()).padStart(2, "0");
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   } catch (error) {
-    return '';
+    return "";
   }
 };
 
 /**
  * Создает UTC дату из input[type="datetime-local"] значения
  * Корректно обрабатывает локальное время пользователя и конвертирует в UTC
- * 
+ *
  * @param dateTimeInput - строка в формате "YYYY-MM-DDTHH:MM" или "YYYY-MM-DD" или "HH:MM"
  * @returns ISO строка в UTC формате (с окончанием Z)
  */
@@ -379,24 +408,31 @@ export const createUTCFromDateTimeInput = (dateTimeInput: string): string => {
     // Создаем Date объект из строки
     // ВАЖНО: когда строка без Z, JavaScript интерпретирует её как локальное время
     let localDate: Date;
-    
-    if (dateTimeInput.includes('T') && dateTimeInput.includes(':')) {
+
+    if (dateTimeInput.includes("T") && dateTimeInput.includes(":")) {
       // Формат: "2024-01-15T14:00" - полная дата и время (локальное)
       localDate = new Date(dateTimeInput);
-    } else if (dateTimeInput.includes(':')) {
+    } else if (dateTimeInput.includes(":")) {
       // Формат: "14:00" - только время, используем сегодняшнюю дату
-      const [hours, minutes] = dateTimeInput.split(':');
+      const [hours, minutes] = dateTimeInput.split(":");
       const today = new Date();
-      localDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
-                          parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+      localDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        parseInt(hours, 10),
+        parseInt(minutes, 10),
+        0,
+        0
+      );
     } else {
       // Только дата: "2024-01-15" - используем начало дня
-      localDate = new Date(dateTimeInput + 'T00:00:00');
+      localDate = new Date(dateTimeInput + "T00:00:00");
     }
 
     // Проверяем валидность
     if (isNaN(localDate.getTime())) {
-      console.warn('Invalid date input:', dateTimeInput);
+      console.warn("Invalid date input:", dateTimeInput);
       return createUTCDate();
     }
 
@@ -404,7 +440,11 @@ export const createUTCFromDateTimeInput = (dateTimeInput: string): string => {
     // toISOString() автоматически конвертирует timestamp (который хранится в UTC) в ISO строку UTC
     return localDate.toISOString();
   } catch (error) {
-    console.error('Error converting local datetime to UTC:', dateTimeInput, error);
+    console.error(
+      "Error converting local datetime to UTC:",
+      dateTimeInput,
+      error
+    );
     return createUTCDate();
   }
 };
@@ -418,4 +458,32 @@ export const formatDateRelativeLocal = (
   locale: Locale = "ru"
 ) => {
   return formatDateOnly(dateString, locale);
+};
+
+export const formatTimeRange = (scheduledAt: string) => {
+  // Парсим UTC дату - Date объект автоматически конвертирует в локальное время
+  const date = new Date(scheduledAt);
+  // Используем локальные методы для отображения времени в таймзоне пользователя
+  const startHour = date.getHours();
+  const startMinute = date.getMinutes();
+
+  // Вычисляем время окончания (начало + 20 минут)
+  let endMinute = startMinute + 20;
+  let endHour = startHour;
+  // Обрабатываем переполнение минут
+  if (endMinute >= 60) {
+    endHour += 1;
+    endMinute -= 60;
+  }
+
+  const formatTime = (hour: number, minute: number) => {
+    return `${hour.toString().padStart(2, "0")}:${minute
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  return `${formatTime(startHour, startMinute)}-${formatTime(
+    endHour,
+    endMinute
+  )}`;
 };
