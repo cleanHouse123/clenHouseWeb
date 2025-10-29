@@ -460,30 +460,55 @@ export const formatDateRelativeLocal = (
   return formatDateOnly(dateString, locale);
 };
 
-export const formatTimeRange = (scheduledAt: string) => {
-  // Парсим UTC дату - Date объект автоматически конвертирует в локальное время
-  const date = new Date(scheduledAt);
-  // Используем локальные методы для отображения времени в таймзоне пользователя
-  const startHour = date.getHours();
-  const startMinute = date.getMinutes();
+/**
+ * Форматирует диапазон времени для отображения (начало + 20 минут)
+ * Конвертирует UTC время в локальное для отображения пользователю
+ * 
+ * @param scheduledAt - UTC дата в формате ISO строки
+ * @returns строка в формате "HH:MM-HH:MM"
+ */
+export const formatTimeRange = (scheduledAt: string): string => {
+  try {
+    // Парсим UTC дату - Date объект автоматически конвертирует в локальное время
+    const date = new Date(scheduledAt);
+    
+    // Проверяем валидность даты
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date in formatTimeRange:', scheduledAt);
+      return '00:00-00:20';
+    }
+    
+    // Используем локальные методы для отображения времени в таймзоне пользователя
+    const startHour = date.getHours();
+    const startMinute = date.getMinutes();
 
-  // Вычисляем время окончания (начало + 20 минут)
-  let endMinute = startMinute + 20;
-  let endHour = startHour;
-  // Обрабатываем переполнение минут
-  if (endMinute >= 60) {
-    endHour += 1;
-    endMinute -= 60;
+    // Вычисляем время окончания (начало + 20 минут)
+    let endMinute = startMinute + 20;
+    let endHour = startHour;
+    
+    // Обрабатываем переполнение минут
+    if (endMinute >= 60) {
+      endHour += 1;
+      endMinute -= 60;
+    }
+    
+    // Обрабатываем переполнение часов (если endHour >= 24)
+    if (endHour >= 24) {
+      endHour -= 24;
+    }
+
+    const formatTime = (hour: number, minute: number) => {
+      return `${hour.toString().padStart(2, "0")}:${minute
+        .toString()
+        .padStart(2, "0")}`;
+    };
+
+    return `${formatTime(startHour, startMinute)}-${formatTime(
+      endHour,
+      endMinute
+    )}`;
+  } catch (error) {
+    console.error('Error formatting time range:', scheduledAt, error);
+    return '00:00-00:20';
   }
-
-  const formatTime = (hour: number, minute: number) => {
-    return `${hour.toString().padStart(2, "0")}:${minute
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  return `${formatTime(startHour, startMinute)}-${formatTime(
-    endHour,
-    endMinute
-  )}`;
 };
