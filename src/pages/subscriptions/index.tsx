@@ -11,9 +11,11 @@ import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan, SubscriptionStatus } from '@/modules/subscriptions/types';
 import { usePaymentWebSocket } from '@/modules/subscriptions/hooks/usePaymentWebSocket';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
-import { SubscriptionTypeSelector } from '@/modules/subscriptions/components/SubscriptionTypeSelector';
+import { useSubscriptionPlans } from '@/modules/subscriptions/hooks/useSubscriptionPlans';
 import { UserSubscriptionCard } from '@/modules/subscriptions/components/UserSubscriptionCard';
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
+import { Button } from '@/core/components/ui/button/button';
+import { SubscriptionPlanCard } from '@/modules/subscriptions/components/SubscriptionPlanCard';
 
 export const SubscriptionsPage = () => {
     const navigate = useNavigate();
@@ -25,6 +27,7 @@ export const SubscriptionsPage = () => {
     const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
     const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
     const { mutateAsync: deleteSubscription } = useDeleteSubscription();
+    const { data: plans, isLoading: isLoadingPlans, error: plansError } = useSubscriptionPlans();
 
     usePaymentWebSocket();
 
@@ -125,6 +128,8 @@ export const SubscriptionsPage = () => {
         }
     };
 
+    // price formatting handled inside SubscriptionPlanCard
+
     const renderSubscriptionProposeContent = () => {
       if (isLoadingUser || isLoadingUserSubscription) {
         return (
@@ -146,6 +151,36 @@ export const SubscriptionsPage = () => {
         );
       }
 
+      if (isLoadingPlans) {
+        return (
+          <div className="flex justify-center py-8">
+            <LoadingIndicator />
+          </div>
+        );
+      }
+
+      if (plansError) {
+        return (
+          <div className="flex justify-center py-8">
+            <div className="text-center">
+              <p className="text-gray-600">Ошибка загрузки тарифов</p>
+            </div>
+          </div>
+        );
+      }
+
+      const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
+
+      if (!subscriptionPlans || subscriptionPlans.length === 0) {
+        return (
+          <div className="flex justify-center py-8">
+            <div className="text-center">
+              <p className="text-gray-600">Планы подписок временно недоступны</p>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-6">
@@ -154,10 +189,30 @@ export const SubscriptionsPage = () => {
               Оформить подписку
             </h2>
           </div>
-          <SubscriptionTypeSelector
-            onSelect={handleSelectSubscription}
-            isLoading={isCreatingSubscriptionByPlan}
-          />
+
+          <div className={`grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :
+            subscriptionPlans.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+              subscriptionPlans.length === 3 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
+                subscriptionPlans.length === 4 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4' :
+                  'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
+            }`}>
+            {subscriptionPlans.map((plan) => (
+              <SubscriptionPlanCard
+                key={plan.id}
+                plan={plan}
+                action={
+                  <Button
+                    size="sm"
+                    className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
+                    onClick={() => handleSelectSubscription(plan.type, plan.priceInKopecks)}
+                    disabled={isCreatingSubscriptionByPlan}
+                  >
+                    {isCreatingSubscriptionByPlan ? 'Обработка...' : 'Выбрать подписку'}
+                  </Button>
+                }
+              />
+            ))}
+          </div>
         </div>
       );
     };
