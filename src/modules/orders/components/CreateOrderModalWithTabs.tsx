@@ -18,16 +18,17 @@ import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import AutocompleteAddress from '@/modules/address/ui/autocomplete';
+import { Address } from '@/modules/address/types';
 import { Tabs } from '@/core/components/ui/tabs';
 import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
-import { 
-  useMySchedules, 
-  useCreateScheduledOrder, 
-  useUpdateScheduledOrder, 
-  useDeleteScheduledOrder, 
-  useActivateScheduledOrder, 
-  useDeactivateScheduledOrder,
-  useScheduledOrderFormUtils 
+import {
+    useMySchedules,
+    useCreateScheduledOrder,
+    useUpdateScheduledOrder,
+    useDeleteScheduledOrder,
+    useActivateScheduledOrder,
+    useDeactivateScheduledOrder,
+    useScheduledOrderFormUtils
 } from '@/modules/scheduled-orders/hooks/useScheduledOrders';
 import { ScheduledOrderFormData } from '@/modules/scheduled-orders/types';
 
@@ -60,7 +61,15 @@ export const CreateOrderModalWithTabs = ({
 }: CreateOrderModalProps) => {
     const [calendarOpen, setCalendarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('single');
+    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
     const { data: userSubscription } = useUserSubscription();
+
+    const handleAddressSelect = (address: Address) => {
+        console.log('Address selected in modal, full address:', address);
+        console.log('Address geo_lat:', address.geo_lat);
+        console.log('Address geo_lon:', address.geo_lon);
+        setSelectedAddress(address);
+    };
 
     // Hooks для работы с расписаниями
     const { data: scheduledOrders, isLoading: isLoadingSchedules } = useMySchedules();
@@ -85,6 +94,7 @@ export const CreateOrderModalWithTabs = ({
 
     const handleSubmit = (data: CreateOrderFormData) => {
         console.log('Form data received:', data);
+        console.log('Selected address:', selectedAddress);
 
         // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
         const year = data.scheduledDate.getFullYear();
@@ -93,15 +103,30 @@ export const CreateOrderModalWithTabs = ({
         const datePart = `${year}-${month}-${day}`;
         const scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
 
+        const coordinates = selectedAddress?.geo_lat && selectedAddress?.geo_lon
+            ? {
+                geo_lat: selectedAddress.geo_lat,
+                geo_lon: selectedAddress.geo_lon,
+            }
+            : undefined;
+
+        console.log('Coordinates to send:', coordinates);
+
         const orderData: OrderFormData = {
             address: data.address,
             description: data.description,
             scheduledAt,
             notes: data.notes,
-            paymentMethod: data.paymentMethod
+            paymentMethod: data.paymentMethod,
+            coordinates,
         };
 
+        console.log('Final order data:', orderData);
+
         onSubmit(orderData);
+
+        setSelectedAddress(null);
+        form.reset();
     };
 
     const handleScheduledOrderSubmit = (data: ScheduledOrderFormData) => {
@@ -160,9 +185,9 @@ export const CreateOrderModalWithTabs = ({
                 </div>
 
                 {/* Tabs */}
-                <Tabs 
-                    tabs={tabs} 
-                    activeTab={activeTab} 
+                <Tabs
+                    tabs={tabs}
+                    activeTab={activeTab}
                     onTabChange={setActiveTab}
                     className="px-6"
                 />
@@ -193,7 +218,17 @@ export const CreateOrderModalWithTabs = ({
                                             <FormControl>
                                                 <AutocompleteAddress
                                                     value={field.value}
-                                                    onChange={field.onChange}
+                                                    onChange={(value) => {
+                                                        console.log('Address onChange:', value);
+                                                        // Если адрес изменился вручную, очищаем selectedAddress
+                                                        // чтобы координаты не передавались для вручную введенных адресов
+                                                        if (selectedAddress && selectedAddress.display !== value) {
+                                                            console.log('Address changed manually, clearing selected address');
+                                                            setSelectedAddress(null);
+                                                        }
+                                                        field.onChange(value);
+                                                    }}
+                                                    onAddressSelect={handleAddressSelect}
                                                 />
                                             </FormControl>
                                             <FormMessage />

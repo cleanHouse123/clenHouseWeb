@@ -22,13 +22,13 @@ export const SessionExpiredModal = ({ isOpen, onClose }: SessionExpiredModalProp
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent>
-                <DialogHeader>
+                <DialogHeader className="px-6 pt-6 pb-4">
                     <DialogTitle>Сессия истекла</DialogTitle>
                     <DialogDescription>
                         Ваша сессия истекла. Пожалуйста, войдите снова.
                     </DialogDescription>
                 </DialogHeader>
-                <DialogFooter>
+                <DialogFooter className="px-6 pb-6">
                     <Button onClick={handleLoginRedirect}>
                         Войти
                     </Button>

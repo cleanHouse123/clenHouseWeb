@@ -1,15 +1,18 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { useAddresses } from "../../hooks/useOrders";
+import { Address } from "../../types";
 
 interface AutocompleteAddressProps {
   value?: string;
   onChange?: (value: string) => void;
+  onAddressSelect?: (address: Address) => void;
 }
 
 export default function AutocompleteAddress({
   onChange,
   value,
+  onAddressSelect,
 }: AutocompleteAddressProps) {
   const [inputValue, setInputValue] = useState(value || "");
   const [debouncedValue, setDebouncedValue] = useState(inputValue);
@@ -46,6 +49,7 @@ export default function AutocompleteAddress({
   }, []);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+
     const newValue = e.target.value;
     setInputValue(newValue);
     setIsOpen(true);
@@ -53,18 +57,28 @@ export default function AutocompleteAddress({
     if (onChange) {
       onChange(newValue);
     }
+
   }, [onChange]);
 
-  const handleAddressSelect = useCallback((address: string) => {
-    setInputValue(address);
+
+
+  const handleAddressSelect = useCallback((address: Address) => {
+
+    setInputValue(address.display);
     setIsOpen(false);
 
     if (onChange) {
-      onChange(address);
+      onChange(address.display);
     }
-  }, [onChange]);
+
+    if (onAddressSelect) {
+
+      onAddressSelect(address);
+    }
+  }, [onChange, onAddressSelect]);
 
   const handleInputFocus = useCallback(() => {
+
     setIsOpen(true);
   }, []);
 
@@ -107,7 +121,7 @@ export default function AutocompleteAddress({
             addresses.map((address, index) => (
               <div
                 key={`${address.display}-${index}`}
-                onClick={() => handleAddressSelect(address.display)}
+                onClick={() => handleAddressSelect(address)}
                 className="px-4 py-3 text-gray-800 bg-white hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
               >
                 {address.display}

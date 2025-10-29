@@ -42,6 +42,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
         if (!user?.userId) return;
 
         console.log('CreateOrderContext received data:', data);
+        console.log('Coordinates from context:', data.coordinates);
 
         try {
             const orderData = {
@@ -50,6 +51,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
             };
 
             console.log('Order data to API:', orderData);
+            console.log('Coordinates in orderData:', orderData.coordinates);
 
             const order = await createOrder(orderData);
 
