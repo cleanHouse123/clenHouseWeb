@@ -32,13 +32,13 @@ export const ContactsPage = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            {/* <div className="flex items-center gap-3">
                                 <Mail className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium">Email</p>
                                     <p className="text-gray-600">info@cleanhouse.ru</p>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="flex items-center gap-3">
                                 <Clock className="h-5 w-5 text-blue-600" />
