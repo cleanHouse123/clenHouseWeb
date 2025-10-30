@@ -51,6 +51,7 @@ export interface AddressDetails {
   entrance?: string;
   floor?: number;
   apartment?: number;
+  domophone?: string;
 }
 
 // Create Order DTO

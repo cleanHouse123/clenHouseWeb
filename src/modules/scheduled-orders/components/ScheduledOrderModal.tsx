@@ -31,6 +31,7 @@ import {
 import { TimePicker } from "@/core/components/ui/time-picker";
 import { cn } from "@/core/lib/utils";
 import AutocompleteAddress from "@/modules/address/ui/autocomplete";
+import { Input } from "@/core/components/ui/inputs/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -54,6 +55,12 @@ import {
 
 const scheduledOrderSchema = z.object({
   address: z.string().min(1, "Адрес обязателен"),
+  building: z.coerce.number().min(1, 'Дом должен быть больше 0').optional(),
+  buildingBlock: z.string().max(50, 'Корпус слишком длинный').optional(),
+  entrance: z.string().max(50, 'Подъезд слишком длинный').optional(),
+  floor: z.coerce.number().min(1, 'Этаж должен быть больше 0').optional(),
+  apartment: z.coerce.number().min(1, 'Квартира должна быть больше 0').optional(),
+  domophone: z.string().max(50, 'Домофон слишком длинный').optional(),
   description: z.string().optional(),
   notes: z.string().optional(),
   frequency: z.nativeEnum(ScheduleFrequency),
@@ -90,6 +97,12 @@ export const ScheduledOrderModal = ({
     resolver: zodResolver(scheduledOrderSchema),
     defaultValues: {
       address: "",
+      building: undefined,
+      buildingBlock: "",
+      entrance: "",
+      floor: undefined,
+      apartment: undefined,
+      domophone: "",
       description: "",
       notes: "",
       frequency: ScheduleFrequency.DAILY,
@@ -184,6 +197,121 @@ export const ScheduledOrderModal = ({
                 </FormItem>
               )}
             />
+
+            {/* Детали адреса */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <FormField
+                control={form.control}
+                name="building"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Дом</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Дом"
+                        className="w-full rounded-lg"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="buildingBlock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Корпус</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Корпус"
+                        className="w-full rounded-lg"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="entrance"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Подъезд</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Подъезд"
+                        className="w-full rounded-lg"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="floor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Этаж</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Этаж"
+                        className="w-full rounded-lg"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="apartment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Квартира</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Квартира"
+                        className="w-full rounded-lg"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="domophone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Домофон</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Домофон"
+                        className="w-full rounded-lg"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Описание */}
             <FormField

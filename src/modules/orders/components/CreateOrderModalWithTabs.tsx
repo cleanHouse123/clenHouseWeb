@@ -40,6 +40,7 @@ const createOrderSchema = z.object({
     entrance: z.string().max(50, 'Подъезд слишком длинный').optional(),
     floor: z.coerce.number().min(1, 'Этаж должен быть больше 0').optional(),
     apartment: z.coerce.number().min(1, 'Квартира должна быть больше 0').optional(),
+    domophone: z.string().max(50, 'Домофон слишком длинный').optional(),
     description: z.string().max(1000, 'Описание слишком длинное').optional(),
     scheduledDate: z.date({
         required_error: 'Дата обязательна',
@@ -95,6 +96,7 @@ export const CreateOrderModalWithTabs = ({
             entrance: '',
             floor: undefined,
             apartment: undefined,
+            domophone: '',
             description: '',
             scheduledDate: undefined,
             scheduledTime: '',
@@ -130,6 +132,7 @@ export const CreateOrderModalWithTabs = ({
         if (data.entrance) addressDetails.entrance = data.entrance;
         if (data.floor) addressDetails.floor = data.floor;
         if (data.apartment) addressDetails.apartment = data.apartment;
+        if (data.domophone) addressDetails.domophone = data.domophone;
 
         const hasAddressDetails = Object.keys(addressDetails).length > 0;
 
@@ -351,6 +354,23 @@ export const CreateOrderModalWithTabs = ({
                                                         {...field}
                                                         value={field.value || ''}
                                                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="domophone"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Домофон</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="Домофон"
+                                                        className="w-full rounded-lg"
+                                                        {...field}
                                                     />
                                                 </FormControl>
                                                 <FormMessage />

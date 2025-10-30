@@ -21,6 +21,14 @@ export interface ScheduledOrderResponseDto {
   customerId: string;
   customer: UserResponseDto;
   address: string;
+  addressDetails?: {
+    building?: number;
+    buildingBlock?: string;
+    entrance?: string;
+    floor?: number;
+    apartment?: number;
+    domophone?: string;
+  };
   description?: string;
   notes?: string;
   frequency: ScheduleFrequency;
@@ -37,6 +45,14 @@ export interface ScheduledOrderResponseDto {
 // Create Scheduled Order DTO
 export interface CreateScheduledOrderDto {
   address: string;
+  addressDetails?: {
+    building?: number;
+    buildingBlock?: string;
+    entrance?: string;
+    floor?: number;
+    apartment?: number;
+    domophone?: string;
+  };
   description?: string;
   notes?: string;
   frequency: ScheduleFrequency;
@@ -62,6 +78,12 @@ export interface UpdateScheduledOrderDto {
 // Scheduled Order Form Data
 export interface ScheduledOrderFormData {
   address: string;
+  building?: number;
+  buildingBlock?: string;
+  entrance?: string;
+  floor?: number;
+  apartment?: number;
+  domophone?: string;
   description?: string;
   notes?: string;
   frequency: ScheduleFrequency;

@@ -131,8 +131,19 @@ export const useDeleteScheduledOrder = () => {
 // Утилиты для преобразования данных формы
 export const useScheduledOrderFormUtils = () => {
   const transformFormDataToDto = (formData: ScheduledOrderFormData): CreateScheduledOrderDto => {
+    const addressDetails: CreateScheduledOrderDto['addressDetails'] = {};
+    if (formData.building) addressDetails.building = formData.building;
+    if (formData.buildingBlock) addressDetails.buildingBlock = formData.buildingBlock;
+    if (formData.entrance) addressDetails.entrance = formData.entrance;
+    if (formData.floor) addressDetails.floor = formData.floor;
+    if (formData.apartment) addressDetails.apartment = formData.apartment;
+    if (formData.domophone) addressDetails.domophone = formData.domophone;
+
+    const hasAddressDetails = Object.keys(addressDetails).length > 0;
+
     return {
       address: formData.address,
+      ...(hasAddressDetails && { addressDetails }),
       description: formData.description,
       notes: formData.notes,
       frequency: formData.frequency,
@@ -146,6 +157,12 @@ export const useScheduledOrderFormUtils = () => {
   const transformDtoToFormData = (dto: ScheduledOrderResponseDto): ScheduledOrderFormData => {
     return {
       address: dto.address,
+      building: dto.addressDetails?.building,
+      buildingBlock: dto.addressDetails?.buildingBlock,
+      entrance: dto.addressDetails?.entrance,
+      floor: dto.addressDetails?.floor,
+      apartment: dto.addressDetails?.apartment,
+      domophone: dto.addressDetails?.domophone,
       description: dto.description,
       notes: dto.notes,
       frequency: dto.frequency,
