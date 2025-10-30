@@ -45,7 +45,7 @@ export const ScheduledOrderCard = ({
     // Проверяем, что перед этим уже есть ", <тот же номер>" без префикса "д."
     const alreadyHasNumber = new RegExp(`,\\s*${num}(?:,|$)`).test(raw);
     if (alreadyHasNumber) {
-      return raw.replace(/,?\s*д\.\s*\d+[A-Za-zА-Яа-я-\/]*)\s*$/, '').trim();
+      return raw.replace(/,?\s*д\.\s*\d+[A-Za-zА-Яа-я-\/]*\s*$/, '').trim();
     }
     return raw;
   })();
