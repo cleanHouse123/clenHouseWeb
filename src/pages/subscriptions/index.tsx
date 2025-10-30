@@ -31,11 +31,10 @@ export const SubscriptionsPage = () => {
 
     usePaymentWebSocket();
 
-    const handleSelectSubscription = async (type: 'monthly' | 'yearly', priceInKopecks: number) => {
+    const handleSelectSubscription = async (id: string, priceInKopecks: number) => {
         try {
-            // Получаем план подписки по типу
             const plans = await subscriptionApi.getSubscriptionPlans();
-            const plan = plans.find(p => p.type === type);
+            const plan = plans.find(p => p.id === id);
 
             if (!plan) {
                 throw new Error('План подписки не найден');
@@ -51,7 +50,7 @@ export const SubscriptionsPage = () => {
             // Создаем платеж подписки через обновленный API
             const paymentData = await subscriptionApi.createSubscriptionPayment(
                 subscriptionResult.id,
-                type,
+                plan.type,
                 plan.id,
                 priceInKopecks
             );
@@ -204,7 +203,7 @@ export const SubscriptionsPage = () => {
                   <Button
                     size="sm"
                     className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
-                    onClick={() => handleSelectSubscription(plan.type, plan.priceInKopecks)}
+                    onClick={() => handleSelectSubscription(plan.id, plan.priceInKopecks)}
                     disabled={isCreatingSubscriptionByPlan}
                   >
                     {isCreatingSubscriptionByPlan ? 'Обработка...' : 'Выбрать подписку'}
