@@ -118,7 +118,7 @@ export const CreateOrderModal = ({
     const hasActiveSubscription = userSubscription?.status === 'active';
 
     const paymentMethodOptions = hasActiveSubscription
-        ? [{ value: 'subscription', label: 'По подписке', icon: '📋' }]
+        ? [ { value: 'online', label: 'Оплата онлайн', icon: '💳' },{ value: 'subscription', label: 'По подписке', icon: '📋' }]
         : [
             { value: 'online', label: 'Оплата онлайн', icon: '💳' },
         ];

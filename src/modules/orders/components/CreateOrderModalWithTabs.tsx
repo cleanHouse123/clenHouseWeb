@@ -175,16 +175,19 @@ export const CreateOrderModalWithTabs = ({
 
     const hasActiveSubscription = userSubscription?.status === 'active';
 
-    const paymentMethodOptions = hasActiveSubscription
-        ? [{ value: 'subscription', label: 'По подписке', icon: '📋' }]
-        : [
-            { value: 'online', label: 'Оплата онлайн', icon: '💳' },
-        ];
+    const paymentMethodOptions =  [
+        { value: 'online', label: 'Оплата онлайн', icon: '💳' },
+    ]
 
     const tabs = [
         { id: 'single', label: 'Разовый заказ', icon: <Plus className="h-4 w-4" /> },
-        { id: 'schedule', label: 'Расписание', icon: <Clock className="h-4 w-4" /> },
-    ];
+    ]
+  
+    if (hasActiveSubscription) {
+        paymentMethodOptions.push({ value: 'subscription', label: 'По подписке', icon: '📋' });
+
+        tabs.push({ id: 'schedule', label: 'Расписание', icon: <Clock className="h-4 w-4" /> });
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
