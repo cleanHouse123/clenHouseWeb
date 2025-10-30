@@ -10,6 +10,7 @@ import {
 import {
   Calendar,
   Clock,
+  Copy as CopyIcon,
   Edit,
   FileText,
   MapPin,
@@ -65,6 +66,27 @@ export const ScheduledOrderCard = ({
     });
   };
 
+  const handleCopyAddress = async () => {
+    try {
+      const textToCopy = scheduledOrder.address || '';
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      toast.success('Адрес скопирован');
+    } catch (_e) {
+      toast.error('Не удалось скопировать адрес');
+    }
+  };
+
   return (
     <>
       <Card 
@@ -80,7 +102,7 @@ export const ScheduledOrderCard = ({
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <span className="whitespace-normal break-words hyphens-auto">{scheduledOrder.address}</span>
+                <span className="whitespace-normal break-words hyphens-auto select-none">{scheduledOrder.address}</span>
               </CardTitle>
               <div className="flex items-center gap-3 flex-wrap">
                 <Badge variant={currentStatus.variant} className="text-xs">
@@ -104,6 +126,10 @@ export const ScheduledOrderCard = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleCopyAddress}>
+                    <CopyIcon className="h-4 w-4 mr-2" />
+                    Скопировать адрес
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onEdit?.(scheduledOrder)}>
                     <Edit className="h-4 w-4 mr-2" />
                     Редактировать
