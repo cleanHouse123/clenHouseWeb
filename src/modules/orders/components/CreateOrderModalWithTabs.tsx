@@ -127,7 +127,10 @@ export const CreateOrderModalWithTabs = ({
 
         const addressDetails: AddressDetails = {};
 
-        if (data.building) addressDetails.building = data.building;
+        // Если в выбранном адресе уже есть номер дома, поле "Дом" из формы не используем
+        const hasHouseInSelected = !!selectedAddress?.house;
+
+        if (data.building && !hasHouseInSelected) addressDetails.building = data.building;
         if (data.buildingBlock) addressDetails.buildingBlock = data.buildingBlock;
         if (data.entrance) addressDetails.entrance = data.entrance;
         if (data.floor) addressDetails.floor = data.floor;

@@ -46,6 +46,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ScheduleFrequency } from "../types";
+import { Address } from "@/modules/address/types";
 import {
   dayOfWeekOptions,
   frequencyOptions,
@@ -92,6 +93,7 @@ export const ScheduledOrderModal = ({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [endCalendarOpen, setEndCalendarOpen] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
   const form = useForm<ScheduledOrderFormData>({
     resolver: zodResolver(scheduledOrderSchema),
@@ -136,6 +138,16 @@ export const ScheduledOrderModal = ({
   }, [editData, form]);
 
   const handleSubmit = (data: ScheduledOrderFormData) => {
+    // Если выбранный адрес уже содержит номер дома — игнорируем поле building из формы
+    const hasHouseInSelected = !!selectedAddress?.house;
+    if (hasHouseInSelected) {
+      // Обнулим building, чтобы не перетирать дом из распознанного адреса
+      // и не отправлять дублирующие данные
+      // В react-hook-form нельзя мутировать напрямую, поэтому формируем новый объект
+      const { building, ...rest } = data as any;
+      onSubmit(rest as ScheduledOrderFormData);
+      return;
+    }
     onSubmit(data);
   };
 
@@ -191,6 +203,7 @@ export const ScheduledOrderModal = ({
                     <AutocompleteAddress
                       value={field.value}
                       onChange={field.onChange}
+                      onAddressSelect={(addr) => setSelectedAddress(addr)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -214,6 +227,7 @@ export const ScheduledOrderModal = ({
                         {...field}
                         value={field.value || ''}
                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                        disabled={!!selectedAddress?.house}
                       />
                     </FormControl>
                     <FormMessage />
