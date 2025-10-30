@@ -35,6 +35,20 @@ export const ScheduledOrderCard = ({
   onToggleActive,
   showActions = true
 }: ScheduledOrderCardProps) => {
+  // Удаляем дубли "..., N, д. N" из адреса, если встречаются
+  const normalizedAddress = (() => {
+    const raw = scheduledOrder.address || '';
+    // Ищем шаблон в конце строки: ", д. <номер>"
+    const dupMatch = raw.match(/,?\s*д\.\s*(\d+[A-Za-zА-Яа-я-\/]*)\s*$/);
+    if (!dupMatch) return raw;
+    const num = dupMatch[1];
+    // Проверяем, что перед этим уже есть ", <тот же номер>" без префикса "д."
+    const alreadyHasNumber = new RegExp(`,\\s*${num}(?:,|$)`).test(raw);
+    if (alreadyHasNumber) {
+      return raw.replace(/,?\s*д\.\s*\d+[A-Za-zА-Яа-я-\/]*)\s*$/, '').trim();
+    }
+    return raw;
+  })();
   const status = getScheduleStatus(scheduledOrder);
   const statusConfig = {
     active: { label: 'Активно', variant: 'default' as const, color: 'text-green-600' },
@@ -102,7 +116,7 @@ export const ScheduledOrderCard = ({
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <span className="whitespace-normal break-words hyphens-auto select-none">{scheduledOrder.address}</span>
+                <span className="whitespace-normal break-words hyphens-auto select-none">{normalizedAddress}</span>
               </CardTitle>
               <div className="flex items-center gap-3 flex-wrap">
                 <Badge variant={currentStatus.variant} className="text-xs">
