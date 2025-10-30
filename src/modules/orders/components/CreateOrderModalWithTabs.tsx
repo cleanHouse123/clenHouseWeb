@@ -194,7 +194,7 @@ export const CreateOrderModalWithTabs = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-white max-w-4xl max-h-[85vh] sm:max-h-[95vh] p-0 gap-0 shadow-2xl flex flex-col">
+            <DialogContent className="bg-white max-w-4xl max-h-[85vh] sm:max-h-[95vh] p-0 gap-0 shadow-2xl flex flex-col overflow-x-hidden">
                 {/* Header */}
                 <div className="flex-shrink-0 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100 px-4 sm:px-6 py-4 sm:py-6 rounded-t-[24px]">
                     <div className="flex items-center gap-2 sm:gap-3">
@@ -221,7 +221,7 @@ export const CreateOrderModalWithTabs = ({
                 />
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto px-6 py-6 pr-8 pb-4 mb-4 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6 pr-8 pb-4 mb-4 custom-scrollbar">
                     {activeTab === 'single' ? (
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">

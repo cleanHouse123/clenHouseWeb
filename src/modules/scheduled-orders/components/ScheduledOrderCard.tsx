@@ -80,7 +80,7 @@ export const ScheduledOrderCard = ({
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <span className="truncate">{scheduledOrder.address}</span>
+                <span className="whitespace-normal break-words hyphens-auto">{scheduledOrder.address}</span>
               </CardTitle>
               <div className="flex items-center gap-3 flex-wrap">
                 <Badge variant={currentStatus.variant} className="text-xs">
