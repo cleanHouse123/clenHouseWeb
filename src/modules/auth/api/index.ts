@@ -14,7 +14,7 @@ export const authApi = {
   sendSms: async (data: SendSmsRequest): Promise<SendSmsResponse> => {
     const payload = {
       phoneNumber: data.phoneNumber,
-      ...(data.isDev && { isDev: false }),
+      ...(data.isDev && { isDev: data.isDev }),
     };
     const response = await axiosPublic.post("/auth/sms/send", payload);
     return response.data;
