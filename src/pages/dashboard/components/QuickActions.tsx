@@ -3,10 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/c
 import { Package, CreditCard, Settings, Zap, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
+import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 
 export const QuickActions = () => {
     const navigate = useNavigate();
     const { openCreateOrderModal } = useCreateOrderModal();
+    const { data: userSubscription } = useUserSubscription();
+
+    const hasActiveSubscription = userSubscription?.status === 'active';
 
     const actions = [
         {
@@ -24,13 +28,6 @@ export const QuickActions = () => {
             isPrimary: false
         },
         {
-            title: 'Расписания',
-            description: 'Автоматические заказы',
-            icon: Clock,
-            onClick: () => navigate('/scheduled-orders'),
-            isPrimary: false
-        },
-        {
             title: 'Подписки',
             description: 'Управление',
             icon: CreditCard,
@@ -38,6 +35,18 @@ export const QuickActions = () => {
             isPrimary: false
         }
     ];
+
+    if (hasActiveSubscription) {
+        actions.push(
+            {
+                title: 'Расписания',
+                description: 'Автоматические заказы',
+                icon: Clock,
+                onClick: () => navigate('/scheduled-orders'),
+                isPrimary: false
+            },
+        );
+    }
 
     return (
         <Card className="border-0 shadow-sm bg-gradient-to-br from-white to-gray-50/50">

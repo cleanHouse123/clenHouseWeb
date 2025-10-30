@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useCreateOrderModal } from '@/core/contexts/CreateOrderContext';
+import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 
 interface WelcomeSectionProps {
     userName: string;
@@ -9,6 +10,9 @@ interface WelcomeSectionProps {
 export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
     const navigate = useNavigate();
     const { openCreateOrderModal } = useCreateOrderModal();
+    const { data: userSubscription } = useUserSubscription();
+
+    const hasActiveSubscription = userSubscription?.status === 'active';
 
     const handleCreateOrder = () => {
         openCreateOrderModal();
@@ -145,7 +149,7 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
                     </div>
                 </motion.div>
 
-                {/* Расписания заказов */}
+                {hasActiveSubscription && (
                 <motion.div
                     variants={cardVariants}
                     initial="hidden"
@@ -176,6 +180,7 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
                         </div>
                     </div>
                 </motion.div>
+                )}
             </div>
         </div>
     );
