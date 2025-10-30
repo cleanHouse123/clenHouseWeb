@@ -40,7 +40,9 @@ const DialogContent = React.forwardRef<
         // Позиционирование: на мобильных через отступы, на десктопе центрирование
         "left-4 right-4 top-[50%] translate-y-[-50%] sm:left-[50%] sm:right-auto sm:translate-x-[-50%]",
         // Адаптивная ширина
-        "w-auto sm:w-full sm:max-w-lg",
+        // По умолчанию делаем ширину более дружелюбной к планшетам/десктопам
+        // Конкретные модалки всё ещё могут переопределить через className (например, max-w-3xl/4xl)
+        "w-auto sm:w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl",
         // Максимальная высота для мобильных (меньше для лучшей видимости)
         "max-h-[85vh] sm:max-h-[95vh]",
         // Не добавляем overflow здесь - пусть каждая модалка сама решает
