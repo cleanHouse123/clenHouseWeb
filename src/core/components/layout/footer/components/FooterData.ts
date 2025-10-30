@@ -17,5 +17,5 @@ export const footerLegalLinks = [
 export const footerContact = {
   title: "Связаться с нами:",
   phone: "+7 (921) 965-8884",
-  // email: "info@cleanhouse.ru",
+  email: "Chisto.doma1@mail.ru",
 };
