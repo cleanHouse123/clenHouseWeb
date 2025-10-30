@@ -153,7 +153,7 @@ export const TermsOfServicePage = () => {
                                 <p>КПП: 470601001</p>
                                 <p>ОГРН: 1254700016548</p>
                                 <p>Телефон: +7 (921) 965-8884</p>
-                                <p>Email: Chisto.doma1@mail.ru</p>
+                                <p>Email: chisto.doma1@mail.ru</p>
                                 <p>Адрес: 188689, Ленинградская область, Всеволожский район, гп Янино-1, ул Шоссейная, д. 48Е, стр. 6</p>
                             </div>
                         </section>

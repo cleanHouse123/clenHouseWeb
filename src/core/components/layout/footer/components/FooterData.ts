@@ -17,5 +17,5 @@ export const footerLegalLinks = [
 export const footerContact = {
   title: "Связаться с нами:",
   phone: "+7 (921) 965-8884",
-  email: "Chisto.doma1@mail.ru",
+  email: "chisto.doma1@mail.ru",
 };

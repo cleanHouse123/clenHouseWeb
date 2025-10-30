@@ -36,7 +36,7 @@ export const ContactsPage = () => {
                                 <Mail className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium">Email</p>
-                                    <p className="text-gray-600">Chisto.doma1@mail.ru</p>
+                                    <p className="text-gray-600">chisto.doma1@mail.ru</p>
                                 </div>
                             </div>
 
