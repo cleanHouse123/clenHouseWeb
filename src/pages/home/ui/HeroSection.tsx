@@ -35,11 +35,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 ease: "easeOut"
               }
             }}
-            className="hidden tablet:block absolute -right-2 bottom-0 tablet:w-[465px] tablet:h-[600px] semi-lg:w-[480px] semi-lg:h-[595px] semi-lg2:w-[500px] semi-lg2:h-[590px] lg:w-[500px] lg:h-[585px] xl:w-[500px] xl:h-[585px] semi-xl:w-[435px] semi-xl:h-[580px] bg-contain bg-bottom bg-no-repeat z-30"
+            className="hidden tablet:block absolute -right-6 bottom-0 tablet:w-[600px] tablet:h-[780px] semi-lg:w-[620px] semi-lg:h-[770px] semi-lg2:w-[650px] semi-lg2:h-[780px] lg:w-[690px] lg:h-[920px] xl:w-[670px] xl:h-[980px] semi-xl:w-[680px] semi-xl:h-[560px] bg-contain bg-bottom bg-no-repeat z-30"
             style={{ backgroundImage: "url('/images/girl-hero.png')" }}
           />
 
-          <div className="relative z-20 w-full tablet:w-1/2 flex flex-col gap-6 tablet:gap-8">
+          <div className="relative z-20 w-full tablet:w-1/2 max-w-[680px] flex flex-col gap-6 tablet:gap-8">
             <div className="flex flex-col gap-4 tablet:gap-5">
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
