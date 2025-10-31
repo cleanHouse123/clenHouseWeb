@@ -15,7 +15,7 @@ export const PriceSection: React.FC<PriceSectionProps> = ({ onCallCourier }) => 
 
     return (
         <section className="pt-[20px] sm:pt-[30px]">
-            <div className="mx-auto px-2 xs:px-4 sm:px-8 lg:px-16 max-w-6xl">
+            <div className="mx-auto px-2 xs:px-4 sm:px-8 lg:px-8 max-w-6xl">
 
 
                 <motion.div

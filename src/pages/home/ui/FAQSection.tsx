@@ -17,7 +17,7 @@ export const FAQSection: React.FC = () => {
 
   return (
     <section id="faq" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
-      <div className="mx-auto px-4 sm:px-8 lg:px-16">
+      <div className="mx-auto px-4 sm:px-8 lg:px-8">
         {/* Заголовок */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

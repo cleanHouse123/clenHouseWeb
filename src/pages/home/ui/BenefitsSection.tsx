@@ -5,7 +5,7 @@ import { Card } from '@/core/components/ui/card';
 export const BenefitsSection: React.FC = () => {
   return (
     <section className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
-      <div className="mx-auto px-4 sm:px-8 lg:px-16">
+      <div className="mx-auto px-4 sm:px-8 lg:px-8">
         {/* Заголовок секции */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}

@@ -7,7 +7,7 @@ import { footerLinks, footerLegalLinks, footerContact } from './components/Foote
 export const FooterSection: React.FC = () => {
     return (
         <footer className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px] pb-6 sm:pb-8 md:pb-10">
-            <div className="px-4 sm:px-8 lg:px-16">
+            <div className="px-4 sm:px-8 lg:px-8">
                 {/* Верхняя часть */}
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 sm:gap-8">
                     {/* Левая группа: логотип + контакты на lg+ */}
