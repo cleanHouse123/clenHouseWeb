@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/core/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { TimePicker } from '@/core/components/ui/time-picker';
-import { CalendarIcon, Plus, MapPin, CreditCard, Clock, CheckCircle } from 'lucide-react';
+import { CalendarIcon, Plus, MapPin, CreditCard, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { createUTCFromDateTimeInput } from '@/core/utils/dateUtils';
@@ -190,7 +190,14 @@ export const CreateOrderModalWithTabs = ({
     ]
   
     if (hasActiveSubscription) {
-        paymentMethodOptions.push({ value: 'subscription', label: 'По подписке', icon: '📋' });
+        const isUnlimited = userSubscription?.ordersLimit === -1;
+        const remainingOrders = isUnlimited 
+            ? null 
+            : (userSubscription?.ordersLimit || 0) - (userSubscription?.usedOrders || 0);
+        const subscriptionLabel = isUnlimited 
+            ? 'По подписке: безлимит'
+            : `По подписке: осталось ${remainingOrders} заказов`;
+        paymentMethodOptions.push({ value: 'subscription', label: subscriptionLabel, icon: '📋' });
 
         // tabs.push({ id: 'schedule', label: 'Расписание', icon: <Clock className="h-4 w-4" /> });
     }
