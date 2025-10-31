@@ -192,7 +192,7 @@ export const CreateOrderModalWithTabs = ({
     if (hasActiveSubscription) {
         paymentMethodOptions.push({ value: 'subscription', label: 'По подписке', icon: '📋' });
 
-        tabs.push({ id: 'schedule', label: 'Расписание', icon: <Clock className="h-4 w-4" /> });
+        // tabs.push({ id: 'schedule', label: 'Расписание', icon: <Clock className="h-4 w-4" /> });
     }
 
     return (

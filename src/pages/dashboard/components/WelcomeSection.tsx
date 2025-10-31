@@ -149,7 +149,7 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
                     </div>
                 </motion.div>
 
-                {hasActiveSubscription && (
+                {/* {hasActiveSubscription && (
                 <motion.div
                     variants={cardVariants}
                     initial="hidden"
@@ -180,7 +180,7 @@ export const WelcomeSection = ({ userName }: WelcomeSectionProps) => {
                         </div>
                     </div>
                 </motion.div>
-                )}
+                )} */}
             </div>
         </div>
     );
