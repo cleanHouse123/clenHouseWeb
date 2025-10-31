@@ -20,18 +20,19 @@ import { OrderFormData, AddressDetails } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import AutocompleteAddress from '@/modules/address/ui/autocomplete';
 import { Address } from '@/modules/address/types';
-import { Tabs } from '@/core/components/ui/tabs';
-import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
-import {
-    useMySchedules,
-    useCreateScheduledOrder,
-    useUpdateScheduledOrder,
-    useDeleteScheduledOrder,
-    useActivateScheduledOrder,
-    useDeactivateScheduledOrder,
-    useScheduledOrderFormUtils
-} from '@/modules/scheduled-orders/hooks/useScheduledOrders';
-import { ScheduledOrderFormData } from '@/modules/scheduled-orders/types';
+// Tabs removed as only single order form is used now
+// import { Tabs } from '@/core/components/ui/tabs';
+// import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
+// import {
+//     useMySchedules,
+//     useCreateScheduledOrder,
+//     useUpdateScheduledOrder,
+//     useDeleteScheduledOrder,
+//     useActivateScheduledOrder,
+//     useDeactivateScheduledOrder,
+//     useScheduledOrderFormUtils
+// } from '@/modules/scheduled-orders/hooks/useScheduledOrders';
+// import { ScheduledOrderFormData } from '@/modules/scheduled-orders/types';
 
 const createOrderSchema = z.object({
     address: z.string().min(1, 'Адрес обязателен').max(500, 'Адрес слишком длинный'),
@@ -67,7 +68,6 @@ export const CreateOrderModalWithTabs = ({
     isLoading = false
 }: CreateOrderModalProps) => {
     const [calendarOpen, setCalendarOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('single');
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
     const { data: userSubscription } = useUserSubscription();
 
@@ -78,14 +78,14 @@ export const CreateOrderModalWithTabs = ({
         setSelectedAddress(address);
     };
 
-    // Hooks для работы с расписаниями
-    const { data: scheduledOrders, isLoading: isLoadingSchedules } = useMySchedules();
-    const createScheduledOrderMutation = useCreateScheduledOrder();
-    const updateScheduledOrderMutation = useUpdateScheduledOrder();
-    const deleteScheduledOrderMutation = useDeleteScheduledOrder();
-    const activateScheduledOrderMutation = useActivateScheduledOrder();
-    const deactivateScheduledOrderMutation = useDeactivateScheduledOrder();
-    const { transformFormDataToDto } = useScheduledOrderFormUtils();
+    // Hooks для работы с расписаниями (закомментировано, т.к. табы удалены)
+    // const { data: scheduledOrders, isLoading: isLoadingSchedules } = useMySchedules();
+    // const createScheduledOrderMutation = useCreateScheduledOrder();
+    // const updateScheduledOrderMutation = useUpdateScheduledOrder();
+    // const deleteScheduledOrderMutation = useDeleteScheduledOrder();
+    // const activateScheduledOrderMutation = useActivateScheduledOrder();
+    // const deactivateScheduledOrderMutation = useDeactivateScheduledOrder();
+    // const { transformFormDataToDto } = useScheduledOrderFormUtils();
 
     const form = useForm<CreateOrderFormData>({
         resolver: zodResolver(createOrderSchema),
@@ -157,27 +157,28 @@ export const CreateOrderModalWithTabs = ({
         form.reset();
     };
 
-    const handleScheduledOrderSubmit = (data: ScheduledOrderFormData) => {
-        const dto = transformFormDataToDto(data);
-        createScheduledOrderMutation.mutate(dto);
-    };
+    // Функции для работы с расписаниями (закомментировано, т.к. табы удалены)
+    // const handleScheduledOrderSubmit = (data: ScheduledOrderFormData) => {
+    //     const dto = transformFormDataToDto(data);
+    //     createScheduledOrderMutation.mutate(dto);
+    // };
 
-    const handleScheduledOrderEdit = (id: string, data: ScheduledOrderFormData) => {
-        const dto = transformFormDataToDto(data);
-        updateScheduledOrderMutation.mutate({ id, data: dto });
-    };
+    // const handleScheduledOrderEdit = (id: string, data: ScheduledOrderFormData) => {
+    //     const dto = transformFormDataToDto(data);
+    //     updateScheduledOrderMutation.mutate({ id, data: dto });
+    // };
 
-    const handleScheduledOrderDelete = (id: string) => {
-        deleteScheduledOrderMutation.mutate(id);
-    };
+    // const handleScheduledOrderDelete = (id: string) => {
+    //     deleteScheduledOrderMutation.mutate(id);
+    // };
 
-    const handleScheduledOrderToggleActive = (id: string, isActive: boolean) => {
-        if (isActive) {
-            activateScheduledOrderMutation.mutate(id);
-        } else {
-            deactivateScheduledOrderMutation.mutate(id);
-        }
-    };
+    // const handleScheduledOrderToggleActive = (id: string, isActive: boolean) => {
+    //     if (isActive) {
+    //         activateScheduledOrderMutation.mutate(id);
+    //     } else {
+    //         deactivateScheduledOrderMutation.mutate(id);
+    //     }
+    // };
 
     const hasActiveSubscription = userSubscription?.status === 'active';
 
@@ -185,9 +186,7 @@ export const CreateOrderModalWithTabs = ({
         { value: 'online', label: 'Оплата онлайн', icon: '💳' },
     ]
 
-    const tabs = [
-        { id: 'single', label: 'Разовый заказ', icon: <Plus className="h-4 w-4" /> },
-    ]
+    // Tabs config removed
   
     if (hasActiveSubscription) {
         const isUnlimited = userSubscription?.ordersLimit === -1;
@@ -222,17 +221,10 @@ export const CreateOrderModalWithTabs = ({
                     </div>
                 </div>
 
-                {/* Tabs */}
-                <Tabs
-                    tabs={tabs}
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                    className="px-6"
-                />
+                {/* Tabs removed */}
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6 pr-8 pb-4 mb-4 custom-scrollbar">
-                    {activeTab === 'single' ? (
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                                 {/* Subscription Status */}
@@ -419,20 +411,22 @@ export const CreateOrderModalWithTabs = ({
                                             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
-                                                        <Button
-                                                            variant="outline"
+                                                        <button
+                                                            type="button"
                                                             className={cn(
-                                                                "w-full pl-3 text-left font-normal",
+                                                                "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-left",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP", { locale: ru })
-                                                            ) : (
-                                                                <span>Выберите дату</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
+                                                            <span className="line-clamp-1">
+                                                                {field.value ? (
+                                                                    format(field.value, "PPP", { locale: ru })
+                                                                ) : (
+                                                                    "Выберите дату"
+                                                                )}
+                                                            </span>
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50 flex-shrink-0" />
+                                                        </button>
                                                     </FormControl>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-auto p-0" align="start">
@@ -532,17 +526,6 @@ export const CreateOrderModalWithTabs = ({
                                 </div>
                             </form>
                         </Form>
-                    ) : (
-                        <ScheduledOrderList
-                            scheduledOrders={scheduledOrders || []}
-                            isLoading={isLoadingSchedules}
-                            onEdit={handleScheduledOrderEdit}
-                            onDelete={handleScheduledOrderDelete}
-                            onToggleActive={handleScheduledOrderToggleActive}
-                            onCreate={handleScheduledOrderSubmit}
-                            showActions={true}
-                        />
-                    )}
                 </div>
             </DialogContent>
         </Dialog>
