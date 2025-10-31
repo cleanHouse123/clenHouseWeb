@@ -42,10 +42,10 @@ export const useCreateOrder = () => {
     return useMutation({
         mutationFn: (data: CreateOrderDto) => ordersApi.createOrder(data),
         onSuccess: (data) => {
-            toast.success('Заказ создан!', {
-                description: `Заказ #${data.id.slice(-8)} успешно создан`,
-                duration: 5000,
-            });
+            // toast.success('Заказ создан!', {
+            //     description: `Заказ #${data.id.slice(-8)} успешно создан`,
+            //     duration: 5000,
+            // });
 
             // Обновляем кэш заказов
             queryClient.invalidateQueries({ queryKey: ['orders'] });
