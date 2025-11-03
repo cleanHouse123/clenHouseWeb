@@ -81,7 +81,7 @@ export const PaymentModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-none sm:max-w-lg shadow-2xl [&>button]:hidden">
+            <DialogContent className="!w-full !max-w-sm sm:!max-w-md md:!max-w-md lg:!max-w-md xl:!max-w-md shadow-2xl [&>button]:hidden !mx-auto">
                 <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
                     <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
