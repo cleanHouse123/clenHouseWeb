@@ -1,3 +1,5 @@
+import { ReferralLink } from "@/modules/referral/types";
+
 export enum UserRole {
   ADMIN = "admin",
   CUSTOMER = "customer",
@@ -12,6 +14,7 @@ export interface User {
   isPhoneVerified: boolean;
   email?: string;
   isEmailVerified: boolean;
+  adToken?: ReferralLink;
   lastLoginAt: Date;
   createdAt: Date;
   updatedAt: Date;

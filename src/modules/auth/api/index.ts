@@ -42,6 +42,9 @@ export const authApi = {
   // Получение данных текущего пользователя
   getMe: async (): Promise<User> => {
     const response = await axiosInstance.get("/auth/me");
-    return response.data;
+    return {
+      ...response.data.user,
+      adToken: response.data.adToken,
+    };
   },
 };

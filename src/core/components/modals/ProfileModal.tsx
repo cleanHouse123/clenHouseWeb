@@ -1,9 +1,12 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent } from '@/core/components/ui/card';
-import { User, Phone, Mail, Calendar, Settings, CheckCircle, Clock, UserCircle } from 'lucide-react';
-import { memo } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { formatDateTime } from '@/core/utils/dateUtils';
+import { useCreateRefferalLink } from '@/modules/referral/hooks/useCreateRefferalLink';
+import { ReferralLink } from '@/modules/referral/types';
+import { CheckCircle, Loader2, Mail, Phone, User, UserCircle } from 'lucide-react';
+import { memo } from 'react';
+import { toast } from 'sonner';
 
 interface ProfileModalProps {
     isOpen: boolean;
@@ -15,6 +18,7 @@ interface ProfileModalProps {
         email?: string;
         isPhoneVerified?: boolean;
         isEmailVerified?: boolean;
+        adToken?: ReferralLink;
         lastLoginAt?: string | Date;
         createdAt?: string | Date;
     };
@@ -22,6 +26,7 @@ interface ProfileModalProps {
 
 const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
 
+    const { mutate: createReferralLink, isPending: isCreatingReferralLink } = useCreateRefferalLink();
     const formatDate = (dateString: string | Date) => {
         const dateStr = typeof dateString === 'string' ? dateString : dateString.toISOString();
         return formatDateTime(dateStr);
@@ -32,7 +37,6 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
         //navigate('/profile/edit');
     };
 
-
     const getRoleColor = (role: string) => {
         switch (role) {
             case 'customer': return 'bg-blue-100 text-blue-800';
@@ -40,6 +44,17 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
             case 'admin': return 'bg-orange-100 text-orange-800';
             default: return 'bg-gray-100 text-gray-800';
         }
+    };
+
+    const link = window.location.origin;
+    const referralLink = `${link}?referral=${user.adToken?.token}`;
+    const handleGenerateReferralLink = () => {
+        createReferralLink();
+    };
+
+    const handleCopyReferralLink = () => {
+        navigator.clipboard.writeText(referralLink);
+        toast.success('Referral Link copied to clipboard');
     };
 
     return (
@@ -152,6 +167,30 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                             </div>
                         </CardContent>
                     </Card> */}
+
+                    {
+                        user?.adToken ? (
+                            <Card radius="r16" padding="md" background="white" bordered shadow>
+                                <CardContent className="p-0 gap-2 flex flex-col">
+                                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">Реферальная ссылка</h4>
+                                    <p className="text-sm font-medium text-foreground hover:text-primary cursor-pointer" onClick={handleCopyReferralLink}>{referralLink}</p>
+                                    <p className="text-sm text-primary font-bold">{user.adToken.clickCount} пользователей использовали вашу ссылку</p>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <Card radius="r16" padding="md" background="white" bordered shadow>
+                                <CardContent className="p-0">
+                                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">Реферальная ссылка</h4>
+                                    <Button variant="outline" className="w-full" onClick={handleGenerateReferralLink} disabled={isCreatingReferralLink}>Создать реферальную ссылку</Button>
+                                    {isCreatingReferralLink && (
+                                        <div className="flex items-center justify-center">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )
+                    }
 
                     {/* Действия */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
