@@ -8,7 +8,7 @@ import { SubscriptionPlan } from '@/modules/subscriptions/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { SubscriptionPlanCard } from '@/modules/subscriptions/components/SubscriptionPlanCard';
 import { toast } from 'sonner';
@@ -22,6 +22,7 @@ export const SubscriptionPlansSection: React.FC = () => {
   const { data: user, isLoading: isLoadingUser } = useGetMe();
   const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscription } = useCreateSubscriptionByPlan();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
@@ -70,6 +71,7 @@ export const SubscriptionPlansSection: React.FC = () => {
         });
         // Обновляем данные подписки
         // WebSocket или рефетч обновит данные автоматически
+        navigate('/dashboard');
         return;
       } else if (paymentData.paymentUrl) {
         // Обычный платеж - перенаправляем на страницу оплаты
@@ -78,7 +80,7 @@ export const SubscriptionPlansSection: React.FC = () => {
       }
     } catch (error) {
       console.error('Ошибка при оформлении подписки:', error);
-      
+
       if (isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || 'Ошибка при оформлении подписки';
         console.error('API Error:', errorMessage);

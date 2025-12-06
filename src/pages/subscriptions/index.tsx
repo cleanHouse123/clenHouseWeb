@@ -32,7 +32,8 @@ export const SubscriptionsPage = () => {
 
   usePaymentWebSocket();
 
-  const handleSelectSubscription = async (id: string, isFree: boolean = false) => {
+  const handleSelectSubscription = async (id: string) => {
+
 
     try {
       // Проверяем, что пользователь загружен
@@ -82,7 +83,9 @@ export const SubscriptionsPage = () => {
         });
         // Обновляем данные подписки
         // WebSocket или рефетч обновит данные автоматически
-        return;
+
+
+        return
       } else if (paymentData.paymentUrl) {
         // Обычный платеж - перенаправляем на страницу оплаты
         setPaymentUrl(paymentData.paymentUrl);

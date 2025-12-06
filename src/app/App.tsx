@@ -6,13 +6,14 @@ import { Toaster } from 'sonner'
 import { Suspense } from 'react'
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
 import { useYandexMetrika } from '@/core/hooks/useYandexMetrika'
+import { ErrorBoundary } from '@/core/components/error'
 
 function App() {
     useWindowHeight();
     useYandexMetrika();
 
     return (
-        <>
+        <ErrorBoundary>
             <Suspense fallback={<LoadingIndicator />}>
                 <RouterProvider router={router} />
             </Suspense>
@@ -23,7 +24,7 @@ function App() {
                 richColors={true}
                 closeButton={true}
             />
-        </>
+        </ErrorBoundary>
     )
 }
 

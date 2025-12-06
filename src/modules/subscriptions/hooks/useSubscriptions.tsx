@@ -13,8 +13,8 @@ export const useSubscriptionPlans = () => {
 
     return useQuery({
         queryKey: ["subscription-plans", isAuthenticated ? "with-prices" : "public"],
-        queryFn: () => isAuthenticated 
-            ? subscriptionApi.getSubscriptionPlansWithPrices() 
+        queryFn: () => isAuthenticated
+            ? subscriptionApi.getSubscriptionPlansWithPrices()
             : subscriptionApi.getSubscriptionPlans(),
     });
 };
@@ -57,7 +57,7 @@ export const useCreateSubscription = () => {
 
             // Используем новые утилиты для корректной работы с UTC
             const startDate = createUTCDate();
-            const endDateString = data.type === 'monthly' 
+            const endDateString = data.type === 'monthly'
                 ? createUTCDateWithMonths(1)
                 : createUTCDateWithYears(1);
 
@@ -139,6 +139,8 @@ export const useCreateSubscriptionByPlan = () => {
             // Обновляем подписку пользователя
             // Используем широкий ключ, чтобы обновить все подписки пользователя
             queryClient.invalidateQueries({ queryKey: ['user-subscription'] });
+            queryClient.invalidateQueries({ queryKey: ["subscription-plans", "with-prices"] });
+            queryClient.invalidateQueries({ queryKey: ["subscription-plans", "public"] });
             // Также обновляем данные пользователя на случай, если они изменились
             queryClient.invalidateQueries({ queryKey: ['me'] });
         },

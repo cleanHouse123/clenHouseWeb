@@ -3,6 +3,7 @@ import { lazy } from "react";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { createBrowserRouter } from "react-router-dom";
 import { AppLayout } from "@/core/components/layout/AppLayout";
+import { RouterErrorPage } from "@/core/components/error";
 
 // Динамические импорты для code splitting
 const HomePage = lazy(() => import("@/pages/home").then(module => ({ default: module.HomePage })));
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+    errorElement: <RouterErrorPage />,
   },
   // {
   //   path: "login",
@@ -32,6 +34,7 @@ export const router = createBrowserRouter([
         <DashboardPage />
       </ProtectedRoute>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "subscriptions",
@@ -40,6 +43,7 @@ export const router = createBrowserRouter([
         <SubscriptionsPage />
       </ProtectedRoute>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "orders",
@@ -48,6 +52,7 @@ export const router = createBrowserRouter([
         <OrdersPage />
       </ProtectedRoute>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "scheduled-orders",
@@ -56,6 +61,7 @@ export const router = createBrowserRouter([
         <ScheduledOrdersPage />
       </ProtectedRoute>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "payment-return",
@@ -64,10 +70,12 @@ export const router = createBrowserRouter([
         <PaymentReturnPage />
       </ProtectedRoute>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "payment/result",
     element: <PaymentReturnPage />,
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "privacy-policy",
@@ -76,6 +84,7 @@ export const router = createBrowserRouter([
         <PrivacyPolicyPage />
       </AppLayout>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "terms-of-service",
@@ -84,6 +93,7 @@ export const router = createBrowserRouter([
         <TermsOfServicePage />
       </AppLayout>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "contacts",
@@ -92,6 +102,7 @@ export const router = createBrowserRouter([
         <ContactsPage />
       </AppLayout>
     ),
+    errorElement: <RouterErrorPage />,
   },
   {
     path: "couriers",
@@ -100,5 +111,6 @@ export const router = createBrowserRouter([
         <CouriersPage />
       </AppLayout>
     ),
+    errorElement: <RouterErrorPage />,
   }
 ]);
