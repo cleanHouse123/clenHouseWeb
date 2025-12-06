@@ -249,7 +249,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="max-w-md">
+            <DialogContent className="!w-full !max-w-sm sm:!max-w-md !mx-auto md:!max-w-md lg:!max-w-md xl:!max-w-md">
                 <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
                     <div className="flex items-center justify-between">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">

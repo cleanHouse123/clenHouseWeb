@@ -14,11 +14,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
 
   return (
     <section className="relative bg-background  pt-[102px] sm:pt-[48px] md:pt-[58px]">
-      <div className="mx-auto px-4 sm:px-8 lg:px-16 mt-12 md:mt-24">
+      <div className="mx-auto px-4 sm:px-8 lg:px-8 mt-12 md:mt-24">
         <Card radius="r40" padding="xl" background="white" className="relative overflow-visible">
           <div
             className="hidden tablet:block absolute right-0 top-0 bottom-0 w-1/2 rounded-r-[40px] bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: "url('/images/room.png')" }}
+            style={{ backgroundImage: "url('/images/room.webp')" }}
           />
 
           <div className="hidden tablet:block absolute right-0 top-0 bottom-0 w-1/2 rounded-r-[40px] bg-gradient-to-r from-white via-white/50 to-transparent z-10" />
@@ -35,8 +35,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 ease: "easeOut"
               }
             }}
-            className="hidden tablet:block absolute -right-6 bottom-0 tablet:w-[600px] tablet:h-[780px] semi-lg:w-[620px] semi-lg:h-[770px] semi-lg2:w-[650px] semi-lg2:h-[780px] lg:w-[690px] lg:h-[920px] xl:w-[670px] xl:h-[980px] semi-xl:w-[680px] semi-xl:h-[560px] bg-contain bg-bottom bg-no-repeat z-30"
-            style={{ backgroundImage: "url('/images/girl-hero.png')" }}
+            className="hidden tablet:block absolute -right-6 bottom-0 tablet:w-[600px] tablet:h-[780px] semi-lg:w-[620px] semi-lg:h-[770px] semi-lg2:w-[650px] semi-lg2:h-[780px] lg:w-[645px] lg:h-[920px] xl:w-[610px] xl:h-[980px] semi-xl:w-[680px] semi-xl:h-[560px] bg-contain bg-bottom bg-no-repeat z-30"
+            style={{ backgroundImage: "url('/images/girl-hero.webp')" }}
           />
 
           <div className="relative z-20 w-full tablet:w-1/2 max-w-[680px] flex flex-col gap-6 tablet:gap-8">
@@ -101,7 +101,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
             >
               <div
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: "url('/images/room.png')" }}
+                style={{ backgroundImage: "url('/images/room.webp')" }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-white via-white/50 to-transparent z-[5]" />
               <motion.div
@@ -117,7 +117,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                   }
                 }}
                 className="absolute inset-0 bg-contain bg-bottom bg-no-repeat z-10"
-                style={{ backgroundImage: "url('/images/girl-hero.png')" }}
+                style={{ backgroundImage: "url('/images/girl-hero.webp')" }}
               />
             </motion.div>
           </div>

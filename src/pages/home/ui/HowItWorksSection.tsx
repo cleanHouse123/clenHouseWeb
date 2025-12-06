@@ -7,7 +7,7 @@ const IMAGE_VERSION = '?v=2';
 export const HowItWorksSection: React.FC = () => {
   return (
     <section id="how-it-works" className="pt-[40px] sm:pt-[60px] md:pt-[80px] lg:pt-[100px]">
-      <div className="mx-auto px-4 sm:px-8 lg:px-16">
+      <div className="mx-auto px-4 sm:px-8 lg:px-8">
         {/* Заголовок */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}

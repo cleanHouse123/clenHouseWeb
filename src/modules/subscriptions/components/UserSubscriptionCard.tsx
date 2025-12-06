@@ -19,7 +19,6 @@ interface UserSubscriptionCardProps {
 export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: UserSubscriptionCardProps) => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    console.log('UserSubscriptionCard received data:', userSubscription);
     const getStatusIcon = () => {
         switch (userSubscription.status) {
             case 'active':

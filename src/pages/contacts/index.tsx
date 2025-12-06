@@ -28,7 +28,7 @@ export const ContactsPage = () => {
                                 <Phone className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium">Телефон</p>
-                                    <p className="text-gray-600">+7 (921) 965-8884</p>
+                                    <p className="text-gray-600">8-800-775-63-65</p>
                                 </div>
                             </div>
 
