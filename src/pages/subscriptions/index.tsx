@@ -4,9 +4,9 @@ import { ChevronRight, CreditCard, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import {
-    useUserSubscription,
-    useCreateSubscriptionByPlan,
-    useDeleteSubscription
+  useUserSubscription,
+  useCreateSubscriptionByPlan,
+  useDeleteSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan, SubscriptionStatus } from '@/modules/subscriptions/types';
@@ -19,323 +19,322 @@ import { Button } from '@/core/components/ui/button/button';
 import { SubscriptionPlanCard } from '@/modules/subscriptions/components/SubscriptionPlanCard';
 
 export const SubscriptionsPage = () => {
-    const navigate = useNavigate();
-    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-    const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-    const { data: user, isLoading: isLoadingUser } = useGetMe();
-    const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
-    const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
-    const { mutateAsync: deleteSubscription } = useDeleteSubscription();
-    const { data: plans, isLoading: isLoadingPlans, error: plansError } = useSubscriptionPlans();
+  const { data: user, isLoading: isLoadingUser } = useGetMe();
+  const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
+  const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
+  const { mutateAsync: deleteSubscription } = useDeleteSubscription();
+  const { data: plans, isLoading: isLoadingPlans, error: plansError } = useSubscriptionPlans();
 
-    usePaymentWebSocket();
+  usePaymentWebSocket();
 
-    const handleSelectSubscription = async (id: string) => {
-        try {
-            // Проверяем, что пользователь загружен
-            if (isLoadingUser) {
-                toast.error('Ошибка', {
-                    description: 'Загрузка данных пользователя...',
-                    duration: 3000,
-                });
-                return;
-            }
+  const handleSelectSubscription = async (id: string, isFree: boolean = false) => {
 
-            if (!user?.userId) {
-                toast.error('Ошибка', {
-                    description: 'Пользователь не найден. Пожалуйста, войдите в систему.',
-                    duration: 3000,
-                });
-                return;
-            }
-
-            const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
-            const plan = plans.find(p => p.id === id);
-
-            if (!plan) {
-                throw new Error('План подписки не найден');
-            }
-
-            setSelectedPlan(plan);
-
-            // Создаем подписку по ID плана (новый упрощенный метод)
-            const subscriptionResult = await createSubscriptionByPlan(plan.id);
-
-            console.log('Subscription created by plan:', subscriptionResult);
-
-            // Создаем платеж подписки через обновленный API
-            const paymentData = await subscriptionApi.createSubscriptionPayment(
-                subscriptionResult.id,
-                plan.type,
-                plan.id
-            );
-
-            console.log('Payment link created:', paymentData);
-
-            // Обработка результата создания платежа
-            if (paymentData.status === 'success' && !paymentData.paymentUrl) {
-                // Подписка активирована бесплатно
-                toast.success('Подписка активирована!', {
-                    description: 'Вы получили бесплатную подписку за приглашение друзей',
-                    duration: 4000,
-                });
-                // Обновляем данные подписки
-                // WebSocket или рефетч обновит данные автоматически
-                return;
-            } else if (paymentData.paymentUrl) {
-                // Обычный платеж - перенаправляем на страницу оплаты
-                setPaymentUrl(paymentData.paymentUrl);
-                setIsPaymentModalOpen(true);
-            }
-        } catch (error) {
-            console.error('Ошибка при выборе подписки:', error);
-            toast.error('Ошибка', {
-                description: error instanceof Error ? error.message : 'Ошибка при оформлении подписки',
-                duration: 5000,
-            });
-        }
-    };
-
-
-    const handleClosePaymentModal = () => {
-        setIsPaymentModalOpen(false);
-        setSelectedPlan(null);
-        setPaymentUrl(null);
-    };
-
-    const handlePaymentSuccess = () => {
-        // Обновляем данные подписки после успешной оплаты
-        console.log('Payment success callback triggered');
-        // WebSocket уже обновляет кэш, но можно добавить дополнительную логику
-    };
-
-    const handlePayExistingSubscription = async (subscriptionId: string) => {
-        try {
-            const subscriptionType = userSubscription?.type || 'monthly';
-
-            // Используем paymentUrl из подписки, если он есть
-            if (userSubscription?.paymentUrl) {
-                // Получаем план подписки для отображения
-                const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
-                const plan = plans.find(p => p.type === subscriptionType);
-                setSelectedPlan(plan || null);
-                setPaymentUrl(userSubscription.paymentUrl);
-                setIsPaymentModalOpen(true);
-                return;
-            }
-
-            // Если paymentUrl нет, создаем новую ссылку на оплату через обновленный API
-            const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
-            const plan = plans.find(p => p.type === subscriptionType);
-
-            if (!plan) {
-                throw new Error('План подписки не найден');
-            }
-
-            const paymentData = await subscriptionApi.createSubscriptionPayment(
-                subscriptionId,
-                subscriptionType as 'monthly' | 'yearly',
-                plan.id
-            );
-
-            setSelectedPlan(plan);
-
-            // Обработка результата создания платежа
-            if (paymentData.status === 'success' && !paymentData.paymentUrl) {
-                // Подписка активирована бесплатно
-                toast.success('Подписка активирована!', {
-                    description: 'Вы получили бесплатную подписку за приглашение друзей',
-                    duration: 4000,
-                });
-                return;
-            } else if (paymentData.paymentUrl) {
-                // Обычный платеж
-                setPaymentUrl(paymentData.paymentUrl);
-                setIsPaymentModalOpen(true);
-            }
-        } catch (error) {
-            console.error('Ошибка при создании ссылки на оплату:', error);
-            toast.error('Ошибка', {
-                description: error instanceof Error ? error.message : 'Ошибка при создании ссылки на оплату',
-                duration: 5000,
-            });
-        }
-    };
-
-    const handleDeleteSubscription = async (subscriptionId: string) => {
-        try {
-            await deleteSubscription(subscriptionId);
-        } catch (error) {
-            console.error('Ошибка при удалении подписки:', error);
-        }
-    };
-
-    // price formatting handled inside SubscriptionPlanCard
-
-    const renderSubscriptionProposeContent = () => {
-      if (isLoadingUser || isLoadingUserSubscription) {
-        return (
-          <div className="flex justify-center py-8">
-            <LoadingIndicator />
-          </div>
-        );
+    try {
+      // Проверяем, что пользователь загружен
+      if (isLoadingUser) {
+        toast.error('Ошибка', {
+          description: 'Загрузка данных пользователя...',
+          duration: 3000,
+        });
+        return;
       }
 
-      if (!user) {
-        return (
-          <div className="flex justify-center py-8">
-            <div className="text-center">
-              <p className="text-gray-600">
-                Ошибка загрузки данных пользователя
-              </p>
-            </div>
-          </div>
-        );
+      if (!user?.userId) {
+        toast.error('Ошибка', {
+          description: 'Пользователь не найден. Пожалуйста, войдите в систему.',
+          duration: 3000,
+        });
+        return;
       }
 
-      if (isLoadingPlans) {
-        return (
-          <div className="flex justify-center py-8">
-            <LoadingIndicator />
-          </div>
-        );
+      const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
+      const plan = plans.find(p => p.id === id);
+
+      if (!plan) {
+        throw new Error('План подписки не найден');
       }
 
-      if (plansError) {
-        return (
-          <div className="flex justify-center py-8">
-            <div className="text-center">
-              <p className="text-gray-600">Ошибка загрузки тарифов</p>
-            </div>
-          </div>
-        );
+      setSelectedPlan(plan);
+
+      // Создаем подписку по ID плана (новый упрощенный метод)
+      const subscriptionResult = await createSubscriptionByPlan(plan.id);
+
+
+
+      // Создаем платеж подписки через обновленный API
+      const paymentData = await subscriptionApi.createSubscriptionPayment(
+        subscriptionResult.id,
+        plan.type,
+        plan.id
+      );
+
+      // Обработка результата создания платежа
+      if (paymentData.status === 'success' && !paymentData.paymentUrl) {
+        // Подписка активирована бесплатно
+        toast.success('Подписка активирована!', {
+          description: 'Вы получили бесплатную подписку за приглашение друзей',
+          duration: 4000,
+        });
+        // Обновляем данные подписки
+        // WebSocket или рефетч обновит данные автоматически
+        return;
+      } else if (paymentData.paymentUrl) {
+        // Обычный платеж - перенаправляем на страницу оплаты
+        setPaymentUrl(paymentData.paymentUrl);
+        setIsPaymentModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Ошибка при выборе подписки:', error);
+      toast.error('Ошибка', {
+        description: error instanceof Error ? error.message : 'Ошибка при оформлении подписки',
+        duration: 5000,
+      });
+    }
+  };
+
+
+  const handleClosePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+    setSelectedPlan(null);
+    setPaymentUrl(null);
+  };
+
+  const handlePaymentSuccess = () => {
+    // Обновляем данные подписки после успешной оплаты
+    console.log('Payment success callback triggered');
+    // WebSocket уже обновляет кэш, но можно добавить дополнительную логику
+  };
+
+  const handlePayExistingSubscription = async (subscriptionId: string) => {
+    try {
+      const subscriptionType = userSubscription?.type || 'monthly';
+
+      // Используем paymentUrl из подписки, если он есть
+      if (userSubscription?.paymentUrl) {
+        // Получаем план подписки для отображения
+        const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
+        const plan = plans.find(p => p.type === subscriptionType);
+        setSelectedPlan(plan || null);
+        setPaymentUrl(userSubscription.paymentUrl);
+        setIsPaymentModalOpen(true);
+        return;
       }
 
-      const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
+      // Если paymentUrl нет, создаем новую ссылку на оплату через обновленный API
+      const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
+      const plan = plans.find(p => p.type === subscriptionType);
 
-      if (!subscriptionPlans || subscriptionPlans.length === 0) {
-        return (
-          <div className="flex justify-center py-8">
-            <div className="text-center">
-              <p className="text-gray-600">Планы подписок временно недоступны</p>
-            </div>
-          </div>
-        );
+      if (!plan) {
+        throw new Error('План подписки не найден');
       }
 
+      const paymentData = await subscriptionApi.createSubscriptionPayment(
+        subscriptionId,
+        subscriptionType as 'monthly' | 'yearly',
+        plan.id
+      );
+
+      setSelectedPlan(plan);
+
+      // Обработка результата создания платежа
+      if (paymentData.status === 'success' && !paymentData.paymentUrl) {
+        // Подписка активирована бесплатно
+        toast.success('Подписка активирована!', {
+          description: 'Вы получили бесплатную подписку за приглашение друзей',
+          duration: 4000,
+        });
+        return;
+      } else if (paymentData.paymentUrl) {
+        // Обычный платеж
+        setPaymentUrl(paymentData.paymentUrl);
+        setIsPaymentModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Ошибка при создании ссылки на оплату:', error);
+      // toast.error('Ошибка', {
+      //   description: error instanceof Error ? error.message : 'Ошибка при создании ссылки на оплату',
+      //   duration: 5000,
+      // });
+    }
+  };
+
+  const handleDeleteSubscription = async (subscriptionId: string) => {
+    try {
+      await deleteSubscription(subscriptionId);
+    } catch (error) {
+      console.error('Ошибка при удалении подписки:', error);
+    }
+  };
+
+  // price formatting handled inside SubscriptionPlanCard
+
+  const renderSubscriptionProposeContent = () => {
+    if (isLoadingUser || isLoadingUserSubscription) {
       return (
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Plus className="h-5 w-5 text-orange-500" />
-            <h2 className="text-xl font-semibold text-gray-900">
-              Оформить подписку
-            </h2>
-          </div>
+        <div className="flex justify-center py-8">
+          <LoadingIndicator />
+        </div>
+      );
+    }
 
-          <div className={`grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :
-            subscriptionPlans.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
-              subscriptionPlans.length === 3 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
-                subscriptionPlans.length === 4 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4' :
-                  'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
-            }`}>
-            {subscriptionPlans.map((plan) => (
-              <SubscriptionPlanCard
-                key={plan.id}
-                plan={plan}
-                action={
-                  <Button
-                    size="sm"
-                    className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
-                    onClick={() => handleSelectSubscription(plan.id)}
-                    disabled={isCreatingSubscriptionByPlan}
-                  >
-                    {isCreatingSubscriptionByPlan ? 'Обработка...' : 'Выбрать подписку'}
-                  </Button>
-                }
-              />
-            ))}
+    // if (!user) {
+    //   return (
+    //     <div className="flex justify-center py-8">
+    //       <div className="text-center">
+    //         <p className="text-gray-600">
+    //           Ошибка загрузки данных пользователя
+    //         </p>
+    //       </div>
+    //     </div>
+    //   );
+    // }
+
+    if (isLoadingPlans) {
+      return (
+        <div className="flex justify-center py-8">
+          <LoadingIndicator />
+        </div>
+      );
+    }
+
+    if (plansError) {
+      return (
+        <div className="flex justify-center py-8">
+          <div className="text-center">
+            <p className="text-gray-600">Ошибка загрузки тарифов</p>
           </div>
         </div>
       );
-    };
+    }
 
-    const renderCurrentSubscriptionContent = () => {
-        if (isLoadingUser || isLoadingUserSubscription) {
-            return <div className="flex justify-center py-8">
-            <LoadingIndicator />
+    const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
+
+    if (!subscriptionPlans || subscriptionPlans.length === 0) {
+      return (
+        <div className="flex justify-center py-8">
+          <div className="text-center">
+            <p className="text-gray-600">Планы подписок временно недоступны</p>
+          </div>
         </div>
-        } 
-        
-        if (!userSubscription) {
-            return  <div className="flex justify-center py-8">
-            <div className="text-center">
-                <p className="text-gray-600">Ошибка загрузки данных пользователя</p>
-            </div>
-        </div>
-        }
-   
-        return (
-            <div className="space-y-6">
-            <div className="flex items-center gap-2 mb-6">
-                <CreditCard className="h-5 w-5 text-orange-500" />
-                <h2 className="text-xl font-semibold text-gray-900">Текущая подписка</h2>
-            </div>
-            <UserSubscriptionCard
-                userSubscription={userSubscription}
-                onPay={handlePayExistingSubscription}
-                onDelete={handleDeleteSubscription}
-                />
-        </div>
-        )
+      );
     }
 
     return (
-        <div className="min-h-screen ">
-            <main className="container mx-auto px-4 py-4 sm:py-8">
-                <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
-                    {/* Хлебные крошки */}
-                    <div className="flex flex-col gap-[20px] bg-white rounded-[32px] p-[16px] md:p-[36px]">
-                        <nav className="flex items-center space-x-2 text-sm text-gray-500">
-                            <button
-                                onClick={() => navigate('/dashboard')}
-                                className="hover:text-gray-700 transition-colors cursor-pointer"
-                            >
-                                Личный кабинет
-                            </button>
-                            <ChevronRight className="h-4 w-4" />
-                            <span className="text-gray-900 font-medium">Мои подписки</span>
-                        </nav>
-
-                        {/* Заголовок и описание */}
-                        <div className="space-y-2">
-                            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
-                                Мои подписки
-                            </h1>
-                            <p className="text-lg text-gray-600">
-                                У вас может быть только одна активная подписка
-                            </p>
-                        </div>
-                    </div>
-
-                    {userSubscription?.status === SubscriptionStatus.ACTIVE ? null :  <div className="bg-white rounded-[32px] p-[18px] md:p-[36px]">
-                        {renderSubscriptionProposeContent()}
-                    </div> }
-                   
-                    <div className="bg-white rounded-[32px] p-[18px] md:p-[36px]">
-                        {renderCurrentSubscriptionContent()}
-                    </div>
-                </div>
-            </main>
-
-            <PaymentModal
-                isOpen={isPaymentModalOpen}
-                onClose={handleClosePaymentModal}
-                subscriptionType={selectedPlan?.type as 'monthly' | 'yearly' | null}
-                paymentUrl={paymentUrl}
-                onPaymentSuccess={handlePaymentSuccess}
-            />
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Plus className="h-5 w-5 text-orange-500" />
+          <h2 className="text-xl font-semibold text-gray-900">
+            Оформить подписку
+          </h2>
         </div>
+
+        <div className={`grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :
+          subscriptionPlans.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+            subscriptionPlans.length === 3 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
+              subscriptionPlans.length === 4 ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4' :
+                'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5'
+          }`}>
+          {subscriptionPlans.map((plan) => (
+            <SubscriptionPlanCard
+              key={plan.id}
+              plan={plan}
+              action={
+                <Button
+                  size="sm"
+                  className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
+                  onClick={() => handleSelectSubscription(plan.id)}
+                  disabled={isCreatingSubscriptionByPlan}
+                >
+                  {isCreatingSubscriptionByPlan ? 'Обработка...' : 'Оформить'}
+                </Button>
+              }
+            />
+          ))}
+        </div>
+      </div>
     );
+  };
+
+  const renderCurrentSubscriptionContent = () => {
+    if (isLoadingUser || isLoadingUserSubscription) {
+      return <div className="flex justify-center py-8">
+        <LoadingIndicator />
+      </div>
+    }
+
+    if (!userSubscription) {
+      return <div className="flex justify-center py-8">
+        <div className="text-center">
+          <p className="text-gray-600">У вас нет активной подписки</p>
+        </div>
+      </div>
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 mb-6">
+          <CreditCard className="h-5 w-5 text-orange-500" />
+          <h2 className="text-xl font-semibold text-gray-900">Текущая подписка</h2>
+        </div>
+        <UserSubscriptionCard
+          userSubscription={userSubscription}
+          onPay={handlePayExistingSubscription}
+          onDelete={handleDeleteSubscription}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen ">
+      <main className="container mx-auto px-4 py-4 sm:py-8">
+        <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+          {/* Хлебные крошки */}
+          <div className="flex flex-col gap-[20px] bg-white rounded-[32px] p-[16px] md:p-[36px]">
+            <nav className="flex items-center space-x-2 text-sm text-gray-500">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="hover:text-gray-700 transition-colors cursor-pointer"
+              >
+                Личный кабинет
+              </button>
+              <ChevronRight className="h-4 w-4" />
+              <span className="text-gray-900 font-medium">Мои подписки</span>
+            </nav>
+
+            {/* Заголовок и описание */}
+            <div className="space-y-2">
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                Мои подписки
+              </h1>
+              <p className="text-lg text-gray-600">
+                У вас может быть только одна активная подписка
+              </p>
+            </div>
+          </div>
+
+          {userSubscription?.status === SubscriptionStatus.ACTIVE ? null : <div className="bg-white rounded-[32px] p-[18px] md:p-[36px]">
+            {renderSubscriptionProposeContent()}
+          </div>}
+
+          <div className="bg-white rounded-[32px] p-[18px] md:p-[36px]">
+            {renderCurrentSubscriptionContent()}
+          </div>
+        </div>
+      </main>
+
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={handleClosePaymentModal}
+        subscriptionType={selectedPlan?.type as 'monthly' | 'yearly' | null}
+        paymentUrl={paymentUrl}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
+    </div>
+  );
 };

@@ -120,10 +120,54 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
     <script>
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      (function() {
+        const RELOAD_KEY = 'app-hard-reload-done';
+        const urlParams = new URLSearchParams(window.location.search);
+        const isReload = urlParams.has('reload');
+        
+        // Устанавливаем высоту viewport
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+        
+        // Если это уже reload - не делаем повторный reload
+        if (isReload) {
+          // Удаляем параметр reload из URL
+          const newUrl = window.location.pathname + (window.location.hash || '');
+          window.history.replaceState({}, '', newUrl);
+          return;
+        }
+        
+        // Проверяем, был ли уже hard reload в этой сессии
+        const reloadDone = sessionStorage.getItem(RELOAD_KEY);
+        
+        if (!reloadDone) {
+          // Помечаем, что reload будет сделан
+          sessionStorage.setItem(RELOAD_KEY, 'true');
+          
+          // Делаем hard reload после загрузки страницы
+          window.addEventListener('load', function() {
+            setTimeout(function() {
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for(let registration of registrations) {
+                    registration.update();
+                  }
+                  // Делаем hard reload с параметром для обхода кэша
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('reload', Date.now().toString());
+                  window.location.href = url.toString();
+                });
+              } else {
+                const url = new URL(window.location.href);
+                url.searchParams.set('reload', Date.now().toString());
+                window.location.href = url.toString();
+              }
+            }, 50);
+          });
+        }
+      })();
     </script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

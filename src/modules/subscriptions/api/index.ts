@@ -25,14 +25,18 @@ export const subscriptionApi = {
   getUserSubscriptionByUserId: async (
     userId: string
   ): Promise<UserSubscription | null> => {
-    const response = await axiosInstance.get<{ subscriptions: UserSubscription[] }>(`/subscriptions?userId=${userId}`);
+    const response = await axiosInstance.get<{
+      subscriptions: UserSubscription[];
+    }>(`/subscriptions?userId=${userId}`);
     const data = response.data;
     // Если есть подписки, возвращаем первую (у пользователя может быть только одна)
 
     if (!data.subscriptions || data.subscriptions.length === 0) {
       return null;
     }
-    const activeSubscription = data.subscriptions.find((subscrip) => subscrip.status === SubscriptionStatus.ACTIVE);
+    const activeSubscription = data.subscriptions.find(
+      (subscrip) => subscrip.status === SubscriptionStatus.ACTIVE
+    );
     return activeSubscription ? activeSubscription : data.subscriptions[0];
   },
 
@@ -40,7 +44,6 @@ export const subscriptionApi = {
   createSubscriptionByPlan: async (
     planId: string
   ): Promise<CreateSubscriptionResponse> => {
-    console.log("API createSubscriptionByPlan request data:", { planId });
     const response = await axiosInstance.post("/subscriptions/by-plan", {
       planId,
     });
@@ -51,7 +54,6 @@ export const subscriptionApi = {
   createSubscription: async (
     data: CreateSubscriptionRequest
   ): Promise<CreateSubscriptionResponse> => {
-    console.log("API createSubscription request data:", data);
     const response = await axiosInstance.post("/subscriptions", data);
     return response.data;
   },
@@ -62,11 +64,6 @@ export const subscriptionApi = {
     subscriptionType: "monthly" | "yearly",
     planId: string
   ): Promise<PaymentLinkResponse> => {
-    console.log("API createSubscriptionPayment request data:", {
-      subscriptionId,
-      subscriptionType,
-      planId,
-    });
     const response = await axiosInstance.post("/subscriptions/payment/create", {
       subscriptionId,
       subscriptionType,
@@ -125,7 +122,9 @@ export const subscriptionApi = {
 
   // Получить планы подписок с ценами для авторизованных пользователей
   getSubscriptionPlansWithPrices: async (): Promise<SubscriptionPlan[]> => {
-    const response = await axiosInstance.get("/subscription-plans/client/with-prices");
+    const response = await axiosInstance.get(
+      "/subscription-plans/client/with-prices"
+    );
     return response.data;
   },
 

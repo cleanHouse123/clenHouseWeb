@@ -47,14 +47,14 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
     };
 
     const link = window.location.origin;
-    const referralLink = `${link}?adToken=${user.adToken?.token}`;
+    const referralLink = `https://выносмусора.рф/?adToken=${user.adToken?.token}`;
     const handleGenerateReferralLink = () => {
         createReferralLink();
     };
 
     const handleCopyReferralLink = () => {
         navigator.clipboard.writeText(referralLink);
-        toast.success('Referral Link copied to clipboard');
+        toast.success('Ссылка скопирована в буфер обмена');
     };
 
     return (

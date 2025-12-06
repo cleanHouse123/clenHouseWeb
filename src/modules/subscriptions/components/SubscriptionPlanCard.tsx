@@ -16,13 +16,13 @@ function formatRubles(kopecks: number) {
 
 export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, action, className = '' }) => {
     // Определяем финальную цену для отображения
-    const displayPrice = plan.finalPriceInRubles !== undefined 
-        ? plan.finalPriceInRubles 
+    const displayPrice = plan.finalPriceInRubles !== undefined
+        ? plan.finalPriceInRubles
         : (plan.priceInRubles !== undefined ? plan.priceInRubles : formatRubles(plan.priceInKopecks));
-    
+
     const isFree = plan.isEligibleForFree && displayPrice === 0;
-    const basePrice = plan.priceInRubles !== undefined 
-        ? plan.priceInRubles 
+    const basePrice = plan.priceInRubles !== undefined
+        ? plan.priceInRubles
         : formatRubles(plan.priceInKopecks);
 
     return (
