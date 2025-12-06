@@ -11,6 +11,7 @@ import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 import { useSearchParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { SubscriptionPlanCard } from '@/modules/subscriptions/components/SubscriptionPlanCard';
+import { toast } from 'sonner';
 
 
 // price formatting handled inside SubscriptionPlanCard
@@ -18,7 +19,7 @@ import { SubscriptionPlanCard } from '@/modules/subscriptions/components/Subscri
 export const SubscriptionPlansSection: React.FC = () => {
   const { data: plans, isLoading, error } = useSubscriptionPlans();
   const subscriptionPlans = plans as SubscriptionPlan[] | undefined;
-  const { data: user } = useGetMe();
+  const { data: user, isLoading: isLoadingUser } = useGetMe();
   const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscription } = useCreateSubscriptionByPlan();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -29,6 +30,15 @@ export const SubscriptionPlansSection: React.FC = () => {
 
   const handleSubscribe = useCallback(async (plan: SubscriptionPlan) => {
     try {
+      // Проверяем загрузку пользователя
+      if (isLoadingUser) {
+        toast.error('Ошибка', {
+          description: 'Загрузка данных пользователя...',
+          duration: 3000,
+        });
+        return;
+      }
+
       // Проверяем авторизацию
       if (!user) {
         // Добавляем параметр subscriptionType в URL
@@ -51,8 +61,21 @@ export const SubscriptionPlansSection: React.FC = () => {
         plan
       );
 
-      setPaymentUrl(paymentData.paymentUrl);
-      setIsPaymentModalOpen(true);
+      // Обработка результата создания платежа
+      if (paymentData.status === 'success' && !paymentData.paymentUrl) {
+        // Подписка активирована бесплатно
+        toast.success('Подписка активирована!', {
+          description: 'Вы получили бесплатную подписку за приглашение друзей',
+          duration: 4000,
+        });
+        // Обновляем данные подписки
+        // WebSocket или рефетч обновит данные автоматически
+        return;
+      } else if (paymentData.paymentUrl) {
+        // Обычный платеж - перенаправляем на страницу оплаты
+        setPaymentUrl(paymentData.paymentUrl);
+        setIsPaymentModalOpen(true);
+      }
     } catch (error) {
       console.error('Ошибка при оформлении подписки:', error);
       
@@ -61,7 +84,7 @@ export const SubscriptionPlansSection: React.FC = () => {
         console.error('API Error:', errorMessage);
       }
     }
-  }, [user, searchParams, setSearchParams, createSubscriptionByPlan]);
+  }, [user, isLoadingUser, searchParams, setSearchParams, createSubscriptionByPlan]);
 
   const handleClosePaymentModal = () => {
     setIsPaymentModalOpen(false);
@@ -185,6 +208,10 @@ export const SubscriptionPlansSection: React.FC = () => {
           onClose={handleClosePaymentModal}
           subscriptionType={selectedPlan.type as 'monthly' | 'yearly'}
           paymentUrl={paymentUrl}
+          onPaymentSuccess={() => {
+            // Обновляем данные после успешной оплаты
+            handleClosePaymentModal();
+          }}
         />
       )}
 

@@ -53,13 +53,13 @@ export interface PaymentLinkRequest {
   subscriptionId: string;
   planId: string;
   subscriptionType: "monthly" | "yearly";
-  amount: number; // В копейках
+  // amount больше не нужен - цена вычисляется на сервере
 }
 
 export interface PaymentLinkResponse {
-  paymentUrl: string;
+  paymentUrl: string | null; // может быть null для бесплатных подписок
   paymentId: string;
-  status: "pending";
+  status: "pending" | "success"; // может быть 'success' для бесплатных подписок
 }
 
 export interface SimulatePaymentRequest {
@@ -103,6 +103,7 @@ export interface SubscriptionPlan {
   name: string;
   description: string;
   priceInKopecks: number;
+  priceInRubles?: number; // цена в рублях (опционально, для обратной совместимости)
   duration: string;
   features: string[];
   icon: string;
@@ -112,6 +113,12 @@ export interface SubscriptionPlan {
   usedOrders?: number; // количество использованных заказов
   createdAt: string;
   updatedAt: string;
+  // Новые поля для планов с ценами (для авторизованных пользователей)
+  finalPriceInKopecks?: number; // Финальная цена для пользователя в копейках
+  finalPriceInRubles?: number; // Финальная цена для пользователя в рублях
+  isEligibleForFree?: boolean; // Есть ли право на бесплатную подписку
+  referralCount?: number; // Количество приглашенных
+  hasUsedFreeSubscription?: boolean; // Использовал ли уже бесплатную подписку
 }
 
 export interface CreateSubscriptionPlanDto {

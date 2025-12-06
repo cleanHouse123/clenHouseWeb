@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, CreditCard, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import {
     useUserSubscription,
@@ -31,9 +32,26 @@ export const SubscriptionsPage = () => {
 
     usePaymentWebSocket();
 
-    const handleSelectSubscription = async (id: string, priceInKopecks: number) => {
+    const handleSelectSubscription = async (id: string) => {
         try {
-            const plans = await subscriptionApi.getSubscriptionPlans();
+            // Проверяем, что пользователь загружен
+            if (isLoadingUser) {
+                toast.error('Ошибка', {
+                    description: 'Загрузка данных пользователя...',
+                    duration: 3000,
+                });
+                return;
+            }
+
+            if (!user?.userId) {
+                toast.error('Ошибка', {
+                    description: 'Пользователь не найден. Пожалуйста, войдите в систему.',
+                    duration: 3000,
+                });
+                return;
+            }
+
+            const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
             const plan = plans.find(p => p.id === id);
 
             if (!plan) {
@@ -51,17 +69,32 @@ export const SubscriptionsPage = () => {
             const paymentData = await subscriptionApi.createSubscriptionPayment(
                 subscriptionResult.id,
                 plan.type,
-                plan.id,
-                priceInKopecks
+                plan.id
             );
 
             console.log('Payment link created:', paymentData);
-            setPaymentUrl(paymentData.paymentUrl);
 
-            // Открываем модальное окно оплаты
-            setIsPaymentModalOpen(true);
+            // Обработка результата создания платежа
+            if (paymentData.status === 'success' && !paymentData.paymentUrl) {
+                // Подписка активирована бесплатно
+                toast.success('Подписка активирована!', {
+                    description: 'Вы получили бесплатную подписку за приглашение друзей',
+                    duration: 4000,
+                });
+                // Обновляем данные подписки
+                // WebSocket или рефетч обновит данные автоматически
+                return;
+            } else if (paymentData.paymentUrl) {
+                // Обычный платеж - перенаправляем на страницу оплаты
+                setPaymentUrl(paymentData.paymentUrl);
+                setIsPaymentModalOpen(true);
+            }
         } catch (error) {
             console.error('Ошибка при выборе подписки:', error);
+            toast.error('Ошибка', {
+                description: error instanceof Error ? error.message : 'Ошибка при оформлении подписки',
+                duration: 5000,
+            });
         }
     };
 
@@ -81,12 +114,11 @@ export const SubscriptionsPage = () => {
     const handlePayExistingSubscription = async (subscriptionId: string) => {
         try {
             const subscriptionType = userSubscription?.type || 'monthly';
-            const amount = userSubscription?.price || 0;
 
             // Используем paymentUrl из подписки, если он есть
             if (userSubscription?.paymentUrl) {
                 // Получаем план подписки для отображения
-                const plans = await subscriptionApi.getSubscriptionPlans();
+                const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
                 const plan = plans.find(p => p.type === subscriptionType);
                 setSelectedPlan(plan || null);
                 setPaymentUrl(userSubscription.paymentUrl);
@@ -95,7 +127,7 @@ export const SubscriptionsPage = () => {
             }
 
             // Если paymentUrl нет, создаем новую ссылку на оплату через обновленный API
-            const plans = await subscriptionApi.getSubscriptionPlans();
+            const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
             const plan = plans.find(p => p.type === subscriptionType);
 
             if (!plan) {
@@ -105,17 +137,30 @@ export const SubscriptionsPage = () => {
             const paymentData = await subscriptionApi.createSubscriptionPayment(
                 subscriptionId,
                 subscriptionType as 'monthly' | 'yearly',
-                plan.id,
-                amount
+                plan.id
             );
 
             setSelectedPlan(plan);
-            setPaymentUrl(paymentData.paymentUrl);
 
-            // Открываем модальное окно оплаты
-            setIsPaymentModalOpen(true);
+            // Обработка результата создания платежа
+            if (paymentData.status === 'success' && !paymentData.paymentUrl) {
+                // Подписка активирована бесплатно
+                toast.success('Подписка активирована!', {
+                    description: 'Вы получили бесплатную подписку за приглашение друзей',
+                    duration: 4000,
+                });
+                return;
+            } else if (paymentData.paymentUrl) {
+                // Обычный платеж
+                setPaymentUrl(paymentData.paymentUrl);
+                setIsPaymentModalOpen(true);
+            }
         } catch (error) {
             console.error('Ошибка при создании ссылки на оплату:', error);
+            toast.error('Ошибка', {
+                description: error instanceof Error ? error.message : 'Ошибка при создании ссылки на оплату',
+                duration: 5000,
+            });
         }
     };
 
@@ -203,7 +248,7 @@ export const SubscriptionsPage = () => {
                   <Button
                     size="sm"
                     className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
-                    onClick={() => handleSelectSubscription(plan.id, plan.priceInKopecks)}
+                    onClick={() => handleSelectSubscription(plan.id)}
                     disabled={isCreatingSubscriptionByPlan}
                   >
                     {isCreatingSubscriptionByPlan ? 'Обработка...' : 'Выбрать подписку'}

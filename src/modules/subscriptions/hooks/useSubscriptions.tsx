@@ -4,12 +4,18 @@ import { useGetMe } from "@/modules/auth/hooks/useGetMe";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
 import { createUTCDate, createUTCDateWithMonths, createUTCDateWithYears } from "@/core/utils/dateUtils";
+import { User } from "@/core/types/user";
 
 
 export const useSubscriptionPlans = () => {
+    const { data: user } = useGetMe();
+    const isAuthenticated = !!user;
+
     return useQuery({
-        queryKey: ["subscription-plans"],
-        queryFn: () => subscriptionApi.getSubscriptionPlans(),
+        queryKey: ["subscription-plans", isAuthenticated ? "with-prices" : "public"],
+        queryFn: () => isAuthenticated 
+            ? subscriptionApi.getSubscriptionPlansWithPrices() 
+            : subscriptionApi.getSubscriptionPlans(),
     });
 };
 
@@ -101,15 +107,28 @@ export const useCreateSubscription = () => {
 
 export const useCreateSubscriptionByPlan = () => {
     const queryClient = useQueryClient();
-    const { data: user } = useGetMe();
+    const { data: user, isLoading: isLoadingUser } = useGetMe();
 
     return useMutation({
-        mutationFn: (planId: string) => {
-            if (!user?.userId) {
-                throw new Error('Пользователь не найден');
+        mutationFn: async (planId: string) => {
+            // Проверяем, загружается ли пользователь
+            if (isLoadingUser) {
+                throw new Error('Загрузка данных пользователя...');
             }
 
-            console.log('Creating subscription by plan:', { planId });
+            // Получаем актуальные данные пользователя из кэша, если они еще не загружены
+            let currentUser = user;
+            if (!currentUser) {
+                const cachedUser = queryClient.getQueryData<User>(['me']);
+                currentUser = cachedUser || undefined;
+            }
+
+            // Если пользователь все еще не найден
+            if (!currentUser?.userId) {
+                throw new Error('Пользователь не найден. Пожалуйста, войдите в систему.');
+            }
+
+            console.log('Creating subscription by plan:', { planId, userId: currentUser.userId });
             return subscriptionApi.createSubscriptionByPlan(planId);
         },
         onSuccess: () => {
@@ -118,7 +137,10 @@ export const useCreateSubscriptionByPlan = () => {
                 duration: 4000,
             });
             // Обновляем подписку пользователя
-            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
+            // Используем широкий ключ, чтобы обновить все подписки пользователя
+            queryClient.invalidateQueries({ queryKey: ['user-subscription'] });
+            // Также обновляем данные пользователя на случай, если они изменились
+            queryClient.invalidateQueries({ queryKey: ['me'] });
         },
         onError: (error: Error) => {
             console.error('Subscription creation by plan error:', error);
@@ -143,18 +165,25 @@ export const useCreateSubscriptionByPlan = () => {
 
 export const useCreatePaymentLink = () => {
     return useMutation({
-        mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; planId: string; amount: number }) =>
+        mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; planId: string }) =>
             subscriptionApi.createSubscriptionPayment(
                 data.subscriptionId,
                 data.subscriptionType,
-                data.planId,
-                data.amount
+                data.planId
             ),
-        onSuccess: () => {
-            toast.success('Ссылка на оплату создана!', {
-                description: 'Перенаправляем на страницу оплаты...',
-                duration: 4000,
-            });
+        onSuccess: (response) => {
+            // Если подписка активирована бесплатно
+            if (response.status === 'success' && !response.paymentUrl) {
+                toast.success('Подписка активирована!', {
+                    description: 'Вы получили бесплатную подписку за приглашение друзей',
+                    duration: 4000,
+                });
+            } else if (response.paymentUrl) {
+                toast.success('Ссылка на оплату создана!', {
+                    description: 'Перенаправляем на страницу оплаты...',
+                    duration: 4000,
+                });
+            }
         },
         onError: (error: Error) => {
             const errorMessage = isAxiosError(error) ? error.response?.data?.message || 'Ошибка создания ссылки на оплату' : 'Ошибка создания ссылки на оплату';

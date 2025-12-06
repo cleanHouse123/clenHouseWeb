@@ -44,6 +44,7 @@ export const authApi = {
     const response = await axiosInstance.get("/auth/me");
     return {
       ...response.data.user,
+      userId: response.data.user.id,
       adToken: response.data.adToken,
     };
   },

@@ -47,7 +47,7 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
     };
 
     const link = window.location.origin;
-    const referralLink = `${link}?referral=${user.adToken?.token}`;
+    const referralLink = `${link}?adToken=${user.adToken?.token}`;
     const handleGenerateReferralLink = () => {
         createReferralLink();
     };

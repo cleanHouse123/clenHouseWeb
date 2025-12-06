@@ -76,8 +76,8 @@ export const PaymentModal = ({
         window.location.href = paymentUrl;
     };
 
-    // Если нет типа подписки, не рендерим модальное окно
-    if (!subscriptionType) return null;
+    // Если нет типа подписки или paymentUrl равен null (бесплатная подписка), не рендерим модальное окно
+    if (!subscriptionType || !paymentUrl) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>

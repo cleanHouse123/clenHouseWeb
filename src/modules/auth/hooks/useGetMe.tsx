@@ -13,6 +13,7 @@ export const useGetMe = () => {
         gcTime: 10 * 60 * 1000, // 10 минут - время хранения в кэше
         refetchOnWindowFocus: false, // не перезагружать при фокусе окна
         refetchOnMount: false, // не перезагружать при монтировании
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         retry: (failureCount, error: any) => {
             // Не повторять запрос при 401 ошибке (неавторизован)
             if (error?.response?.status === 401) {
