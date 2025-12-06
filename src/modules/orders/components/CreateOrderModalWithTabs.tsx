@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -101,13 +101,14 @@ export const CreateOrderModalWithTabs = ({
             scheduledDate: undefined,
             scheduledTime: '',
             notes: '',
-            paymentMethod: userSubscription?.status === 'active' ? 'subscription' : 'online',
+            paymentMethod: 'online',
         },
     });
 
+    useEffect(() => {
+        form.setValue('paymentMethod', userSubscription?.status === 'active' ? 'subscription' : 'online');
+    }, [userSubscription]);
     const handleSubmit = (data: CreateOrderFormData) => {
-        console.log('Form data received:', data);
-        console.log('Selected address:', selectedAddress);
 
         // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
         const year = data.scheduledDate.getFullYear();
@@ -149,7 +150,7 @@ export const CreateOrderModalWithTabs = ({
             coordinates,
         };
 
-        console.log('Final order data:', orderData);
+
 
         onSubmit(orderData);
 
@@ -182,18 +183,18 @@ export const CreateOrderModalWithTabs = ({
 
     const hasActiveSubscription = userSubscription?.status === 'active';
 
-    const paymentMethodOptions =  [
+    const paymentMethodOptions = [
         { value: 'online', label: 'Оплата онлайн', icon: '💳' },
     ]
 
     // Tabs config removed
-  
+
     if (hasActiveSubscription) {
         const isUnlimited = userSubscription?.ordersLimit === -1;
-        const remainingOrders = isUnlimited 
-            ? null 
+        const remainingOrders = isUnlimited
+            ? null
             : (userSubscription?.ordersLimit || 0) - (userSubscription?.usedOrders || 0);
-        const subscriptionLabel = isUnlimited 
+        const subscriptionLabel = isUnlimited
             ? 'По подписке: безлимит'
             : `По подписке: осталось ${remainingOrders} заказов`;
         paymentMethodOptions.push({ value: 'subscription', label: subscriptionLabel, icon: '📋' });
@@ -225,174 +226,79 @@ export const CreateOrderModalWithTabs = ({
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6 pr-8 pb-4 mb-4 custom-scrollbar">
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                                {/* Subscription Status */}
-                                {hasActiveSubscription && (
-                                    <div className="flex items-center gap-2 text-sm text-green-600 mb-2">
-                                        <CheckCircle className="h-4 w-4" />
-                                        <span>У вас активная подписка</span>
-                                    </div>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                            {/* Subscription Status */}
+                            {hasActiveSubscription && (
+                                <div className="flex items-center gap-2 text-sm text-green-600 mb-2">
+                                    <CheckCircle className="h-4 w-4" />
+                                    <span>У вас активная подписка</span>
+                                </div>
+                            )}
+
+                            {/* Address */}
+                            <FormField
+                                control={form.control}
+                                name="address"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="flex items-center gap-2">
+                                            <MapPin className="h-4 w-4" />
+                                            Адрес
+                                        </FormLabel>
+                                        <FormControl>
+                                            <AutocompleteAddress
+                                                value={field.value}
+                                                onChange={(value) => {
+                                                    console.log('Address onChange:', value);
+                                                    // Если адрес изменился вручную, очищаем selectedAddress
+                                                    // чтобы координаты не передавались для вручную введенных адресов
+                                                    if (selectedAddress && selectedAddress.display !== value) {
+                                                        console.log('Address changed manually, clearing selected address');
+                                                        setSelectedAddress(null);
+                                                    }
+                                                    field.onChange(value);
+                                                }}
+                                                onAddressSelect={handleAddressSelect}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
+                            />
 
-                                {/* Address */}
+                            {/* Address Details */}
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                 <FormField
                                     control={form.control}
-                                    name="address"
+                                    name="building"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="flex items-center gap-2">
-                                                <MapPin className="h-4 w-4" />
-                                                Адрес
-                                            </FormLabel>
+                                            <FormLabel>Дом</FormLabel>
                                             <FormControl>
-                                                <AutocompleteAddress
-                                                    value={field.value}
-                                                    onChange={(value) => {
-                                                        console.log('Address onChange:', value);
-                                                        // Если адрес изменился вручную, очищаем selectedAddress
-                                                        // чтобы координаты не передавались для вручную введенных адресов
-                                                        if (selectedAddress && selectedAddress.display !== value) {
-                                                            console.log('Address changed manually, clearing selected address');
-                                                            setSelectedAddress(null);
-                                                        }
-                                                        field.onChange(value);
-                                                    }}
-                                                    onAddressSelect={handleAddressSelect}
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Дом"
+                                                    className="w-full rounded-lg"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
                                                 />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-
-                                {/* Address Details */}
-                                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="building"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Дом</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="Дом"
-                                                        className="w-full rounded-lg"
-                                                        {...field}
-                                                        value={field.value || ''}
-                                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="buildingBlock"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Корпус</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Корпус"
-                                                        className="w-full rounded-lg"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="entrance"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Подъезд</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Подъезд"
-                                                        className="w-full rounded-lg"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="floor"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Этаж</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="Этаж"
-                                                        className="w-full rounded-lg"
-                                                        {...field}
-                                                        value={field.value || ''}
-                                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="apartment"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Квартира</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="Квартира"
-                                                        className="w-full rounded-lg"
-                                                        {...field}
-                                                        value={field.value || ''}
-                                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="domophone"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Домофон</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder="Домофон"
-                                                        className="w-full rounded-lg"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                {/* Description */}
                                 <FormField
                                     control={form.control}
-                                    name="description"
+                                    name="buildingBlock"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Описание заказа</FormLabel>
+                                            <FormLabel>Корпус</FormLabel>
                                             <FormControl>
-                                                <Textarea
-                                                    placeholder="Опишите, что нужно сделать"
-                                                    className="resize-none"
-                                                    rows={3}
+                                                <Input
+                                                    placeholder="Корпус"
+                                                    className="w-full rounded-lg"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -400,132 +306,229 @@ export const CreateOrderModalWithTabs = ({
                                         </FormItem>
                                     )}
                                 />
-
-                                {/* Scheduled Date */}
                                 <FormField
                                     control={form.control}
-                                    name="scheduledDate"
+                                    name="entrance"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Дата выполнения</FormLabel>
-                                            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <button
-                                                            type="button"
-                                                            className={cn(
-                                                                "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-left",
-                                                                !field.value && "text-muted-foreground"
+                                        <FormItem>
+                                            <FormLabel>Подъезд</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Подъезд"
+                                                    className="w-full rounded-lg"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="floor"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Этаж</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Этаж"
+                                                    className="w-full rounded-lg"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="apartment"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Квартира</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Квартира"
+                                                    className="w-full rounded-lg"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="domophone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Домофон</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Домофон"
+                                                    className="w-full rounded-lg"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Description */}
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Описание заказа</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Опишите, что нужно сделать"
+                                                className="resize-none"
+                                                rows={3}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Scheduled Date */}
+                            <FormField
+                                control={form.control}
+                                name="scheduledDate"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>Дата выполнения</FormLabel>
+                                        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                                            <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <button
+                                                        type="button"
+                                                        className={cn(
+                                                            "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-left",
+                                                            !field.value && "text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        <span className="line-clamp-1">
+                                                            {field.value ? (
+                                                                format(field.value, "PPP", { locale: ru })
+                                                            ) : (
+                                                                "Выберите дату"
                                                             )}
-                                                        >
-                                                            <span className="line-clamp-1">
-                                                                {field.value ? (
-                                                                    format(field.value, "PPP", { locale: ru })
-                                                                ) : (
-                                                                    "Выберите дату"
-                                                                )}
-                                                            </span>
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50 flex-shrink-0" />
-                                                        </button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={(date) => {
-                                                            field.onChange(date);
-                                                            setCalendarOpen(false);
-                                                        }}
-                                                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Scheduled Time */}
-                                <FormField
-                                    control={form.control}
-                                    name="scheduledTime"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Время выполнения</FormLabel>
-                                            <FormControl>
-                                                <TimePicker
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    placeholder="Выберите время"
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Notes */}
-                                <FormField
-                                    control={form.control}
-                                    name="notes"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Дополнительные заметки</FormLabel>
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder="Дополнительная информация"
-                                                    className="resize-none"
-                                                    rows={2}
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Payment Method */}
-                                <FormField
-                                    control={form.control}
-                                    name="paymentMethod"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="flex items-center gap-2">
-                                                <CreditCard className="h-4 w-4" />
-                                                Способ оплаты
-                                            </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Выберите способ оплаты" />
-                                                    </SelectTrigger>
+                                                        </span>
+                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50 flex-shrink-0" />
+                                                    </button>
                                                 </FormControl>
-                                                <SelectContent>
-                                                    {paymentMethodOptions.map((option) => (
-                                                        <SelectItem key={option.value} value={option.value}>
-                                                            <div className="flex items-center gap-2">
-                                                                <span>{option.icon}</span>
-                                                                <span>{option.label}</span>
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={field.value}
+                                                    onSelect={(date) => {
+                                                        field.onChange(date);
+                                                        setCalendarOpen(false);
+                                                    }}
+                                                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                                {/* Submit Button */}
-                                <div className="flex justify-end pt-4">
-                                    <Button type="submit" disabled={isLoading} className="min-w-[120px]">
-                                        {isLoading ? 'Создание...' : 'Создать заказ'}
-                                    </Button>
-                                </div>
-                            </form>
-                        </Form>
+                            {/* Scheduled Time */}
+                            <FormField
+                                control={form.control}
+                                name="scheduledTime"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Время выполнения</FormLabel>
+                                        <FormControl>
+                                            <TimePicker
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Выберите время"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Notes */}
+                            <FormField
+                                control={form.control}
+                                name="notes"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Дополнительные заметки</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Дополнительная информация"
+                                                className="resize-none"
+                                                rows={2}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Payment Method */}
+                            <FormField
+                                control={form.control}
+                                name="paymentMethod"
+                                render={({ field }) => {
+                                    console.log('paymentMethodOptions', paymentMethodOptions);
+                                    console.log('field.value', field.value);
+                                    return <FormItem>
+                                        <FormLabel className="flex items-center gap-2">
+                                            <CreditCard className="h-4 w-4" />
+                                            Способ оплаты
+                                        </FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Выберите способ оплаты" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {paymentMethodOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        <div className="flex items-center gap-2">
+                                                            <span>{option.icon}</span>
+                                                            <span>{option.label}</span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                }}
+                            />
+
+                            {/* Submit Button */}
+                            <div className="flex justify-end pt-4">
+                                <Button type="submit" disabled={isLoading} className="min-w-[120px]">
+                                    {isLoading ? 'Создание...' : 'Создать заказ'}
+                                </Button>
+                            </div>
+                        </form>
+                    </Form>
                 </div>
             </DialogContent>
         </Dialog>
