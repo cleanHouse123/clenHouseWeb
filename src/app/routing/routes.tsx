@@ -13,6 +13,7 @@ const PaymentReturnPage = lazy(() => import("@/pages/payment-return").then(modul
 const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy").then(module => ({ default: module.PrivacyPolicyPage })));
 const TermsOfServicePage = lazy(() => import("@/pages/terms-of-service").then(module => ({ default: module.TermsOfServicePage })));
 const ContactsPage = lazy(() => import("@/pages/contacts").then(module => ({ default: module.ContactsPage })));
+const CouriersPage = lazy(() => import("@/pages/couriers").then(module => ({ default: module.CouriersPage })));
 const SubscriptionsPage = lazy(() => import("@/pages/subscriptions").then(module => ({ default: module.SubscriptionsPage })));
 
 export const router = createBrowserRouter([
@@ -89,6 +90,14 @@ export const router = createBrowserRouter([
     element: (
       <AppLayout>
         <ContactsPage />
+      </AppLayout>
+    ),
+  },
+  {
+    path: "couriers",
+    element: (
+      <AppLayout>
+        <CouriersPage />
       </AppLayout>
     ),
   }

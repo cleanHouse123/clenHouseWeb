@@ -66,6 +66,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
               className="flex flex-col gap-3"
             >
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full w-fit shadow-lg">
+                <span className="text-base sm:text-lg font-bold">Первый заказ</span>
+                <span className="text-2xl sm:text-3xl font-bold">1₽</span>
+              </div>
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl sm:text-4xl font-bold text-orange-500">

@@ -66,9 +66,17 @@ export const Header = () => {
         { key: 'how-it-works', label: 'Как это работает', href: '#how-it-works' },
         { key: 'subscription', label: 'Подписка', href: '#subscription' },
         { key: 'faq', label: 'FAQ', href: '#faq' },
+        { key: 'couriers', label: 'Для курьеров', href: '/couriers' },
     ];
 
     const handleScrollToSection = (href: string) => {
+        // Если это обычная ссылка (не якорь), просто переходим
+        if (href.startsWith('/')) {
+            navigate(href);
+            setIsMobileMenuOpen(false);
+            return;
+        }
+
         const id = href.replace('#', '');
 
         // Проверяем, находимся ли мы на главной странице
