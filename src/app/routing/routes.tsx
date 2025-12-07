@@ -16,8 +16,9 @@ const TermsOfServicePage = lazy(() => import("@/pages/terms-of-service").then(mo
 const ContactsPage = lazy(() => import("@/pages/contacts").then(module => ({ default: module.ContactsPage })));
 const CouriersPage = lazy(() => import("@/pages/couriers").then(module => ({ default: module.CouriersPage })));
 const SubscriptionsPage = lazy(() => import("@/pages/subscriptions").then(module => ({ default: module.SubscriptionsPage })));
+const ErrorTestPage = lazy(() => import("@/pages/error-test").then(module => ({ default: module.ErrorTestPage })));
 
-export const router = createBrowserRouter([
+const routes = [
   {
     path: "/",
     element: <HomePage />,
@@ -112,5 +113,19 @@ export const router = createBrowserRouter([
       </AppLayout>
     ),
     errorElement: <RouterErrorPage />,
-  }
-]);
+  },
+];
+
+if (process.env.NODE_ENV === 'development') {
+  routes.push({
+    path: "error-test",
+    element: (
+      <AppLayout>
+        <ErrorTestPage />
+      </AppLayout>
+    ),
+    errorElement: <RouterErrorPage />,
+  });
+}
+
+export const router = createBrowserRouter(routes);

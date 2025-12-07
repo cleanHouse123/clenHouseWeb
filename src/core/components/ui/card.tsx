@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/core/lib/utils"
 
 const cardVariants = cva(
-    "bg-card text-card-foreground", 
+    "bg-card text-card-foreground",
     {
         variants: {
             radius: {
@@ -47,7 +47,7 @@ const cardVariants = cva(
 
 export interface CardProps
     extends React.HTMLAttributes<HTMLDivElement>,
-        VariantProps<typeof cardVariants> {}
+    VariantProps<typeof cardVariants> { }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
     ({ className, radius, padding, background, bordered, shadow, ...props }, ref) => (
@@ -78,7 +78,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <h3
         ref={ref}
-        className={cn("text-lg font-semibold leading-none tracking-tight text-right", className)}
+        className={cn("text-lg font-semibold leading-none tracking-tight text-center", className)}
         {...props}
     />
 ))
