@@ -5,6 +5,7 @@ import { Header } from "@/core/components/layout/Header";
 import { FooterSection } from "@/core/components/layout/footer";
 import { MainSection } from "./ui/main-section";
 import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
+import { ScrollToTop } from '@/core/components/ScrollToTop';
 
 
 export const HomePage = () => {
@@ -66,6 +67,7 @@ export const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-background px-4 sm:px-8 lg:px-8">
+      <ScrollToTop />
       <Header />
       <MainSection onCallCourier={handleCallCourier} />
       <FooterSection />

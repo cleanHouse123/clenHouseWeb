@@ -128,4 +128,8 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
-export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter(routes, {
+    future: {
+        v7_skipActionErrorRevalidation: true,
+    },
+});
