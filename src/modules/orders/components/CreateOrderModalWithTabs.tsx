@@ -18,6 +18,7 @@ import { cn } from '@/core/lib/utils';
 import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { AddressModal, AddressModalData } from './AddressModal';
+import { useWorkTime } from '@/modules/work-time/hooks/useWorkTime';
 // Tabs removed as only single order form is used now
 // import { Tabs } from '@/core/components/ui/tabs';
 // import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
@@ -68,7 +69,18 @@ export const CreateOrderModalWithTabs = ({
     const [calendarOpen, setCalendarOpen] = useState(false);
     const [addressData, setAddressData] = useState<AddressModalData | null>(null);
     const { data: userSubscription } = useUserSubscription();
+    const { data: workTimes, isLoading: isWorkTimeLoading } = useWorkTime();
+    console.log(workTimes, "workTimes");
+    
+    const latestWorkTime = workTimes?.at(-1);
+    console.log(latestWorkTime, "latestWorkTime");
+    
+    const minTime = latestWorkTime?.startTime;
+    const maxTime = latestWorkTime?.endTime;
 
+    console.log(minTime);
+    console.log(maxTime);
+    
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
     // Hooks для работы с расписаниями (закомментировано, т.к. табы удалены)
@@ -532,6 +544,9 @@ export const CreateOrderModalWithTabs = ({
                                                 value={field.value}
                                                 onChange={field.onChange}
                                                 placeholder="Выберите время"
+                                                minTime={minTime}
+                                                maxTime={maxTime}
+                                                disabled={isLoading || isWorkTimeLoading}
                                             />
                                         </FormControl>
                                         <FormMessage />
