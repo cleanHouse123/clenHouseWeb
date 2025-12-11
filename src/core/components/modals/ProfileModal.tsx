@@ -1,7 +1,7 @@
 import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent } from '@/core/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
-import { formatDateTime } from '@/core/utils/dateUtils';
+import { UserAddressesList } from '@/modules/address/ui/user-adresses';
 import { useCreateRefferalLink } from '@/modules/referral/hooks/useCreateRefferalLink';
 import { ReferralLink } from '@/modules/referral/types';
 import { CheckCircle, Loader2, Mail, Phone, User, UserCircle } from 'lucide-react';
@@ -27,26 +27,7 @@ interface ProfileModalProps {
 const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
 
     const { mutate: createReferralLink, isPending: isCreatingReferralLink } = useCreateRefferalLink();
-    const formatDate = (dateString: string | Date) => {
-        const dateStr = typeof dateString === 'string' ? dateString : dateString.toISOString();
-        return formatDateTime(dateStr);
-    };
 
-    const handleEditProfile = () => {
-        //onClose();
-        //navigate('/profile/edit');
-    };
-
-    const getRoleColor = (role: string) => {
-        switch (role) {
-            case 'customer': return 'bg-blue-100 text-blue-800';
-            case 'currier': return 'bg-green-100 text-green-800';
-            case 'admin': return 'bg-orange-100 text-orange-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const link = window.location.origin;
     const referralLink = `https://выносмусора.рф/?adToken=${user.adToken?.token}`;
     const handleGenerateReferralLink = () => {
         createReferralLink();
@@ -140,34 +121,6 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                         </div>
                     </div>
 
-                    {/* Дополнительная информация */}
-                    {/* <Card radius="r20" padding="lg" background="white" bordered shadow>
-                        <CardContent className="p-0">
-                            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">Дополнительная информация</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Clock className="h-4 w-4" />
-                                        <span>Последний вход</span>
-                                    </div>
-                                    <p className="text-sm font-medium text-foreground">
-                                        {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Неизвестно'}
-                                    </p>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Calendar className="h-4 w-4" />
-                                        <span>Дата регистрации</span>
-                                    </div>
-                                    <p className="text-sm font-medium text-foreground">
-                                        {user.createdAt ? formatDate(user.createdAt) : 'Неизвестно'}
-                                    </p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card> */}
-
                     {
                         user?.adToken ? (
                             <Card radius="r16" padding="md" background="white" bordered shadow>
@@ -192,6 +145,13 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                         )
                     }
 
+                    {/* Адреса пользователя */}
+                    <Card radius="r16" padding="md" background="white" bordered shadow>
+                        <CardContent className="p-0">
+                            <UserAddressesList />
+                        </CardContent>
+                    </Card>
+
                     {/* Действия */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
                         <Button
@@ -201,13 +161,6 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                         >
                             Закрыть
                         </Button>
-                        {/* <Button
-                            onClick={handleEditProfile}
-                            className="w-full sm:w-auto order-1 sm:order-2"
-                        >
-                            <Settings className="h-4 w-4 mr-2" />
-                            Редактировать профиль
-                        </Button> */}
                     </div>
                 </div>
             </DialogContent>

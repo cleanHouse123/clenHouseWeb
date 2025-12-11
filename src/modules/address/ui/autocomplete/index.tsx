@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { ChevronDown } from "lucide-react";
-import { useAddresses } from "../../hooks/useOrders";
+import { useAddresses } from "../../hooks/useAddress";
 import { Address } from "../../types";
 
 interface AutocompleteAddressProps {

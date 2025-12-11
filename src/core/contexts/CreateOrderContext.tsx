@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { CreateOrderModalWithTabs, PaymentIframe } from '@/modules/orders/components';
+import { PaymentIframe } from '@/modules/orders/components';
 import { useCreateOrder, useCreateOrderPayment } from '@/modules/orders/hooks/useOrders';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { OrderFormData } from '@/modules/orders/types';
 import { toast } from 'sonner';
+import { CreateOrderModalWithTabs } from '@/modules/orders/components/CreateOrderModalWithTabs';
 
 interface CreateOrderContextType {
     openCreateOrderModal: () => void;

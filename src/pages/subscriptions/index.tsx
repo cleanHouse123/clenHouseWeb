@@ -17,42 +17,36 @@ import { UserSubscriptionCard } from '@/modules/subscriptions/components/UserSub
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
 import { Button } from '@/core/components/ui/button/button';
 import { SubscriptionPlanCard } from '@/modules/subscriptions/components/SubscriptionPlanCard';
+import { AddressModal, AddressModalData } from '@/modules/orders/components/AddressModal';
+import { useUserAddresses } from '@/modules/address/hooks/useAddress';
 
 export const SubscriptionsPage = () => {
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
 
   const { data: user, isLoading: isLoadingUser } = useGetMe();
   const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
   const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
   const { mutateAsync: deleteSubscription } = useDeleteSubscription();
   const { data: plans, isLoading: isLoadingPlans, error: plansError } = useSubscriptionPlans();
+  const {
+    data: userAddresses,
+    isLoading: isLoadingAddresses,
+    refetch: refetchAddresses,
+  } = useUserAddresses({ enabled: !!user });
 
   usePaymentWebSocket();
 
-  const handleSelectSubscription = async (id: string) => {
+  const hasSupportableAddress = (userAddresses || []).some(
+    (item) => item.isSupportableArea
+  );
 
-
+  const proceedSubscription = async (id: string) => {
     try {
-      // Проверяем, что пользователь загружен
-      if (isLoadingUser) {
-        toast.error('Ошибка', {
-          description: 'Загрузка данных пользователя...',
-          duration: 3000,
-        });
-        return;
-      }
-
-      if (!user?.userId) {
-        toast.error('Ошибка', {
-          description: 'Пользователь не найден. Пожалуйста, войдите в систему.',
-          duration: 3000,
-        });
-        return;
-      }
-
       const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
       const plan = plans.find(p => p.id === id);
 
@@ -62,32 +56,23 @@ export const SubscriptionsPage = () => {
 
       setSelectedPlan(plan);
 
-      // Создаем подписку по ID плана (новый упрощенный метод)
       const subscriptionResult = await createSubscriptionByPlan(plan.id);
 
-
-
-      // Создаем платеж подписки через обновленный API
       const paymentData = await subscriptionApi.createSubscriptionPayment(
         subscriptionResult.id,
         plan.type,
         plan.id
       );
 
-      // Обработка результата создания платежа
       if (paymentData.status === 'success' && !paymentData.paymentUrl) {
-        // Подписка активирована бесплатно
         toast.success('Подписка активирована!', {
           description: 'Вы получили бесплатную подписку за приглашение друзей',
           duration: 4000,
         });
-        // Обновляем данные подписки
-        // WebSocket или рефетч обновит данные автоматически
+        return;
+      }
 
-
-        return
-      } else if (paymentData.paymentUrl) {
-        // Обычный платеж - перенаправляем на страницу оплаты
+      if (paymentData.paymentUrl) {
         setPaymentUrl(paymentData.paymentUrl);
         setIsPaymentModalOpen(true);
       }
@@ -97,6 +82,47 @@ export const SubscriptionsPage = () => {
         description: error instanceof Error ? error.message : 'Ошибка при оформлении подписки',
         duration: 5000,
       });
+    }
+  };
+
+  const handleSelectSubscription = async (id: string) => {
+    if (isLoadingUser) {
+      toast.error('Ошибка', {
+        description: 'Загрузка данных пользователя...',
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (!user?.userId) {
+      toast.error('Ошибка', {
+        description: 'Пользователь не найден. Пожалуйста, войдите в систему.',
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (!isLoadingAddresses && !hasSupportableAddress) {
+      setPendingPlanId(id);
+      setIsAddressModalOpen(true);
+      return;
+    }
+
+    await proceedSubscription(id);
+  };
+
+  const handleAddressModalClose = () => {
+    setIsAddressModalOpen(false);
+    setPendingPlanId(null);
+  };
+
+  const handleAddressModalSubmit = async (_data: AddressModalData) => {
+    await refetchAddresses();
+    setIsAddressModalOpen(false);
+
+    if (pendingPlanId) {
+      await proceedSubscription(pendingPlanId);
+      setPendingPlanId(null);
     }
   };
 
@@ -337,6 +363,12 @@ export const SubscriptionsPage = () => {
         subscriptionType={selectedPlan?.type as 'monthly' | 'yearly' | null}
         paymentUrl={paymentUrl}
         onPaymentSuccess={handlePaymentSuccess}
+      />
+      <AddressModal
+        isOpen={isAddressModalOpen}
+        onClose={handleAddressModalClose}
+        onSubmit={handleAddressModalSubmit}
+        isLoading={isCreatingSubscriptionByPlan}
       />
     </div>
   );

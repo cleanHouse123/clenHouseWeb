@@ -6,20 +6,18 @@ import { Button } from '@/core/components/ui/button/button';
 import { Dialog, DialogContent } from '@/core/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { Textarea } from '@/core/components/ui/inputs/textarea';
-import { Input } from '@/core/components/ui/inputs/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
 import { Calendar } from '@/core/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
 import { TimePicker } from '@/core/components/ui/time-picker';
-import { CalendarIcon, Plus, MapPin, CreditCard, CheckCircle } from 'lucide-react';
+import { CalendarIcon, Plus, MapPin, CreditCard, CheckCircle, Edit2, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { createUTCFromDateTimeInput } from '@/core/utils/dateUtils';
 import { cn } from '@/core/lib/utils';
-import { OrderFormData, AddressDetails } from '../types';
+import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
-import AutocompleteAddress from '@/modules/address/ui/autocomplete';
-import { Address } from '@/modules/address/types';
+import { AddressModal, AddressModalData } from './AddressModal';
 // Tabs removed as only single order form is used now
 // import { Tabs } from '@/core/components/ui/tabs';
 // import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
@@ -68,15 +66,10 @@ export const CreateOrderModalWithTabs = ({
     isLoading = false
 }: CreateOrderModalProps) => {
     const [calendarOpen, setCalendarOpen] = useState(false);
-    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+    const [addressData, setAddressData] = useState<AddressModalData | null>(null);
     const { data: userSubscription } = useUserSubscription();
 
-    const handleAddressSelect = (address: Address) => {
-        console.log('Address selected in modal, full address:', address);
-        console.log('Address geo_lat:', address.geo_lat);
-        console.log('Address geo_lon:', address.geo_lon);
-        setSelectedAddress(address);
-    };
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
     // Hooks для работы с расписаниями (закомментировано, т.к. табы удалены)
     // const { data: scheduledOrders, isLoading: isLoadingSchedules } = useMySchedules();
@@ -107,8 +100,25 @@ export const CreateOrderModalWithTabs = ({
 
     useEffect(() => {
         form.setValue('paymentMethod', userSubscription?.status === 'active' ? 'subscription' : 'online');
-    }, [userSubscription]);
+    }, [userSubscription, form]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setAddressData(null);
+            form.reset();
+        }
+    }, [isOpen, form]);
+    const handleAddressModalSubmit = (data: AddressModalData) => {
+        setAddressData(data);
+        form.setValue('address', data.address);
+        form.clearErrors('address');
+        setIsAddressModalOpen(false);
+    };
+
     const handleSubmit = (data: CreateOrderFormData) => {
+        if (!addressData) {
+            return;
+        }
 
         // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
         const year = data.scheduledDate.getFullYear();
@@ -117,44 +127,19 @@ export const CreateOrderModalWithTabs = ({
         const datePart = `${year}-${month}-${day}`;
         const scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
 
-        const coordinates = selectedAddress?.geo_lat && selectedAddress?.geo_lon
-            ? {
-                geo_lat: selectedAddress.geo_lat,
-                geo_lon: selectedAddress.geo_lon,
-            }
-            : undefined;
-
-        console.log('Coordinates to send:', coordinates);
-
-        const addressDetails: AddressDetails = {};
-
-        // Если в выбранном адресе уже есть номер дома, поле "Дом" из формы не используем
-        const hasHouseInSelected = !!selectedAddress?.house;
-
-        if (data.building && !hasHouseInSelected) addressDetails.building = data.building;
-        if (data.buildingBlock) addressDetails.buildingBlock = data.buildingBlock;
-        if (data.entrance) addressDetails.entrance = data.entrance;
-        if (data.floor) addressDetails.floor = data.floor;
-        if (data.apartment) addressDetails.apartment = data.apartment;
-        if (data.domophone) addressDetails.domophone = data.domophone;
-
-        const hasAddressDetails = Object.keys(addressDetails).length > 0;
-
         const orderData: OrderFormData = {
-            address: data.address,
-            ...(hasAddressDetails && { addressDetails }),
+            address: addressData.address,
+            ...(addressData.addressDetails && { addressDetails: addressData.addressDetails }),
             description: data.description,
             scheduledAt,
             notes: data.notes,
             paymentMethod: data.paymentMethod,
-            coordinates,
+            coordinates: addressData.coordinates,
         };
-
-
 
         onSubmit(orderData);
 
-        setSelectedAddress(null);
+        setAddressData(null);
         form.reset();
     };
 
@@ -227,7 +212,9 @@ export const CreateOrderModalWithTabs = ({
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6 pr-8 pb-4 mb-4 custom-scrollbar">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                        <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
+                            console.log('errors', errors);
+                        })} className="space-y-6">
                             {/* Subscription Status */}
                             {hasActiveSubscription && (
                                 <div className="flex items-center gap-2 text-sm text-green-600 mb-2">
@@ -236,8 +223,93 @@ export const CreateOrderModalWithTabs = ({
                                 </div>
                             )}
 
+                            {/* Address Section */}
+                            <div className="space-y-2">
+                                <FormLabel className="flex items-center gap-2">
+                                    <MapPin className="h-4 w-4" />
+                                    Адрес
+                                </FormLabel>
+                                {addressData ? (
+                                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-gray-900 mb-2">
+                                                    {addressData.address}
+                                                </p>
+                                                <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                                                    {addressData.addressDetails?.building && (
+                                                        <div>
+                                                            <span className="font-medium">Дом:</span> {addressData.addressDetails.building}
+                                                        </div>
+                                                    )}
+                                                    {addressData.addressDetails?.buildingBlock && (
+                                                        <div>
+                                                            <span className="font-medium">Корпус:</span> {addressData.addressDetails.buildingBlock}
+                                                        </div>
+                                                    )}
+                                                    {addressData.addressDetails?.entrance && (
+                                                        <div>
+                                                            <span className="font-medium">Подъезд:</span> {addressData.addressDetails.entrance}
+                                                        </div>
+                                                    )}
+                                                    {addressData.addressDetails?.floor && (
+                                                        <div>
+                                                            <span className="font-medium">Этаж:</span> {addressData.addressDetails.floor}
+                                                        </div>
+                                                    )}
+                                                    {addressData.addressDetails?.apartment && (
+                                                        <div>
+                                                            <span className="font-medium">Квартира:</span> {addressData.addressDetails.apartment}
+                                                        </div>
+                                                    )}
+                                                    {addressData.addressDetails?.domophone && (
+                                                        <div>
+                                                            <span className="font-medium">Домофон:</span> {addressData.addressDetails.domophone}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setIsAddressModalOpen(true)}
+                                                    className="h-8"
+                                                >
+                                                    <Edit2 className="h-3 w-3 mr-1" />
+                                                    Изменить
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setAddressData(null);
+                                                        form.setValue('address', '');
+                                                        form.setError('address', { message: 'Адрес обязателен' });
+                                                    }}
+                                                    className="h-8"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsAddressModalOpen(true)}
+                                        className="w-full justify-start"
+                                    >
+                                        <MapPin className="h-4 w-4 mr-2" />
+                                        Выбрать адрес
+                                    </Button>
+                                )}
+                            </div>
                             {/* Address */}
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="address"
                                 render={({ field }) => (
@@ -265,10 +337,10 @@ export const CreateOrderModalWithTabs = ({
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
 
                             {/* Address Details */}
-                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                            {/* <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                 <FormField
                                     control={form.control}
                                     name="building"
@@ -380,7 +452,7 @@ export const CreateOrderModalWithTabs = ({
                                         </FormItem>
                                     )}
                                 />
-                            </div>
+                            </div> */}
 
                             {/* Description */}
                             <FormField
@@ -523,13 +595,20 @@ export const CreateOrderModalWithTabs = ({
 
                             {/* Submit Button */}
                             <div className="flex justify-end pt-4">
-                                <Button type="submit" disabled={isLoading} className="min-w-[120px]">
+                                <Button type="submit" disabled={isLoading || !addressData} className="min-w-[120px]">
                                     {isLoading ? 'Создание...' : 'Создать заказ'}
                                 </Button>
                             </div>
                         </form>
                     </Form>
                 </div>
+
+                <AddressModal 
+                    isOpen={isAddressModalOpen} 
+                    onClose={() => setIsAddressModalOpen(false)} 
+                    onSubmit={handleAddressModalSubmit}
+                    isLoading={isLoading}
+                />
             </DialogContent>
         </Dialog>
     );

@@ -12,6 +12,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { SubscriptionPlanCard } from '@/modules/subscriptions/components/SubscriptionPlanCard';
 import { toast } from 'sonner';
+import { AddressModal, AddressModalData } from '@/modules/orders/components/AddressModal';
+import { useUserAddresses } from '@/modules/address/hooks/useAddress';
 
 
 // price formatting handled inside SubscriptionPlanCard
@@ -28,6 +30,17 @@ export const SubscriptionPlansSection: React.FC = () => {
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [pendingPlan, setPendingPlan] = useState<SubscriptionPlan | null>(null);
+  const {
+    data: userAddresses,
+    isLoading: isLoadingAddresses,
+    refetch: refetchAddresses,
+  } = useUserAddresses({ enabled: !!user });
+
+  const hasSupportableAddress = (userAddresses || []).some(
+    (item) => item.isSupportableArea
+  );
 
   const handleSubscribe = useCallback(async (plan: SubscriptionPlan) => {
     try {
@@ -48,6 +61,12 @@ export const SubscriptionPlansSection: React.FC = () => {
         setSearchParams(newSearchParams);
 
         setIsLoginModalOpen(true);
+        return;
+      }
+
+      if (!isLoadingAddresses && !hasSupportableAddress) {
+        setPendingPlan(plan);
+        setIsAddressModalOpen(true);
         return;
       }
 
@@ -86,7 +105,7 @@ export const SubscriptionPlansSection: React.FC = () => {
         console.error('API Error:', errorMessage);
       }
     }
-  }, [user, isLoadingUser, searchParams, setSearchParams, createSubscriptionByPlan]);
+  }, [user, isLoadingUser, searchParams, setSearchParams, createSubscriptionByPlan, isLoadingAddresses, hasSupportableAddress, navigate]);
 
   const handleClosePaymentModal = () => {
     setIsPaymentModalOpen(false);
@@ -100,6 +119,22 @@ export const SubscriptionPlansSection: React.FC = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete('subscriptionType');
     setSearchParams(newSearchParams);
+  };
+
+  const handleAddressModalClose = () => {
+    setIsAddressModalOpen(false);
+    setPendingPlan(null);
+  };
+
+  const handleAddressModalSubmit = async (_data: AddressModalData) => {
+    await refetchAddresses();
+    setIsAddressModalOpen(false);
+
+    if (pendingPlan) {
+      const planToProcess = pendingPlan;
+      setPendingPlan(null);
+      await handleSubscribe(planToProcess);
+    }
   };
 
   // Обработка авторизации после возврата на страницу
@@ -220,6 +255,12 @@ export const SubscriptionPlansSection: React.FC = () => {
       <SmsLoginModal
         isOpen={isLoginModalOpen}
         onClose={handleCloseLoginModal}
+      />
+      <AddressModal
+        isOpen={isAddressModalOpen}
+        onClose={handleAddressModalClose}
+        onSubmit={handleAddressModalSubmit}
+        isLoading={isCreatingSubscription}
       />
     </section>
   );
