@@ -48,4 +48,26 @@ export const authApi = {
       adToken: response.data.adToken,
     };
   },
+
+  // Получить VAPID публичный ключ для push уведомлений
+  getVapidPublicKey: async (): Promise<{ publicKey: string }> => {
+    const response = await axiosInstance.get("/push/vapid-public-key");
+    return response.data;
+  },
+
+  // Сохранить push подписку пользователя
+  savePushSubscription: async (subscription: {
+    endpoint: string;
+    keys: {
+      p256dh: string;
+      auth: string;
+    };
+  }): Promise<void> => {
+    await axiosInstance.post("/push/subscribe", subscription);
+  },
+
+  // Удалить push подписку пользователя
+  removePushSubscription: async (endpoint: string): Promise<void> => {
+    await axiosInstance.post("/push/unsubscribe", { endpoint });
+  },
 };

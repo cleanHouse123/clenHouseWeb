@@ -1,6 +1,7 @@
 import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent } from '@/core/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
+import { PushNotificationSettings } from '@/core/components/ui/PushNotificationSettings';
 import { UserAddressesList } from '@/modules/address/ui/user-adresses';
 import { useCreateRefferalLink } from '@/modules/referral/hooks/useCreateRefferalLink';
 import { ReferralLink } from '@/modules/referral/types';
@@ -144,6 +145,9 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                             </Card>
                         )
                     }
+
+                    {/* Push уведомления
+                    <PushNotificationSettings /> */}
 
                     {/* Адреса пользователя */}
                     <Card radius="r16" padding="md" background="white" bordered shadow>

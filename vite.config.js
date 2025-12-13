@@ -57,6 +57,8 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         globIgnores: ['**/icons/logo.png'], // Исключаем большой логотип
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Увеличиваем лимит до 5MB
+        // Добавляем кастомную логику для обработки push уведомлений
+        importScripts: ['sw-push-handler.js'],
         runtimeCaching: [
           {
             urlPattern: /^https?:\/\/.*\/socket\.io\//,
