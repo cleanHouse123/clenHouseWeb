@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Clock, CreditCard } from 'lucide-react';
+import { Calendar, MapPin, Clock, CreditCard, Package } from 'lucide-react';
 import { OrderResponseDto } from '@/modules/orders/types';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateShort, formatTimeRange } from '@/core/utils/dateUtils';
@@ -61,6 +61,16 @@ export const OrderCard = ({ order, onClick, onPay, showBorder = true }: OrderCar
                             {order.address}
                         </span>
                     </div>
+
+                    {/* Количество пакетов */}
+                    {order.numberPackages && (
+                        <div className="flex items-center gap-2">
+                            <Package className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                            <span className="text-sm text-gray-700">
+                                {order.numberPackages} {order.numberPackages === 1 ? 'пакет' : order.numberPackages < 5 ? 'пакета' : 'пакетов'}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Cost section */}

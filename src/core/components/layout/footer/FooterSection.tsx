@@ -17,8 +17,12 @@ export const FooterSection: React.FC = () => {
                         </div>
                         <div className="flex flex-col gap-2">
                             <FooterText>{footerContact.title}</FooterText>
-                            <FooterText size="xl" weight="medium" opacity="90">{footerContact.phone}</FooterText>
-                            <FooterText size="lg" opacity="80">{footerContact.email}</FooterText>
+                            <a href="tel:+78007756365" className="cursor-pointer hover:opacity-70 transition-opacity underline decoration-1 underline-offset-2 hover:decoration-2">
+                                <FooterText size="xl" weight="medium" opacity="90">{footerContact.phone}</FooterText>
+                            </a>
+                            <a href="mailto:chisto.doma1@mail.ru" className="cursor-pointer hover:opacity-70 transition-opacity underline decoration-1 underline-offset-2 hover:decoration-2">
+                                <FooterText size="lg" opacity="80">{footerContact.email}</FooterText>
+                            </a>
                         </div>
                     </div>
 
@@ -35,8 +39,12 @@ export const FooterSection: React.FC = () => {
                         {/* Контакты на мобильных и планшетах */}
                         <div className="lg:hidden flex flex-col gap-2 w-full sm:w-auto text-center sm:text-left">
                             <FooterText>{footerContact.title}</FooterText>
-                            <FooterText size="xl" weight="medium" opacity="90">{footerContact.phone}</FooterText>
-                            <FooterText size="lg" opacity="80">{footerContact.email}</FooterText>
+                            <a href="tel:+78007756365" className="cursor-pointer hover:opacity-70 transition-opacity underline decoration-1 underline-offset-2 hover:decoration-2">
+                                <FooterText size="xl" weight="medium" opacity="90">{footerContact.phone}</FooterText>
+                            </a>
+                            <a href="mailto:chisto.doma1@mail.ru" className="cursor-pointer hover:opacity-70 transition-opacity underline decoration-1 underline-offset-2 hover:decoration-2">
+                                <FooterText size="lg" opacity="80">{footerContact.email}</FooterText>
+                            </a>
                         </div>
 
 

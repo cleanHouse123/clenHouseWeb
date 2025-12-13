@@ -7,7 +7,8 @@ import {
     Calendar,
     Clock,
     CreditCard,
-    ChevronRight
+    ChevronRight,
+    Package
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateRelative, formatDateNumeric, formatDateRelativeLocal } from '@/core/utils/dateUtils';
@@ -58,6 +59,15 @@ export const OrderListItem = ({
                                 <div className="flex items-center gap-1">
                                     <Calendar className="h-3 w-3 flex-shrink-0" />
                                     <span>{formatDateNumeric(order.scheduledAt, locale)}</span>
+                                </div>
+                            )}
+
+                            {order.numberPackages && (
+                                <div className="flex items-center gap-1">
+                                    <Package className="h-3 w-3 flex-shrink-0" />
+                                    <span>
+                                        {order.numberPackages} {order.numberPackages === 1 ? 'пакет' : order.numberPackages < 5 ? 'пакета' : 'пакетов'}
+                                    </span>
                                 </div>
                             )}
 

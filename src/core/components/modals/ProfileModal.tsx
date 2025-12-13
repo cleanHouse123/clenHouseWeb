@@ -152,6 +152,39 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                         </CardContent>
                     </Card>
 
+                    {/* Связаться с компанией */}
+                    <Card radius="r16" padding="md" background="white" bordered shadow>
+                        <CardContent className="p-0">
+                            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">Связаться с компанией</h4>
+                            <div className="space-y-2">
+                                <a
+                                    href="tel:+78007756365"
+                                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                                >
+                                    <div className="p-2 bg-blue-50 rounded-lg">
+                                        <Phone className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">Телефон поддержки</p>
+                                        <p className="text-sm text-muted-foreground">8-800-775-63-65</p>
+                                    </div>
+                                </a>
+                                <a
+                                    href="mailto:chisto.doma1@mail.ru?subject=Жалоба"
+                                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                                >
+                                    <div className="p-2 bg-purple-50 rounded-lg">
+                                        <Mail className="h-4 w-4 text-purple-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">Написать жалобу</p>
+                                        <p className="text-sm text-muted-foreground">chisto.doma1@mail.ru</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     {/* Действия */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
                         <Button

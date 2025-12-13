@@ -12,7 +12,8 @@ import {
     MoreHorizontal,
     CheckCircle,
     XCircle,
-    PlayCircle
+    PlayCircle,
+    Package
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateTime, formatDateRelativeLocal } from '@/core/utils/dateUtils';
@@ -101,6 +102,19 @@ export const OrderCard = ({
                         <div>
                             <p className="text-sm font-medium">Описание</p>
                             <p className="text-sm text-muted-foreground">{order.description}</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Количество пакетов */}
+                {order.numberPackages && (
+                    <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                            <p className="text-sm font-medium">Количество пакетов</p>
+                            <p className="text-sm text-muted-foreground">
+                                {order.numberPackages} {order.numberPackages === 1 ? 'пакет' : order.numberPackages < 5 ? 'пакета' : 'пакетов'}
+                            </p>
                         </div>
                     </div>
                 )}

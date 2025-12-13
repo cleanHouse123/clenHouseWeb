@@ -39,6 +39,7 @@ export interface OrderResponseDto {
   status: OrderStatus;
   scheduledAt?: string;
   notes?: string;
+  numberPackages?: number;
   payments: PaymentResponseDto[];
   createdAt: string;
   updatedAt: string;
@@ -63,6 +64,7 @@ export interface CreateOrderDto {
   scheduledAt?: string;
   notes?: string;
   paymentMethod: PaymentMethod;
+  numberPackages?: number;
   coordinates?: {
     geo_lat: string;
     geo_lon: string;
@@ -100,6 +102,7 @@ export interface OrderFormData {
   scheduledAt?: string;
   notes?: string;
   paymentMethod: PaymentMethod;
+  numberPackages?: number;
   coordinates?: {
     geo_lat: string;
     geo_lon: string;

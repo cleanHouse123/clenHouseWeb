@@ -49,6 +49,7 @@ const createOrderSchema = z.object({
     scheduledTime: z.string().min(1, 'Время обязательно'),
     notes: z.string().max(500, 'Заметки слишком длинные').optional(),
     paymentMethod: z.enum(['subscription', 'online'] as const),
+    numberPackages: z.coerce.number().min(1, 'Количество пакетов должно быть не менее 1'),
 });
 
 type CreateOrderFormData = z.infer<typeof createOrderSchema>;
@@ -71,16 +72,16 @@ export const CreateOrderModalWithTabs = ({
     const { data: userSubscription } = useUserSubscription();
     const { data: workTimes, isLoading: isWorkTimeLoading } = useWorkTime();
     console.log(workTimes, "workTimes");
-    
+
     const latestWorkTime = workTimes?.at(-1);
     console.log(latestWorkTime, "latestWorkTime");
-    
+
     const minTime = latestWorkTime?.startTime;
     const maxTime = latestWorkTime?.endTime;
 
     console.log(minTime);
     console.log(maxTime);
-    
+
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
     // Hooks для работы с расписаниями (закомментировано, т.к. табы удалены)
@@ -107,6 +108,7 @@ export const CreateOrderModalWithTabs = ({
             scheduledTime: '',
             notes: '',
             paymentMethod: 'online',
+            numberPackages: 1,
         },
     });
 
@@ -146,6 +148,7 @@ export const CreateOrderModalWithTabs = ({
             scheduledAt,
             notes: data.notes,
             paymentMethod: data.paymentMethod,
+            numberPackages: data.numberPackages,
             coordinates: addressData.coordinates,
         };
 
@@ -180,17 +183,20 @@ export const CreateOrderModalWithTabs = ({
 
     const hasActiveSubscription = userSubscription?.status === 'active';
 
+    // Вычисляем информацию о подписке
+    const isUnlimited = hasActiveSubscription && userSubscription?.ordersLimit === -1;
+    const remainingOrders = hasActiveSubscription && !isUnlimited
+        ? (userSubscription?.ordersLimit || 0) - (userSubscription?.usedOrders || 0)
+        : null;
+    const hasRemainingOrders = remainingOrders === null || remainingOrders > 0;
+
     const paymentMethodOptions = [
         { value: 'online', label: 'Оплата онлайн', icon: '💳' },
     ]
 
     // Tabs config removed
 
-    if (hasActiveSubscription) {
-        const isUnlimited = userSubscription?.ordersLimit === -1;
-        const remainingOrders = isUnlimited
-            ? null
-            : (userSubscription?.ordersLimit || 0) - (userSubscription?.usedOrders || 0);
+    if (hasActiveSubscription && hasRemainingOrders) {
         const subscriptionLabel = isUnlimited
             ? 'По подписке: безлимит'
             : `По подписке: осталось ${remainingOrders} заказов`;
@@ -229,9 +235,35 @@ export const CreateOrderModalWithTabs = ({
                         })} className="space-y-6">
                             {/* Subscription Status */}
                             {hasActiveSubscription && (
-                                <div className="flex items-center gap-2 text-sm text-green-600 mb-2">
-                                    <CheckCircle className="h-4 w-4" />
-                                    <span>У вас активная подписка</span>
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                                    <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
+                                        <CheckCircle className="h-4 w-4" />
+                                        <span>У вас активная подписка</span>
+                                    </div>
+                                    {isUnlimited ? (
+                                        <p className="text-sm text-green-600">
+                                            Безлимитные заказы {userSubscription?.usedOrders !== undefined && `(использовано: ${userSubscription.usedOrders})`}
+                                        </p>
+                                    ) : remainingOrders !== null && (
+                                        <div className="flex items-center gap-4 text-sm">
+                                            <span className="text-gray-600">
+                                                Доступно: <span className="font-medium text-gray-900">{userSubscription?.ordersLimit || 0}</span>
+                                            </span>
+                                            <span className="text-gray-600">
+                                                Использовано: <span className="font-medium text-gray-900">{userSubscription?.usedOrders || 0}</span>
+                                            </span>
+                                            <span className="text-green-700 font-medium">
+                                                Осталось: {remainingOrders} {remainingOrders === 1 ? 'заказ' : remainingOrders < 5 ? 'заказа' : 'заказов'}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {!hasRemainingOrders && remainingOrders !== null && (
+                                        <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
+                                            <p className="text-sm text-yellow-800">
+                                                Лимит заказов по подписке исчерпан. Используйте оплату онлайн.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -544,8 +576,8 @@ export const CreateOrderModalWithTabs = ({
                                                 value={field.value}
                                                 onChange={field.onChange}
                                                 placeholder="Выберите время"
-                                                minTime={minTime}
-                                                maxTime={maxTime}
+                                                minTime={minTime ?? undefined}
+                                                maxTime={maxTime ?? undefined}
                                                 disabled={isLoading || isWorkTimeLoading}
                                             />
                                         </FormControl>
@@ -569,6 +601,38 @@ export const CreateOrderModalWithTabs = ({
                                                 {...field}
                                             />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Packages Count */}
+                            <FormField
+                                control={form.control}
+                                name="numberPackages"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Количество пакетов</FormLabel>
+                                        <Select
+                                            onValueChange={(value) => field.onChange(Number(value))}
+                                            value={String(field.value)}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Выберите количество пакетов" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                                                    <SelectItem key={num} value={String(num)}>
+                                                        {num} {num === 1 ? 'пакет' : num < 5 ? 'пакета' : 'пакетов'}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            1 пакет = 1 заказ
+                                        </p>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -618,9 +682,9 @@ export const CreateOrderModalWithTabs = ({
                     </Form>
                 </div>
 
-                <AddressModal 
-                    isOpen={isAddressModalOpen} 
-                    onClose={() => setIsAddressModalOpen(false)} 
+                <AddressModal
+                    isOpen={isAddressModalOpen}
+                    onClose={() => setIsAddressModalOpen(false)}
                     onSubmit={handleAddressModalSubmit}
                     isLoading={isLoading}
                 />
