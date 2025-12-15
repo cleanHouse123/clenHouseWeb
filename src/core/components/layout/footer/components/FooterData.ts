@@ -17,5 +17,6 @@ export const footerLegalLinks = [
 export const footerContact = {
   title: "Связаться с нами:",
   phone: "8-800-775-63-65",
-  email: "chisto.doma1@mail.ru",
+  telegram: "@chistodoma1",
+  telegramLink: "https://t.me/chistodoma1",
 };

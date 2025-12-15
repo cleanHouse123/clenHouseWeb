@@ -35,8 +35,15 @@ export const ContactsPage = () => {
                             <div className="flex items-center gap-3">
                                 <Mail className="h-5 w-5 text-blue-600" />
                                 <div>
-                                    <p className="font-medium">Email</p>
-                                    <p className="text-gray-600">chisto.doma1@mail.ru</p>
+                                    <p className="font-medium">Telegram</p>
+                                    <a
+                                        href="https://t.me/chistodoma1"
+                                        className="text-gray-600 hover:text-gray-800 underline underline-offset-2"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        @chistodoma1
+                                    </a>
                                 </div>
                             </div>
 

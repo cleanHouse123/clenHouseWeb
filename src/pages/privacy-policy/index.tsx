@@ -122,7 +122,17 @@ export const PrivacyPolicyPage = () => {
                             <div className="bg-gray-50 p-4 rounded-lg mt-4">
                                 <p><strong>ООО "ЧИСТО ДОМА"</strong></p>
                                 <p>Телефон: 8-800-775-63-65</p>
-                                <p>Email: chisto.doma1@mail.ru</p>
+                                <p>
+                                    Telegram:{" "}
+                                    <a
+                                        href="https://t.me/chistodoma1"
+                                        className="underline underline-offset-2"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        @chistodoma1
+                                    </a>
+                                </p>
                                 <p>Адрес: 188689, Ленинградская область, Всеволожский район, гп Янино-1, ул Шоссейная, д. 48Е, стр. 6</p>
                             </div>
                         </section>
