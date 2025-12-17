@@ -25,6 +25,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         ? plan.priceInRubles
         : formatRubles(plan.priceInKopecks);
 
+    const requiredReferrals = plan.minReferralsForFree ?? 0;
+
     return (
         <Card
             radius="r20"
@@ -64,18 +66,18 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                 <OrdersLimitBadge ordersLimit={plan.ordersLimit} />
 
                 {/* Информация о рефералах */}
-                {plan.referralCount !== undefined && (
+                {plan.referralCount !== undefined && requiredReferrals > 0 && (
                     <div className="pt-2">
                         {plan.isEligibleForFree ? (
                             <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#E5F8E3]">
                                 <span className="text-[12px] sm:text-[13px] font-normal leading-[1.4] text-[#387C32]">
-                                    ✓ У вас {plan.referralCount} приглашенных
+                                    ✓ У вас {plan.referralCount} приглашенных — бесплатная подписка доступна
                                 </span>
                             </div>
-                        ) : plan.referralCount !== undefined && plan.referralCount < 3 ? (
+                        ) : plan.referralCount < requiredReferrals ? (
                             <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#EDF6FC]">
                                 <span className="text-[12px] sm:text-[13px] font-normal leading-[1.4] text-[#01609F]">
-                                    Пригласите {3 - plan.referralCount} человек для бесплатной подписки
+                                    Пригласите {requiredReferrals - plan.referralCount} человек для бесплатной подписки
                                 </span>
                             </div>
                         ) : null}

@@ -119,6 +119,9 @@ export interface SubscriptionPlan {
   isEligibleForFree?: boolean; // Есть ли право на бесплатную подписку
   referralCount?: number; // Количество приглашенных
   hasUsedFreeSubscription?: boolean; // Использовал ли уже бесплатную подписку
+  // Новые поля для реферальной бесплатной подписки (динамические лимиты)
+  isReferralFreeEnabled?: boolean; // Можно ли получить план по рефералам
+  minReferralsForFree?: number; // Сколько рефералов нужно для бесплатной подписки
 }
 
 export interface CreateSubscriptionPlanDto {
