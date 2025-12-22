@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/core/components/ui/button/button';
@@ -115,6 +115,19 @@ export const CreateOrderModalWithTabs = ({
     useEffect(() => {
         form.setValue('paymentMethod', userSubscription?.status === 'active' ? 'subscription' : 'online');
     }, [userSubscription, form]);
+
+    // Отслеживаем изменение способа оплаты
+    const paymentMethod = useWatch({
+        control: form.control,
+        name: 'paymentMethod',
+    });
+
+    // Устанавливаем количество пакетов = 1 при выборе подписки
+    useEffect(() => {
+        if (paymentMethod === 'subscription') {
+            form.setValue('numberPackages', 1);
+        }
+    }, [paymentMethod, form]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -498,6 +511,96 @@ export const CreateOrderModalWithTabs = ({
                                 />
                             </div> */}
 
+                            {/* Payment Method */}
+                            <FormField
+                                control={form.control}
+                                name="paymentMethod"
+                                render={({ field }) => {
+                                    console.log('paymentMethodOptions', paymentMethodOptions);
+                                    console.log('field.value', field.value);
+                                    return <FormItem>
+                                        <FormLabel className="flex items-center gap-2">
+                                            <CreditCard className="h-4 w-4" />
+                                            Способ оплаты
+                                        </FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Выберите способ оплаты" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {paymentMethodOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        <div className="flex items-center gap-2">
+                                                            <span>{option.icon}</span>
+                                                            <span>{option.label}</span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                }}
+                            />
+
+                            {/* Packages Count */}
+                            <FormField
+                                control={form.control}
+                                name="numberPackages"
+                                render={({ field }) => {
+                                    const isSubscription = paymentMethod === 'subscription';
+
+                                    if (isSubscription) {
+                                        return (
+                                            <FormItem>
+                                                <FormLabel>Количество пакетов</FormLabel>
+                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                    <div className="flex items-start gap-2">
+                                                        <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                                        <div className="flex-1">
+                                                            <p className="text-sm font-medium text-blue-900">
+                                                                По подписке можно выносить только 1 пакет до 60 литров
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        );
+                                    }
+
+                                    return (
+                                        <FormItem>
+                                            <FormLabel>Количество пакетов</FormLabel>
+                                            <Select
+                                                onValueChange={(value) => field.onChange(Number(value))}
+                                                value={String(field.value)}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Выберите количество пакетов" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {Array.from({ length: 4 }, (_, i) => i + 1).map((num) => (
+                                                        <SelectItem key={num} value={String(num)}>
+                                                            {num} {num === 1 ? 'пакет' : num < 5 ? 'пакета' : 'пакетов'}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <p className="text-sm text-muted-foreground mt-1">
+                                                1 пакет = 1 заказ
+                                            </p>
+                                            <FormMessage />
+                                        </FormItem>
+                                    );
+                                }}
+                            />
+
+
                             {/* Description */}
                             <FormField
                                 control={form.control}
@@ -604,72 +707,6 @@ export const CreateOrderModalWithTabs = ({
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
-
-                            {/* Packages Count */}
-                            <FormField
-                                control={form.control}
-                                name="numberPackages"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Количество пакетов</FormLabel>
-                                        <Select
-                                            onValueChange={(value) => field.onChange(Number(value))}
-                                            value={String(field.value)}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Выберите количество пакетов" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {Array.from({ length: 4 }, (_, i) => i + 1).map((num) => (
-                                                    <SelectItem key={num} value={String(num)}>
-                                                        {num} {num === 1 ? 'пакет' : num < 5 ? 'пакета' : 'пакетов'}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                            1 пакет = 1 заказ
-                                        </p>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Payment Method */}
-                            <FormField
-                                control={form.control}
-                                name="paymentMethod"
-                                render={({ field }) => {
-                                    console.log('paymentMethodOptions', paymentMethodOptions);
-                                    console.log('field.value', field.value);
-                                    return <FormItem>
-                                        <FormLabel className="flex items-center gap-2">
-                                            <CreditCard className="h-4 w-4" />
-                                            Способ оплаты
-                                        </FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Выберите способ оплаты" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {paymentMethodOptions.map((option) => (
-                                                    <SelectItem key={option.value} value={option.value}>
-                                                        <div className="flex items-center gap-2">
-                                                            <span>{option.icon}</span>
-                                                            <span>{option.label}</span>
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                }}
                             />
 
                             {/* Submit Button */}
