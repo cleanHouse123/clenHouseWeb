@@ -623,7 +623,7 @@ export const CreateOrderModalWithTabs = ({
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                                                {Array.from({ length: 4 }, (_, i) => i + 1).map((num) => (
                                                     <SelectItem key={num} value={String(num)}>
                                                         {num} {num === 1 ? 'пакет' : num < 5 ? 'пакета' : 'пакетов'}
                                                     </SelectItem>

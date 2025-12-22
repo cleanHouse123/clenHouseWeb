@@ -7,8 +7,14 @@ export interface PriceResponse {
 }
 
 export const priceApi = {
-  getOrderPrice: async (): Promise<PriceResponse> => {
-    const response = await axiosInstance.get<PriceResponse>('/price/order');
+  getOrderPrice: async (numberPackages?: number): Promise<PriceResponse> => {
+    const params = new URLSearchParams();
+    if (numberPackages !== undefined) {
+      params.append('numberPackages', numberPackages.toString());
+    }
+    const queryString = params.toString();
+    const url = `/price/order${queryString ? `?${queryString}` : ''}`;
+    const response = await axiosInstance.get<PriceResponse>(url);
     return response.data;
   }
 }
