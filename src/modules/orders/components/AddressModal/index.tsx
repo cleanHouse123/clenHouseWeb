@@ -44,6 +44,7 @@ type AddressFormData = z.infer<typeof addressSchema>;
 
 export interface AddressModalData {
   address: string;
+  addressId?: string;
   addressDetails?: AddressDetails;
   coordinates?: {
     geo_lat: string;
@@ -358,13 +359,15 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     const hasAddressDetails = Object.keys(addressDetails).length > 0;
 
     // Привязываем адрес к пользователю
+    let createdAddressId: string | undefined;
     try {
-      await createUserAddress({
+      const createdAddress = await createUserAddress({
         address: selectedAddress,
         ...(hasAddressDetails && { addressDetails }),
         isSupportableArea: isAddressSupported,
         isPrimary: false,
       });
+      createdAddressId = createdAddress.id;
     } catch (error) {
       console.error("Failed to create user address", error);
       // Продолжаем выполнение даже если не удалось сохранить адрес
@@ -372,6 +375,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
     onSubmit({
       address: data.address,
+      ...(createdAddressId && { addressId: createdAddressId }),
       ...(hasAddressDetails && { addressDetails }),
       coordinates,
       selectedAddress,
@@ -437,6 +441,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
     onSubmit({
       address: userAddress.address.display || userAddress.address.value,
+      addressId: userAddress.id,
       ...(userAddress.addressDetails && {
         addressDetails: userAddress.addressDetails,
       }),

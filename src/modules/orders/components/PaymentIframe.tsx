@@ -12,6 +12,7 @@ interface PaymentIframeProps {
     paymentId?: string;
     userId?: string;
     numberPackages?: number;
+    addressId?: string;
     onSuccess?: () => void;
     onError?: (error: string) => void;
 }
@@ -22,10 +23,14 @@ export const PaymentIframe = ({
     paymentUrl,
     paymentId,
     numberPackages,
+    addressId,
     onError
 }: PaymentIframeProps) => {
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const { orderPrice, isLoading } = useOrderPrice(numberPackages);
+    const { orderPrice, isLoading } = useOrderPrice({
+        numberPackages,
+        addressId,
+    });
 
     // Обработка прямого перенаправления на оплату
     const handlePaymentRedirect = () => {

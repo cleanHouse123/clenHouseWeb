@@ -26,6 +26,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
     const [paymentUrl, setPaymentUrl] = useState('');
     const [paymentId, setPaymentId] = useState('');
     const [numberPackages, setNumberPackages] = useState<number | undefined>(undefined);
+    const [addressId, setAddressId] = useState<string | undefined>(undefined);
     const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder();
     const { mutateAsync: createOrderPayment } = useCreateOrderPayment();
     const { data: user } = useGetMe();
@@ -79,10 +80,11 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                     amount: order.price // цена в копейках
                 });
 
-                // Сохраняем данные платежа и количество пакетов
+                // Сохраняем данные платежа, количество пакетов и адрес
                 setPaymentUrl(payment.paymentUrl);
                 setPaymentId(payment.paymentId);
                 setNumberPackages(data.numberPackages);
+                setAddressId(data.addressId);
 
                 // Показываем модальное окно с кнопкой перенаправления
                 setIsPaymentIframeOpen(true);
@@ -109,6 +111,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
     const handleClosePayment = () => {
         setIsPaymentIframeOpen(false);
         setNumberPackages(undefined);
+        setAddressId(undefined);
     };
 
     return (
@@ -136,6 +139,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                 paymentUrl={paymentUrl}
                 paymentId={paymentId}
                 numberPackages={numberPackages}
+                addressId={addressId}
                 onError={handlePaymentError}
             />
         </CreateOrderContext.Provider>

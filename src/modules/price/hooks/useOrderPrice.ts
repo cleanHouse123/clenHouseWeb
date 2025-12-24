@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { priceApi, PriceResponse } from '../api/priceApi';
+import { priceApi, PriceResponse, GetOrderPriceParams } from '../api/priceApi';
 
 interface UsePriceReturn {
   orderPrice: PriceResponse | null;
@@ -8,7 +8,7 @@ interface UsePriceReturn {
   refetch: () => Promise<void>;
 }
 
-export function useOrderPrice(numberPackages?: number): UsePriceReturn {
+export function useOrderPrice(params?: GetOrderPriceParams): UsePriceReturn {
   const [orderPrice, setOrderPrice] = useState<PriceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export function useOrderPrice(numberPackages?: number): UsePriceReturn {
       setIsLoading(true);
       setError(null);
       
-      const price = await priceApi.getOrderPrice(numberPackages);
+      const price = await priceApi.getOrderPrice(params);
       setOrderPrice(price);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка загрузки цены заказа');
@@ -26,7 +26,7 @@ export function useOrderPrice(numberPackages?: number): UsePriceReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [numberPackages]);
+  }, [params?.numberPackages, params?.addressId]);
 
   useEffect(() => {
     fetchOrderPrice();

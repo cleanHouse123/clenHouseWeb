@@ -59,6 +59,7 @@ export interface AddressDetails {
 export interface CreateOrderDto {
   customerId: string;
   address: string;
+  addressId?: string;
   addressDetails?: AddressDetails;
   description?: string;
   scheduledAt?: string;
@@ -97,6 +98,7 @@ export interface OrderQueryParams {
 // Order Form Data
 export interface OrderFormData {
   address: string;
+  addressId?: string;
   addressDetails?: AddressDetails;
   description?: string;
   scheduledAt?: string;

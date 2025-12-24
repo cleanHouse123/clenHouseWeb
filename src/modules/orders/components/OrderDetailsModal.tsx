@@ -206,6 +206,7 @@ export const OrderDetailsModal = ({
                 onClose={() => setIsPaymentIframeOpen(false)}
                 paymentUrl={paymentUrl}
                 paymentId={paymentId}
+                numberPackages={order.numberPackages}
                 userId={userId}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}

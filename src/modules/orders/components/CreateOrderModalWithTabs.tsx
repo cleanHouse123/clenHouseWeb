@@ -156,6 +156,7 @@ export const CreateOrderModalWithTabs = ({
 
         const orderData: OrderFormData = {
             address: addressData.address,
+            ...(addressData.addressId && { addressId: addressData.addressId }),
             ...(addressData.addressDetails && { addressDetails: addressData.addressDetails }),
             description: data.description,
             scheduledAt,
