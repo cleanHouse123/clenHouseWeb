@@ -512,3 +512,32 @@ export const formatTimeRange = (scheduledAt: string): string => {
     return '00:00-00:20';
   }
 };
+
+/**
+ * Форматирует время из UTC даты в формат "HH:MM"
+ * Конвертирует UTC время в локальное для отображения пользователю
+ * 
+ * @param scheduledAt - UTC дата в формате ISO строки
+ * @returns строка в формате "HH:MM"
+ */
+export const formatTime = (scheduledAt: string): string => {
+  try {
+    // Парсим UTC дату - Date объект автоматически конвертирует в локальное время
+    const date = new Date(scheduledAt);
+    
+    // Проверяем валидность даты
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date in formatTime:', scheduledAt);
+      return '00:00';
+    }
+    
+    // Используем локальные методы для отображения времени в таймзоне пользователя
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    
+    return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+  } catch (error) {
+    console.error('Error formatting time:', scheduledAt, error);
+    return '00:00';
+  }
+};

@@ -42,11 +42,8 @@ const createOrderSchema = z.object({
     apartment: z.coerce.number().min(1, 'Квартира должна быть больше 0').optional(),
     domophone: z.string().max(50, 'Домофон слишком длинный').optional(),
     description: z.string().max(1000, 'Описание слишком длинное').optional(),
-    scheduledDate: z.date({
-        required_error: 'Дата обязательна',
-        invalid_type_error: 'Дата обязательна',
-    }),
-    scheduledTime: z.string().min(1, 'Время обязательно'),
+    scheduledDate: z.date().optional(),
+    scheduledTime: z.string().optional(),
     notes: z.string().max(500, 'Заметки слишком длинные').optional(),
     paymentMethod: z.enum(['subscription', 'online'] as const),
     numberPackages: z.coerce.number().min(1, 'Количество пакетов должно быть не менее 1'),
@@ -147,19 +144,22 @@ export const CreateOrderModalWithTabs = ({
             return;
         }
 
-        // Формируем YYYY-MM-DD из объекта Date и создаем UTC строку
-        const year = data.scheduledDate.getFullYear();
-        const month = String(data.scheduledDate.getMonth() + 1).padStart(2, '0');
-        const day = String(data.scheduledDate.getDate()).padStart(2, '0');
-        const datePart = `${year}-${month}-${day}`;
-        const scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
+        // Формируем scheduledAt только если указаны и дата, и время
+        let scheduledAt: string | undefined;
+        if (data.scheduledDate && data.scheduledTime) {
+            const year = data.scheduledDate.getFullYear();
+            const month = String(data.scheduledDate.getMonth() + 1).padStart(2, '0');
+            const day = String(data.scheduledDate.getDate()).padStart(2, '0');
+            const datePart = `${year}-${month}-${day}`;
+            scheduledAt = createUTCFromDateTimeInput(`${datePart}T${data.scheduledTime}`);
+        }
 
         const orderData: OrderFormData = {
             address: addressData.address,
             ...(addressData.addressId && { addressId: addressData.addressId }),
             ...(addressData.addressDetails && { addressDetails: addressData.addressDetails }),
             description: data.description,
-            scheduledAt,
+            ...(scheduledAt && { scheduledAt }),
             notes: data.notes,
             paymentMethod: data.paymentMethod,
             numberPackages: data.numberPackages,
@@ -628,7 +628,7 @@ export const CreateOrderModalWithTabs = ({
                                 name="scheduledDate"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                        <FormLabel>Дата выполнения</FormLabel>
+                                        <FormLabel>Дата выполнения (опционально)</FormLabel>
                                         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                             <PopoverTrigger asChild>
                                                 <FormControl>
@@ -643,7 +643,7 @@ export const CreateOrderModalWithTabs = ({
                                                             {field.value ? (
                                                                 format(field.value, "PPP", { locale: ru })
                                                             ) : (
-                                                                "Выберите дату"
+                                                                "Выберите дату (необязательно)"
                                                             )}
                                                         </span>
                                                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50 flex-shrink-0" />
@@ -656,6 +656,9 @@ export const CreateOrderModalWithTabs = ({
                                                     selected={field.value}
                                                     onSelect={(date) => {
                                                         field.onChange(date);
+                                                        if (!date) {
+                                                            form.setValue('scheduledTime', '');
+                                                        }
                                                         setCalendarOpen(false);
                                                     }}
                                                     disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
@@ -663,32 +666,40 @@ export const CreateOrderModalWithTabs = ({
                                                 />
                                             </PopoverContent>
                                         </Popover>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            Если не указано, время выноса будет установлено автоматически
+                                        </p>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
                             {/* Scheduled Time */}
-                            <FormField
-                                control={form.control}
-                                name="scheduledTime"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Время выполнения</FormLabel>
-                                        <FormControl>
-                                            <TimePicker
-                                                value={field.value}
-                                                onChange={field.onChange}
-                                                placeholder="Выберите время"
-                                                minTime={minTime ?? undefined}
-                                                maxTime={maxTime ?? undefined}
-                                                disabled={isLoading || isWorkTimeLoading}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {form.watch('scheduledDate') && (
+                                <FormField
+                                    control={form.control}
+                                    name="scheduledTime"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Время выполнения (опционально)</FormLabel>
+                                            <FormControl>
+                                                <TimePicker
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    placeholder="Выберите время"
+                                                    minTime={minTime ?? undefined}
+                                                    maxTime={maxTime ?? undefined}
+                                                    disabled={isLoading || isWorkTimeLoading}
+                                                />
+                                            </FormControl>
+                                            <p className="text-sm text-muted-foreground mt-1">
+                                                Можно указать любое время, даже в прошлом
+                                            </p>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
 
                             {/* Notes */}
                             <FormField

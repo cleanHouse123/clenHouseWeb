@@ -9,6 +9,7 @@ import "./index.css";
 import queryClient from "./core/config/query";
 
 
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HelmetProvider>

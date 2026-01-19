@@ -6,6 +6,7 @@ import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscripti
 import { OrderFormData } from '@/modules/orders/types';
 import { toast } from 'sonner';
 import { CreateOrderModalWithTabs } from '@/modules/orders/components/CreateOrderModalWithTabs';
+import { formatTime } from '@/core/utils/dateUtils';
 
 interface CreateOrderContextType {
     openCreateOrderModal: () => void;
@@ -58,6 +59,11 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
 
             const order = await createOrder(orderData);
 
+            // Формируем сообщение с временем выноса
+            const scheduledTimeText = order.scheduledAt 
+                ? `Вынос в ${formatTime(order.scheduledAt)}`
+                : '';
+
             // Проверяем есть ли активная подписка
             const hasActiveSubscription = userSubscription?.status === 'active';
 
@@ -67,7 +73,9 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
 
                 // Показываем уведомление о том что заявка направлена менеджеру
                 toast.success('Заявка направлена менеджеру!', {
-                    description: 'Ваш заказ будет обработан в ближайшее время. Спасибо за использование подписки!',
+                    description: scheduledTimeText 
+                        ? `${scheduledTimeText}. Ваш заказ будет обработан в ближайшее время. Спасибо за использование подписки!`
+                        : 'Ваш заказ будет обработан в ближайшее время. Спасибо за использование подписки!',
                     duration: 5000,
                 });
 
@@ -89,9 +97,26 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                 // Показываем модальное окно с кнопкой перенаправления
                 setIsPaymentIframeOpen(true);
                 closeCreateOrderModal();
+                
+                // Показываем уведомление с временем выноса
+                if (scheduledTimeText) {
+                    toast.info('Заказ создан', {
+                        description: scheduledTimeText,
+                        duration: 5000,
+                    });
+                }
             } else {
                 // Для других случаев просто закрываем модальное окно
                 closeCreateOrderModal();
+                
+                // Показываем уведомление с временем выноса
+                if (scheduledTimeText) {
+                    toast.success('Заказ создан', {
+                        description: scheduledTimeText,
+                        duration: 5000,
+                    });
+                }
+                
                 onOrderCreated?.();
             }
         } catch (error) {

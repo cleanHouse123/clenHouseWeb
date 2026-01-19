@@ -16,7 +16,7 @@ import {
     Package
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
-import { formatDateTime, formatDateRelativeLocal } from '@/core/utils/dateUtils';
+import { formatDateTime, formatDateRelativeLocal, formatTime } from '@/core/utils/dateUtils';
 import { kopecksToRubles } from '@/core/utils/priceUtils';
 
 export const OrderCard = ({
@@ -133,9 +133,9 @@ export const OrderCard = ({
                     <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <div>
-                            <p className="text-sm font-medium">Запланировано</p>
+                            <p className="text-sm font-medium">Вынос</p>
                             <p className="text-sm text-muted-foreground">
-                                {formatDateTime(order.scheduledAt)}
+                                Вынос в {formatTime(order.scheduledAt)}
                             </p>
                         </div>
                     </div>

@@ -1,7 +1,7 @@
 import { Calendar, MapPin, Clock, CreditCard, Package } from 'lucide-react';
 import { OrderResponseDto } from '@/modules/orders/types';
 import { useLocale } from '@/core/feauture/locale/useLocale';
-import { formatDateShort, formatTimeRange } from '@/core/utils/dateUtils';
+import { formatDateShort, formatTime } from '@/core/utils/dateUtils';
 import { OrderStatusBadge } from '@/modules/orders/components/OrderStatusBadge';
 import { Button } from '@/core/components/ui/button/button';
 import { kopecksToRubles } from '@/core/utils/priceUtils';
@@ -46,12 +46,14 @@ export const OrderCard = ({ order, onClick, onPay, showBorder = true }: OrderCar
                                 {formatDateShort(order.scheduledAt?.toString() || order.createdAt.toString(), locale)}
                             </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm text-gray-700">
-                                {order.scheduledAt ? formatTimeRange(order.scheduledAt.toString()) : '14:00-14:20'}
-                            </span>
-                        </div>
+                        {order.scheduledAt && (
+                            <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-gray-400" />
+                                <span className="text-sm text-gray-700">
+                                    Вынос в {formatTime(order.scheduledAt)}
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Location */}
