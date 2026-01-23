@@ -3,6 +3,7 @@ import {
   SendSmsRequest,
   SendSmsResponse,
   VerifySmsRequest,
+  VerifyTelegramRequest,
   AuthResponse,
   RefreshTokensRequest,
   RefreshTokensResponse,
@@ -69,5 +70,21 @@ export const authApi = {
   // Удалить push подписку пользователя
   removePushSubscription: async (endpoint: string): Promise<void> => {
     await axiosInstance.post("/push/unsubscribe", { endpoint });
+  },
+
+  // Верификация Telegram Login Widget и авторизация
+  verifyTelegram: async (data: VerifyTelegramRequest): Promise<AuthResponse> => {
+    const payload = {
+      id: data.id,
+      first_name: data.first_name,
+      ...(data.last_name && { last_name: data.last_name }),
+      ...(data.username && { username: data.username }),
+      ...(data.photo_url && { photo_url: data.photo_url }),
+      auth_date: data.auth_date,
+      hash: data.hash,
+      ...(data.adToken && { adToken: data.adToken }),
+    };
+    const response = await axiosPublic.post("/auth/telegram/login-widget/verify", payload);
+    return response.data;
   },
 };

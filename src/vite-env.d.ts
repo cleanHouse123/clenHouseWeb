@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_WS_PORT: string;
   readonly VITE_DEV_MODE: string;
   readonly VITE_SMS_DEV_MODE: string;
+  readonly VITE_TELEGRAM_BOT_NAME: string;
 }
 
 interface ImportMeta {

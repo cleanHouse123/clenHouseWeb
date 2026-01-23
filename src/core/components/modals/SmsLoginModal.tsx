@@ -9,11 +9,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/compone
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { useSendSms } from '@/modules/auth/hooks/useSendSms';
 import { useVerifySms } from '@/modules/auth/hooks/useVerifySms';
-import { Phone, ArrowLeft, Shield } from 'lucide-react';
+import { Phone, ArrowLeft, Shield, MessageCircle } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { authApi } from '@/modules/auth/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { LoginButton } from '@telegram-auth/react';
 
 // Функция для жесткого форматирования номера телефона
 const formatPhoneNumber = (value: string): string => {
@@ -89,12 +90,16 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const [hasError, setHasError] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [devCode, setDevCode] = useState<string>('');
+    const [isTelegramLoading, setIsTelegramLoading] = useState(false);
     const codeInputRef = useRef<HTMLInputElement>(null);
     const [searchParams] = useSearchParams();
 
     const { mutateAsync: sendSms, isPending: isSendingSms } = useSendSms();
     const { mutateAsync: verifySms, isPending: isVerifyingSms } = useVerifySms();
     const queryClient = useQueryClient();
+
+    // Получаем имя бота из переменных окружения
+    const telegramBotName = import.meta.env.VITE_TELEGRAM_BOT_NAME || 'chistoDoma2_bot';
 
     const phoneForm = useForm<PhoneFormData>({
         resolver: zodResolver(phoneSchema),
@@ -221,6 +226,48 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
         codeForm.setValue('code', '');
     };
 
+    const handleTelegramAuth = async (user: any) => {
+        setIsTelegramLoading(true);
+        try {
+            const adToken = localStorage.getItem('adToken');
+
+            const result = await authApi.verifyTelegram({
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                username: user.username,
+                photo_url: user.photo_url,
+                auth_date: user.auth_date,
+                hash: user.hash,
+                ...(adToken && { adToken }),
+            });
+
+            // Сохраняем токены в localStorage
+            localStorage.setItem('accessToken', result.accessToken);
+            localStorage.setItem('refreshToken', result.refreshToken);
+            localStorage.removeItem('adToken');
+
+            // Инвалидируем кэш пользователя для обновления данных
+            queryClient.invalidateQueries({ queryKey: ['me'] });
+
+            toast.success('Добро пожаловать!', {
+                description: `Привет, ${result.user.name}! Вы успешно вошли через Telegram`,
+                duration: 4000,
+            });
+
+            // Закрываем модальное окно
+            onClose();
+        } catch (error: any) {
+            console.error('Ошибка авторизации через Telegram:', error);
+            toast.error('Ошибка входа', {
+                description: error?.response?.data?.message || 'Не удалось войти через Telegram',
+                duration: 5000,
+            });
+        } finally {
+            setIsTelegramLoading(false);
+        }
+    };
+
     const handleClose = () => {
         // Сбрасываем состояние при закрытии
         setStep('phone');
@@ -228,6 +275,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
         setHasError(false);
         setIsSubmitting(false);
         setDevCode('');
+        setIsTelegramLoading(false);
         phoneForm.reset();
         codeForm.reset();
         onClose();
@@ -291,124 +339,153 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
 
                 <div className="px-6 pb-6 space-y-6">
                     {step === 'phone' ? (
-                        <Form {...phoneForm}>
-                            <form className="space-y-4" noValidate>
-                                <FormField
-                                    control={phoneForm.control}
-                                    name="phoneNumber"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-sm font-medium">
-                                                Номер телефона
-                                            </FormLabel>
-                                            <FormControl>
-                                                <div className="relative">
-                                                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                                                    <Input
-                                                        {...field}
-                                                        type="text"
-                                                        placeholder="+7 (999) 999-99-99"
-                                                        className="pl-10"
-                                                        autoComplete="tel"
-                                                        maxLength={18}
-                                                        inputMode="numeric"
-                                                        onChange={(e) => {
-                                                            const formatted = formatPhoneNumber(e.target.value);
-                                                            console.log('🔧 onChange - input:', e.target.value, 'formatted:', formatted);
-                                                            field.onChange(formatted);
-                                                            // Принудительно обновляем значение поля
-                                                            if (e.target.value !== formatted) {
-                                                                e.target.value = formatted;
-                                                            }
-                                                        }}
-                                                        onBlur={(e) => {
-                                                            // Дополнительная проверка при потере фокуса
-                                                            const formatted = formatPhoneNumber(e.target.value);
-                                                            if (e.target.value !== formatted) {
-                                                                e.target.value = formatted;
-                                                                field.onChange(formatted);
-                                                            }
-                                                        }}
-                                                        onKeyDown={(e) => {
-                                                            // Разрешаем только цифры, Backspace, Delete, Tab, Escape, Enter
-                                                            const allowedKeys = [
-                                                                'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-                                                                'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-                                                                'Home', 'End'
-                                                            ];
-
-                                                            // Разрешаем цифры
-                                                            if (e.key >= '0' && e.key <= '9') {
-                                                                return;
-                                                            }
-
-                                                            // Разрешаем специальные клавиши
-                                                            if (allowedKeys.includes(e.key)) {
-                                                                return;
-                                                            }
-
-                                                            // Разрешаем Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
-                                                            if (e.ctrlKey && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
-                                                                return;
-                                                            }
-
-                                                            // Блокируем все остальные клавиши
-                                                            e.preventDefault();
-                                                        }}
-                                                        onPaste={(e) => {
-                                                            e.preventDefault();
-                                                            const pastedText = e.clipboardData.getData('text');
-                                                            const formatted = formatPhoneNumber(pastedText);
-                                                            console.log('🔧 onPaste - pastedText:', pastedText, 'formatted:', formatted);
-                                                            field.onChange(formatted);
-                                                            // Принудительно обновляем значение поля
-                                                            const target = e.target as HTMLInputElement;
-                                                            target.value = formatted;
-                                                        }}
-                                                        onDrop={(e) => {
-                                                            e.preventDefault();
-                                                            const droppedText = e.dataTransfer.getData('text');
-                                                            const formatted = formatPhoneNumber(droppedText);
-                                                            field.onChange(formatted);
-                                                        }}
-                                                        onDragOver={(e) => {
-                                                            e.preventDefault();
-                                                        }}
-                                                    />
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <Button
-                                    type="button"
-                                    className="w-full"
-                                    disabled={isLoading || isSendingSms}
-                                    onMouseDown={async (e) => {
-                                        // Предотвращаем потерю фокуса и отправляем форму
-                                        e.preventDefault();
-
-                                        // Принудительно запускаем валидацию
-                                        const validationResult = await phoneForm.trigger();
-
-                                        if (validationResult) {
-                                            phoneForm.handleSubmit(handlePhoneSubmit)();
-                                        }
-                                    }}
-                                >
-                                    {isLoading || isSendingSms ? (
-                                        <div className="flex items-center justify-center">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
-                                            Отправка...
+                        <div className="space-y-4">
+                            {/* Кнопка входа через Telegram */}
+                            {telegramBotName && (
+                                <div className="space-y-2">
+                                    <LoginButton
+                                        botUsername={telegramBotName}
+                                        onAuthCallback={handleTelegramAuth}
+                                        buttonSize="large"
+                                        cornerRadius={12}
+                                        requestAccess="write"
+                                        showAvatar={true}
+                                        lang="ru"
+                                    />
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <span className="w-full border-t" />
                                         </div>
-                                    ) : (
-                                        'Отправить код'
-                                    )}
-                                </Button>
-                            </form>
-                        </Form>
+                                        <div className="relative flex justify-center text-xs uppercase">
+                                            <span className="bg-white px-2 text-muted-foreground">или</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <Form {...phoneForm}>
+                                <form className="space-y-4" noValidate>
+                                    <FormField
+                                        control={phoneForm.control}
+                                        name="phoneNumber"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-medium flex items-center gap-2">
+                                                    <Phone className="h-4 w-4" />
+                                                    Номер телефона
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <div className="relative">
+                                                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                                                        <Input
+                                                            {...field}
+                                                            type="text"
+                                                            placeholder="+7 (999) 999-99-99"
+                                                            className="pl-10"
+                                                            autoComplete="tel"
+                                                            maxLength={18}
+                                                            inputMode="numeric"
+                                                            onChange={(e) => {
+                                                                const formatted = formatPhoneNumber(e.target.value);
+                                                                console.log('🔧 onChange - input:', e.target.value, 'formatted:', formatted);
+                                                                field.onChange(formatted);
+                                                                // Принудительно обновляем значение поля
+                                                                if (e.target.value !== formatted) {
+                                                                    e.target.value = formatted;
+                                                                }
+                                                            }}
+                                                            onBlur={(e) => {
+                                                                // Дополнительная проверка при потере фокуса
+                                                                const formatted = formatPhoneNumber(e.target.value);
+                                                                if (e.target.value !== formatted) {
+                                                                    e.target.value = formatted;
+                                                                    field.onChange(formatted);
+                                                                }
+                                                            }}
+                                                            onKeyDown={(e) => {
+                                                                // Разрешаем только цифры, Backspace, Delete, Tab, Escape, Enter
+                                                                const allowedKeys = [
+                                                                    'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                                                                    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                                                                    'Home', 'End'
+                                                                ];
+
+                                                                // Разрешаем цифры
+                                                                if (e.key >= '0' && e.key <= '9') {
+                                                                    return;
+                                                                }
+
+                                                                // Разрешаем специальные клавиши
+                                                                if (allowedKeys.includes(e.key)) {
+                                                                    return;
+                                                                }
+
+                                                                // Разрешаем Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                                                                if (e.ctrlKey && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                                                                    return;
+                                                                }
+
+                                                                // Блокируем все остальные клавиши
+                                                                e.preventDefault();
+                                                            }}
+                                                            onPaste={(e) => {
+                                                                e.preventDefault();
+                                                                const pastedText = e.clipboardData.getData('text');
+                                                                const formatted = formatPhoneNumber(pastedText);
+                                                                console.log('🔧 onPaste - pastedText:', pastedText, 'formatted:', formatted);
+                                                                field.onChange(formatted);
+                                                                // Принудительно обновляем значение поля
+                                                                const target = e.target as HTMLInputElement;
+                                                                target.value = formatted;
+                                                            }}
+                                                            onDrop={(e) => {
+                                                                e.preventDefault();
+                                                                const droppedText = e.dataTransfer.getData('text');
+                                                                const formatted = formatPhoneNumber(droppedText);
+                                                                field.onChange(formatted);
+                                                            }}
+                                                            onDragOver={(e) => {
+                                                                e.preventDefault();
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <Button
+                                        type="button"
+                                        className="w-full"
+                                        disabled={isLoading || isSendingSms || isTelegramLoading}
+                                        onMouseDown={async (e) => {
+                                            // Предотвращаем потерю фокуса и отправляем форму
+                                            e.preventDefault();
+
+                                            // Принудительно запускаем валидацию
+                                            const validationResult = await phoneForm.trigger();
+
+                                            if (validationResult) {
+                                                phoneForm.handleSubmit(handlePhoneSubmit)();
+                                            }
+                                        }}
+                                    >
+                                        {isLoading || isSendingSms ? (
+                                            <div className="flex items-center justify-center">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
+                                                Отправка...
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <MessageCircle className="h-4 w-4 mr-2" />
+                                                Отправить код
+                                            </>
+                                        )}
+                                    </Button>
+                                </form>
+                            </Form>
+                        </div>
                     ) : (
                         <Form {...codeForm}>
                             <div className="space-y-4">
