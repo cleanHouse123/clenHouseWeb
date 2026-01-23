@@ -343,15 +343,37 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                             {/* Кнопка входа через Telegram */}
                             {telegramBotName && (
                                 <div className="space-y-2">
-                                    <LoginButton
-                                        botUsername={telegramBotName}
-                                        onAuthCallback={handleTelegramAuth}
-                                        buttonSize="large"
-                                        cornerRadius={12}
-                                        requestAccess="write"
-                                        showAvatar={true}
-                                        lang="ru"
-                                    />
+                                    <div className="relative telegram-button-wrapper group">
+                                        <div className="relative w-full rounded-lg overflow-hidden">
+                                            <LoginButton
+                                                botUsername={telegramBotName}
+                                                onAuthCallback={handleTelegramAuth}
+                                                buttonSize="large"
+                                                cornerRadius={12}
+                                                requestAccess="write"
+                                                showAvatar={true}
+                                                lang="ru"
+                                            />
+                                            {/* Стилизованный overlay поверх кнопки */}
+                                            <div className="absolute inset-0 rounded-lg pointer-events-none z-10 border border-primary/0 group-hover:border-primary/30 transition-all duration-200 shadow-sm group-hover:shadow-md" />
+                                            <div className="absolute inset-0 rounded-lg pointer-events-none z-10 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-primary/3 group-hover:to-primary/5 transition-all duration-200" />
+                                        </div>
+                                        <style>{`
+                                            .telegram-button-wrapper iframe {
+                                                border-radius: 12px !important;
+                                                overflow: hidden !important;
+                                                width: 100% !important;
+                                                transition: all 0.2s ease !important;
+                                                border: none !important;
+                                            }
+                                            .telegram-button-wrapper:hover iframe {
+                                                filter: brightness(0.98) !important;
+                                            }
+                                            .telegram-button-wrapper iframe[src*="telegram.org"] {
+                                                filter: none !important;
+                                            }
+                                        `}</style>
+                                    </div>
                                     <div className="relative">
                                         <div className="absolute inset-0 flex items-center">
                                             <span className="w-full border-t" />
