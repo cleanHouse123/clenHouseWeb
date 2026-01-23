@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useSendSms } from '@/modules/auth/hooks/useSendSms';
 import { useVerifySms } from '@/modules/auth/hooks/useVerifySms';
 import { Phone, ArrowLeft, Shield, MessageCircle } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { authApi } from '@/modules/auth/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -97,6 +97,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const { mutateAsync: sendSms, isPending: isSendingSms } = useSendSms();
     const { mutateAsync: verifySms, isPending: isVerifyingSms } = useVerifySms();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     // Получаем имя бота из переменных окружения
     const telegramBotName = import.meta.env.VITE_TELEGRAM_BOT_NAME || 'chistoDoma2_bot';
@@ -257,6 +258,9 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
 
             // Закрываем модальное окно
             onClose();
+
+            // Перенаправляем в личный кабинет
+            navigate('/dashboard');
         } catch (error: any) {
             console.error('Ошибка авторизации через Telegram:', error);
             toast.error('Ошибка входа', {
@@ -343,36 +347,32 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                             {/* Кнопка входа через Telegram */}
                             {telegramBotName && (
                                 <div className="space-y-2">
-                                    <div className="relative telegram-button-wrapper group">
-                                        <div className="relative w-full rounded-lg overflow-hidden">
+                                    <div className="relative w-full">
+                                        <button
+                                            type="button"
+                                            className="inline-flex h-[42px] w-full items-center justify-center gap-2 rounded-3xl bg-primary px-4 text-[11px] text-primary-foreground hover:bg-accent transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={isTelegramLoading}
+                                        >
+                                            <svg
+                                                className="h-[14px] w-[15px] shrink-0"
+                                                viewBox="0 0 24 24"
+                                                fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.13-.31-1.09-.66.02-.18.27-.37.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z" />
+                                            </svg>
+                                            <span>Войти через Telegram</span>
+                                        </button>
+                                        <div className="absolute inset-0 opacity-0 z-10">
                                             <LoginButton
                                                 botUsername={telegramBotName}
-                                                onAuthCallback={handleTelegramAuth}
                                                 buttonSize="large"
-                                                cornerRadius={12}
-                                                requestAccess="write"
-                                                showAvatar={true}
+                                                cornerRadius={16}
                                                 lang="ru"
+                                                showAvatar={false}
+                                                onAuthCallback={handleTelegramAuth}
                                             />
-                                            {/* Стилизованный overlay поверх кнопки */}
-                                            <div className="absolute inset-0 rounded-lg pointer-events-none z-10 border border-primary/0 group-hover:border-primary/30 transition-all duration-200 shadow-sm group-hover:shadow-md" />
-                                            <div className="absolute inset-0 rounded-lg pointer-events-none z-10 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-primary/3 group-hover:to-primary/5 transition-all duration-200" />
                                         </div>
-                                        <style>{`
-                                            .telegram-button-wrapper iframe {
-                                                border-radius: 12px !important;
-                                                overflow: hidden !important;
-                                                width: 100% !important;
-                                                transition: all 0.2s ease !important;
-                                                border: none !important;
-                                            }
-                                            .telegram-button-wrapper:hover iframe {
-                                                filter: brightness(0.98) !important;
-                                            }
-                                            .telegram-button-wrapper iframe[src*="telegram.org"] {
-                                                filter: none !important;
-                                            }
-                                        `}</style>
                                     </div>
                                     <div className="relative">
                                         <div className="absolute inset-0 flex items-center">
