@@ -48,6 +48,18 @@ export const ordersApi = {
     return response.data;
   },
 
+  // Курьер берет заказ (только PAID)
+  takeOrder: async (id: string, courierId: string): Promise<OrderResponseDto> => {
+    const response = await axiosInstance.patch(`/orders/${id}/take`, { courierId });
+    return response.data;
+  },
+
+  // Переназначить заказ другому курьеру
+  reassignOrder: async (id: string, newCourierId: string): Promise<OrderResponseDto> => {
+    const response = await axiosInstance.patch(`/orders/${id}/reassign`, { newCourierId });
+    return response.data;
+  },
+
   // Курьер завершает заказ
   completeOrder: async (id: string): Promise<OrderResponseDto> => {
     const response = await axiosInstance.patch(`/orders/${id}/complete`);

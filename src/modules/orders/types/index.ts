@@ -38,8 +38,11 @@ export interface OrderResponseDto {
   price: number;
   status: OrderStatus;
   scheduledAt?: string;
+  assignedAt?: string;
   notes?: string;
   numberPackages?: number;
+  isOverdue?: boolean;
+  overdueMinutes?: number;
   payments: PaymentResponseDto[];
   createdAt: string;
   updatedAt: string;
