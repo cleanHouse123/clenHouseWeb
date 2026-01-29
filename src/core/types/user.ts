@@ -8,7 +8,7 @@ export enum UserRole {
 
 export interface User {
   userId: string;
-  role: UserRole;
+  roles: UserRole[];
   name: string;
   phone?: string;
   isPhoneVerified: boolean;
