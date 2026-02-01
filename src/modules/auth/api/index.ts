@@ -87,4 +87,16 @@ export const authApi = {
     const response = await axiosPublic.post("/auth/telegram/login-widget/verify", payload);
     return response.data;
   },
+
+  // Обновление текущего пользователя
+  updateMe: async (data: { phone?: string; name?: string; email?: string }): Promise<{ message: string; user: User }> => {
+    const response = await axiosInstance.patch("/user/me", data);
+    return {
+      ...response.data,
+      user: {
+        ...response.data.user,
+        userId: response.data.user.id,
+      },
+    };
+  },
 };

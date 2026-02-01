@@ -243,15 +243,24 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             localStorage.removeItem('adToken');
 
             // Инвалидируем кэш пользователя для обновления данных
-            queryClient.invalidateQueries({ queryKey: ['me'] });
+            await queryClient.invalidateQueries({ queryKey: ['me'] });
+
+            // Получаем данные пользователя для проверки номера телефона
+            const userData = await queryClient.fetchQuery({ queryKey: ['me'], queryFn: () => authApi.getMe() });
+
+            // Закрываем модальное окно входа
+            onClose();
+
+            // Если у пользователя нет номера телефона, показываем модальное окно для ввода
+            if (!userData?.phone) {
+                // Сохраняем флаг, что нужно показать модальное окно для ввода номера
+                localStorage.setItem('showPhoneModal', 'true');
+            }
 
             toast.success('Добро пожаловать!', {
                 description: `Привет, ${result.user.name}! Вы успешно вошли через Telegram`,
                 duration: 4000,
             });
-
-            // Закрываем модальное окно
-            onClose();
 
             // Перенаправляем в личный кабинет
             navigate('/dashboard');

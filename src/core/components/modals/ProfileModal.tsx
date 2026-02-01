@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/core/components/ui/button/button';
 import { Card, CardContent } from '@/core/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
@@ -5,9 +6,10 @@ import { PushNotificationSettings } from '@/core/components/ui/PushNotificationS
 import { UserAddressesList } from '@/modules/address/ui/user-adresses';
 import { useCreateRefferalLink } from '@/modules/referral/hooks/useCreateRefferalLink';
 import { ReferralLink } from '@/modules/referral/types';
-import { CheckCircle, Loader2, Mail, Phone, User, UserCircle } from 'lucide-react';
+import { CheckCircle, Loader2, Mail, Phone, User, UserCircle, Edit } from 'lucide-react';
 import { memo } from 'react';
 import { toast } from 'sonner';
+import { PhoneNumberModal } from './PhoneNumberModal';
 
 interface ProfileModalProps {
     isOpen: boolean;
@@ -26,7 +28,7 @@ interface ProfileModalProps {
 }
 
 const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
-
+    const [showPhoneModal, setShowPhoneModal] = useState(false);
     const { mutate: createReferralLink, isPending: isCreatingReferralLink } = useCreateRefferalLink();
 
     const referralLink = `https://выносмусора.рф/?adToken=${user.adToken?.token}`;
@@ -40,8 +42,18 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-3xl max-h-[85vh] sm:max-h-[95vh] overflow-y-auto sm:mx-auto p-0">
+        <>
+            <PhoneNumberModal
+                isOpen={showPhoneModal}
+                onClose={() => {
+                    setShowPhoneModal(false);
+                    // Обновляем данные пользователя после закрытия модального окна
+                    window.location.reload();
+                }}
+                required={false}
+            />
+            <Dialog open={isOpen} onOpenChange={onClose}>
+                <DialogContent className="max-w-3xl max-h-[85vh] sm:max-h-[95vh] overflow-y-auto sm:mx-auto p-0">
                 <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border">
                     <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-foreground">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -72,29 +84,41 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                         <div className="flex-1 space-y-4">
                             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Контактная информация</h4>
 
-                            {user.phone && (
-                                <Card radius="r16" padding="md" background="white" bordered shadow>
-                                    <CardContent className="p-0">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2  rounded-lg">
-                                                    <Phone className="h-4 w-4" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-foreground">Телефон</p>
-                                                    <p className="text-sm text-muted-foreground">{user.phone}</p>
-                                                </div>
+                            <Card radius="r16" padding="md" background="white" bordered shadow>
+                                <CardContent className="p-0">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3 flex-1">
+                                            <div className="p-2  rounded-lg">
+                                                <Phone className="h-4 w-4" />
                                             </div>
-                                            {user.isPhoneVerified && (
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-foreground">Телефон</p>
+                                                {user.phone ? (
+                                                    <p className="text-sm text-muted-foreground">{user.phone}</p>
+                                                ) : (
+                                                    <p className="text-sm text-muted-foreground italic">Не указан</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {user.phone && user.isPhoneVerified && (
                                                 <div className="flex items-center gap-1 text-green-600">
                                                     <CheckCircle className="h-4 w-4" />
                                                     <span className="text-xs font-medium">Подтвержден</span>
                                                 </div>
                                             )}
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setShowPhoneModal(true)}
+                                                className="h-8 w-8 p-0"
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            )}
+                                    </div>
+                                </CardContent>
+                            </Card>
 
                             {user.email && (
                                 <Card radius="r16" padding="md" background="white" bordered shadow>
@@ -202,6 +226,7 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                 </div>
             </DialogContent>
         </Dialog>
+        </>
     );
 });
 
