@@ -52,8 +52,8 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                 }}
                 required={false}
             />
-            <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-3xl max-h-[85vh] sm:max-h-[95vh] overflow-y-auto sm:mx-auto p-0">
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-3xl max-h-[85vh] sm:max-h-[95vh] overflow-y-auto sm:mx-auto p-0">
                 <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border">
                     <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-semibold text-foreground">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -84,15 +84,15 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                         <div className="flex-1 space-y-4">
                             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Контактная информация</h4>
 
-                            <Card radius="r16" padding="md" background="white" bordered shadow>
-                                <CardContent className="p-0">
-                                    <div className="flex items-center justify-between">
+                                <Card radius="r16" padding="md" background="white" bordered shadow>
+                                    <CardContent className="p-0">
+                                        <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3 flex-1">
-                                            <div className="p-2  rounded-lg">
-                                                <Phone className="h-4 w-4" />
-                                            </div>
+                                                <div className="p-2  rounded-lg">
+                                                    <Phone className="h-4 w-4" />
+                                                </div>
                                             <div className="flex-1">
-                                                <p className="text-sm font-medium text-foreground">Телефон</p>
+                                                    <p className="text-sm font-medium text-foreground">Телефон</p>
                                                 {user.phone ? (
                                                     <p className="text-sm text-muted-foreground">{user.phone}</p>
                                                 ) : (
@@ -116,9 +116,9 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                                                 <Edit className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
                             {user.email && (
                                 <Card radius="r16" padding="md" background="white" bordered shadow>
