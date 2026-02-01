@@ -233,13 +233,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             const adToken = localStorage.getItem('adToken');
 
             const result = await authApi.verifyTelegram({
-                id: user.id,
-                first_name: user.first_name,
-                last_name: user.last_name,
-                username: user.username,
-                photo_url: user.photo_url,
-                auth_date: user.auth_date,
-                hash: user.hash,
+                ...user,
                 ...(adToken && { adToken }),
             });
 
@@ -352,6 +346,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                             botUsername={telegramBotName}
                                             buttonSize="large"
                                             cornerRadius={16}
+
                                             lang="ru"
                                             showAvatar={false}
                                             onAuthCallback={handleTelegramAuth}
