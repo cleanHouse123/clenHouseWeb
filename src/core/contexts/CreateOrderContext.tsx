@@ -119,12 +119,19 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
                 
                 onOrderCreated?.();
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Ошибка создания заказа:', error);
-            toast.error('Ошибка создания заказа', {
-                description: 'Произошла ошибка при создании заказа. Попробуйте еще раз.',
-                duration: 5000,
-            });
+            // Ошибка уже обработана в хуке useCreateOrder через onError (показывается toast)
+            // Здесь просто логируем ошибку, toast уже показан в хуке
+            // Если это не axios ошибка (нет response), показываем общее сообщение
+            if (!error?.response) {
+                const errorMessage = error?.message || 'Произошла ошибка при создании заказа. Попробуйте еще раз.';
+                toast.error('Ошибка создания заказа', {
+                    description: errorMessage,
+                    duration: 5000,
+                });
+            }
+            // Для axios ошибок сообщение уже показано в хуке useCreateOrder.onError
         }
     };
 

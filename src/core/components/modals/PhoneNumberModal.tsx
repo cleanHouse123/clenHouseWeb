@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -93,8 +92,8 @@ export const PhoneNumberModal = ({ isOpen, onClose, required = false }: PhoneNum
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md p-6">
+        <DialogHeader className="pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Phone className="h-5 w-5" />
             {required ? 'Добавьте номер телефона' : 'Изменить номер телефона'}
@@ -107,7 +106,7 @@ export const PhoneNumberModal = ({ isOpen, onClose, required = false }: PhoneNum
         </DialogHeader>
 
         {required && (
-          <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center gap-2 p-3 mb-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <AlertCircle className="h-4 w-4 text-yellow-600" />
             <p className="text-sm text-yellow-800">
               Номер телефона обязателен для работы с системой
@@ -116,7 +115,7 @@ export const PhoneNumberModal = ({ isOpen, onClose, required = false }: PhoneNum
         )}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
             <FormField
               control={form.control}
               name="phoneNumber"
