@@ -11,7 +11,7 @@ export const useGetMe = () => {
         enabled: !!accessToken, // Выполнять запрос только если есть токен
         staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
         gcTime: 10 * 60 * 1000, // 10 минут - время хранения в кэше
-        refetchOnWindowFocus: false, // не перезагружать при фокусе окна
+        refetchOnWindowFocus: true, // обновлять профиль при возврате во вкладку (разблокировка после привязки телефона в боте)
         refetchOnMount: false, // не перезагружать при монтировании
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         retry: (failureCount, error: any) => {

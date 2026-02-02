@@ -14,6 +14,7 @@ export interface User {
   isPhoneVerified: boolean;
   email?: string;
   isEmailVerified: boolean;
+  telegramId?: string;
   adToken?: ReferralLink;
   lastLoginAt: Date;
   createdAt: Date;
