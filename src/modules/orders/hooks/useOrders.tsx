@@ -22,6 +22,9 @@ export const useOrder = (id: string) => {
     });
 };
 
+/** Интервал автообновления заказов клиента (30 сек) */
+const CUSTOMER_ORDERS_POLLING_INTERVAL_MS = 60 * 1000;
+
 // Получить заказы текущего пользователя (клиента)
 export const useCustomerOrders = (params?: Omit<OrderQueryParams, 'customerId'>) => {
     const { data: user } = useGetMe();
@@ -30,6 +33,8 @@ export const useCustomerOrders = (params?: Omit<OrderQueryParams, 'customerId'>)
         queryKey: ['customer-orders', user?.userId, params],
         queryFn: () => ordersApi.getCustomerOrders(user!.userId),
         enabled: !!user?.userId,
+        staleTime: CUSTOMER_ORDERS_POLLING_INTERVAL_MS,
+        refetchInterval: CUSTOMER_ORDERS_POLLING_INTERVAL_MS,
     });
 };
 
