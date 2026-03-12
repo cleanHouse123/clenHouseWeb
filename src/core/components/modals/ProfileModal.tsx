@@ -6,7 +6,7 @@ import { PushNotificationSettings } from '@/core/components/ui/PushNotificationS
 import { UserAddressesList } from '@/modules/address/ui/user-adresses';
 import { useCreateRefferalLink } from '@/modules/referral/hooks/useCreateRefferalLink';
 import { ReferralLink } from '@/modules/referral/types';
-import { CheckCircle, Loader2, Mail, Phone, User, UserCircle, Edit } from 'lucide-react';
+import { CheckCircle, Loader2, Mail, Phone, User, UserCircle, Edit, Send } from 'lucide-react';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { PhoneNumberModal } from './PhoneNumberModal';
@@ -198,15 +198,17 @@ const ProfileModal = memo(({ isOpen, onClose, user }: ProfileModalProps) => {
                                     </div>
                                 </a>
                                 <a
-                                    href="mailto:chisto.doma1@mail.ru?subject=Жалоба"
+                                    href="https://t.me/chistodoma1"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
                                     <div className="p-2 bg-purple-50 rounded-lg">
-                                        <Mail className="h-4 w-4 text-purple-600" />
+                                        <Send className="h-4 w-4 text-purple-600" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-foreground">Написать жалобу</p>
-                                        <p className="text-sm text-muted-foreground">chisto.doma1@mail.ru</p>
+                                        <p className="text-sm font-medium text-foreground">Telegram</p>
+                                        <p className="text-sm text-muted-foreground">@chistodoma1</p>
                                     </div>
                                 </a>
                             </div>
