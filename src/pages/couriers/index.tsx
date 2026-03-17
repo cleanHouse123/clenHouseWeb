@@ -9,7 +9,7 @@ export const CouriersPage = () => {
 
     const handleDownloadAndroid = () => {
         const link = document.createElement('a');
-        link.href = '/app-1.apk';
+        link.href = '/app-2.apk';
         link.download = 'cleanhouse-courier.apk';
         document.body.appendChild(link);
         link.click();
