@@ -46,7 +46,7 @@ const createOrderSchema = z.object({
     scheduledTime: z.string().optional(),
     notes: z.string().max(500, 'Заметки слишком длинные').optional(),
     paymentMethod: z.enum(['subscription', 'online'] as const),
-    numberPackages: z.coerce.number().min(1, 'Количество пакетов должно быть не менее 1'),
+    numberPackages: z.coerce.number().min(2, 'Количество пакетов должно быть не менее 2'),
 });
 
 type CreateOrderFormData = z.infer<typeof createOrderSchema>;
@@ -105,7 +105,7 @@ export const CreateOrderModalWithTabs = ({
             scheduledTime: '',
             notes: '',
             paymentMethod: 'online',
-            numberPackages: 1,
+            numberPackages: 2,
         },
     });
 
@@ -119,10 +119,10 @@ export const CreateOrderModalWithTabs = ({
         name: 'paymentMethod',
     });
 
-    // Устанавливаем количество пакетов = 1 при выборе подписки
+    // По подписке 1 заказ соответствует 2 пакетам
     useEffect(() => {
         if (paymentMethod === 'subscription') {
-            form.setValue('numberPackages', 1);
+            form.setValue('numberPackages', 2);
         }
     }, [paymentMethod, form]);
 
@@ -562,7 +562,7 @@ export const CreateOrderModalWithTabs = ({
                                                         <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                                         <div className="flex-1">
                                                             <p className="text-sm font-medium text-blue-900">
-                                                                По подписке можно выносить только 1 пакет до 60 литров
+                                                                По подписке можно выносить только 1 заказ (2 пакета) до 60 литров
                                                             </p>
                                                         </div>
                                                     </div>
@@ -585,16 +585,14 @@ export const CreateOrderModalWithTabs = ({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {Array.from({ length: 4 }, (_, i) => i + 1).map((num) => (
+                                                    {Array.from({ length: 3 }, (_, i) => i + 2).map((num) => (
                                                         <SelectItem key={num} value={String(num)}>
                                                             {num} {num === 1 ? 'пакет' : num < 5 ? 'пакета' : 'пакетов'}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            <p className="text-sm text-muted-foreground mt-1">
-                                                1 пакет = 1 заказ
-                                            </p>
+                                            <p className="text-sm text-muted-foreground mt-1">1 заказ = 2 пакета</p>
                                             <FormMessage />
                                         </FormItem>
                                     );
