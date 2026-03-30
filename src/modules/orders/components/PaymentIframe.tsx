@@ -28,7 +28,7 @@ export const PaymentIframe = ({
 }: PaymentIframeProps) => {
     const [isRedirecting, setIsRedirecting] = useState(false);
     const { orderPrice, isLoading } = useOrderPrice({
-        numberPackages,
+        numberPackages: numberPackages ?? 2,
         addressId,
     });
 
@@ -118,7 +118,7 @@ export const PaymentIframe = ({
                             </div>
                             <div className="flex items-center gap-2">
                                 <span>
-                                    Стоимость: {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}₽
+                                    Стоимость: {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '—')}₽
                                 </span>
                             </div>
                         </div>

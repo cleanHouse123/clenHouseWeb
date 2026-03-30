@@ -102,6 +102,10 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                             <p className="text-sm text-muted-foreground mt-1">
                                 {userSubscription.type === 'monthly' ? 'Подписка на месяц' : 'Подписка на год'}
                             </p>
+                            <p className="text-xs text-muted-foreground mt-2 leading-relaxed max-w-xl">
+                                Один заказ по подписке — один вынос: <span className="font-medium text-foreground/90">2 пакета по 60 л</span>
+                                {' '}(стандартный объём за рейс).
+                            </p>
                         </div>
                         <Badge className={`${getStatusColor()}`}>
                             <div className="flex items-center gap-1">

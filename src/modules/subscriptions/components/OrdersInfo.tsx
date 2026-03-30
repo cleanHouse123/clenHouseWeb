@@ -14,9 +14,14 @@ export const OrdersInfo = ({ ordersLimit, usedOrders, className = "" }: OrdersIn
 
     return (
         <div className={`space-y-3 ${className}`}>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle className="h-4 w-4" />
-                <span>Заказы</span>
+            <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>Заказы</span>
+                </div>
+                <p className="text-xs text-muted-foreground pl-6 leading-snug">
+                    1 заказ по подписке = 1 вынос (2 пакета по 60 л)
+                </p>
             </div>
             
             {ordersLimit === -1 ? (
