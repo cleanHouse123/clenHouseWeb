@@ -46,7 +46,7 @@ const createOrderSchema = z.object({
     scheduledTime: z.string().optional(),
     notes: z.string().max(500, 'Заметки слишком длинные').optional(),
     paymentMethod: z.enum(['subscription', 'online'] as const),
-    numberPackages: z.coerce.number().min(1, 'Количество пакетов должно быть не менее 1'),
+    numberPackages: z.coerce.number().min(1, 'Укажите количество пакетов'),
 });
 
 type CreateOrderFormData = z.infer<typeof createOrderSchema>;
@@ -105,7 +105,7 @@ export const CreateOrderModalWithTabs = ({
             scheduledTime: '',
             notes: '',
             paymentMethod: 'online',
-            numberPackages: 1,
+            numberPackages: 2,
         },
     });
 
@@ -119,10 +119,10 @@ export const CreateOrderModalWithTabs = ({
         name: 'paymentMethod',
     });
 
-    // Устанавливаем количество пакетов = 1 при выборе подписки
+    // По подписке 1 заказ соответствует 2 пакетам
     useEffect(() => {
         if (paymentMethod === 'subscription') {
-            form.setValue('numberPackages', 1);
+            form.setValue('numberPackages', 2);
         }
     }, [paymentMethod, form]);
 
@@ -254,6 +254,10 @@ export const CreateOrderModalWithTabs = ({
                                         <CheckCircle className="h-4 w-4" />
                                         <span>У вас активная подписка</span>
                                     </div>
+                                    <p className="text-xs sm:text-sm text-green-800/95 leading-relaxed border-t border-green-200/80 pt-2">
+                                        Один заказ по подписке — это <span className="font-medium">один вынос</span>: два пакета по 60 литров
+                                        (итого до 120 л за вынос). С лимита списывается один такой заказ.
+                                    </p>
                                     {isUnlimited ? (
                                         <p className="text-sm text-green-600">
                                             Безлимитные заказы {userSubscription?.usedOrders !== undefined && `(использовано: ${userSubscription.usedOrders})`}
@@ -556,13 +560,17 @@ export const CreateOrderModalWithTabs = ({
                                     if (isSubscription) {
                                         return (
                                             <FormItem>
-                                                <FormLabel>Количество пакетов</FormLabel>
+                                                <FormLabel>Вынос по подписке</FormLabel>
                                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                                     <div className="flex items-start gap-2">
                                                         <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                                                        <div className="flex-1">
+                                                        <div className="flex-1 space-y-1.5">
                                                             <p className="text-sm font-medium text-blue-900">
-                                                                По подписке можно выносить только 1 пакет до 60 литров
+                                                                Один вынос = 2 пакета по 60 литров
+                                                            </p>
+                                                            <p className="text-sm text-blue-800/95 leading-relaxed">
+                                                                Так оформляется стандартный объём: два мешка по 60 л на один рейс курьера.
+                                                                Количество не меняется — с подписки списывается один заказ за этот вынос.
                                                             </p>
                                                         </div>
                                                     </div>
@@ -585,7 +593,7 @@ export const CreateOrderModalWithTabs = ({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {Array.from({ length: 4 }, (_, i) => i + 1).map((num) => (
+                                                    {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
                                                         <SelectItem key={num} value={String(num)}>
                                                             {num} {num === 1 ? 'пакет' : num < 5 ? 'пакета' : 'пакетов'}
                                                         </SelectItem>
@@ -593,7 +601,7 @@ export const CreateOrderModalWithTabs = ({
                                                 </SelectContent>
                                             </Select>
                                             <p className="text-sm text-muted-foreground mt-1">
-                                                1 пакет = 1 заказ
+                                                Разово: 1 пакет — 149 ₽; 2 пакета по 60 л — 199 ₽ (один вынос)
                                             </p>
                                             <FormMessage />
                                         </FormItem>
