@@ -289,7 +289,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             const result = await authApi.register({
                 name: data.name.trim(),
                 email: data.email.trim().toLowerCase(),
-                phone: data.phoneNumber,
+                phone: data.phoneNumber.trim(),
                 password: data.password.trim(),
             });
 
@@ -886,7 +886,12 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                     Email
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} type="email" placeholder="example@mail.com" autoComplete="email" />
+                                                    <Input
+                                                        {...field}
+                                                        type="text"
+                                                        placeholder="example@mail.com"
+                                                        autoComplete="email"
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -903,25 +908,12 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                     Номер телефона
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <div className="relative">
-                                                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                                                        <Input
-                                                            {...field}
-                                                            type="text"
-                                                            placeholder="+7 (999) 999-99-99"
-                                                            className="pl-10"
-                                                            autoComplete="tel"
-                                                            maxLength={18}
-                                                            inputMode="numeric"
-                                                            onChange={(e) => {
-                                                                const formatted = formatPhoneNumber(e.target.value);
-                                                                field.onChange(formatted);
-                                                                if (e.target.value !== formatted) {
-                                                                    e.target.value = formatted;
-                                                                }
-                                                            }}
-                                                        />
-                                                    </div>
+                                                    <Input
+                                                        {...field}
+                                                        type="text"
+                                                        placeholder="+7 (999) 999-99-99"
+                                                        autoComplete="tel"
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
