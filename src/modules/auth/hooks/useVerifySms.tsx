@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { authApi } from '../api';
 import { VerifySmsRequest } from '../types';
+import {
+    getSavedAuthCredentials,
+    saveSavedAuthCredentials,
+} from '../utils/saved-auth';
 
 export const useVerifySms = () => {
     const navigate = useNavigate();
@@ -18,10 +22,17 @@ export const useVerifySms = () => {
                 ...(adToken && { adToken }),
             });
         },
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             // Сохраняем токены в localStorage
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.refreshToken);
+
+            const existingCredentials = getSavedAuthCredentials();
+            saveSavedAuthCredentials({
+                method: 'phone',
+                login: variables.phoneNumber,
+                password: existingCredentials?.password ?? '',
+            });
 
             // Удаляем adToken после успешной авторизации
             localStorage.removeItem('adToken');
@@ -37,11 +48,16 @@ export const useVerifySms = () => {
             // Перенаправляем в личный кабинет
             navigate('/dashboard');
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
             console.error('Ошибка верификации SMS:', error);
 
-            const errorMessage = error?.response?.data?.message ||
-                error?.message ||
+            const typedError = error as {
+                response?: { data?: { message?: string } };
+                message?: string;
+            };
+            const errorMessage =
+                typedError.response?.data?.message ||
+                typedError.message ||
                 'Неверный код подтверждения';
 
             toast.error('Ошибка входа', {

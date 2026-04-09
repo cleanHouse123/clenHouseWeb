@@ -7,10 +7,28 @@ import {
   AuthResponse,
   RefreshTokensRequest,
   RefreshTokensResponse,
+  RegisterRequest,
+  LoginEmailDto,
 } from "../types";
 import { User } from "@/core/types/user";
 
 export const authApi = {
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
+    const payload = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      password: data.password,
+    };
+    const response = await axiosPublic.post("/auth/register", payload);
+    return response.data;
+  },
+
+  login: async (data: LoginEmailDto): Promise<AuthResponse> => {
+    const response = await axiosPublic.post("/auth/email/login", data);
+    return response.data;
+  },
+
   // Отправка SMS кода
   sendSms: async (data: SendSmsRequest): Promise<SendSmsResponse> => {
     const payload = {

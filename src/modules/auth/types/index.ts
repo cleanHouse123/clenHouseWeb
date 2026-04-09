@@ -3,6 +3,25 @@ export interface SendSmsRequest {
   isDev?: boolean;
 }
 
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
+export interface RegisterEmailDto {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
+export interface LoginEmailDto {
+  email: string;
+  password: string;
+}
+
 export interface SendSmsResponse {
   message: string;
   code?: string; // Код для режима разработки
