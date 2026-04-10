@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { Header } from "@/core/components/layout/Header";
 import { FooterSection } from "@/core/components/layout/footer";
 import { MainSection } from "./ui/main-section";
-import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 import { ScrollToTop } from '@/core/components/ScrollToTop';
+import { useLoginModal } from '@/core/contexts/LoginModalContext';
 
 
 export const HomePage = () => {
@@ -13,7 +13,7 @@ export const HomePage = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const { data: user } = useGetMe();
-  const [isSmsLoginModalOpen, setIsSmsLoginModalOpen] = useState(false);
+  const { openLoginModal } = useLoginModal();
 
   // Обработка якорных ссылок при переходе с других страниц
   useEffect(() => {
@@ -47,7 +47,7 @@ export const HomePage = () => {
 
       // Если пользователь не авторизован, открываем модальное окно входа
       if (!user) {
-        setIsSmsLoginModalOpen(true);
+        openLoginModal();
       }
 
       // Очищаем URL параметр для чистоты адресной строки
@@ -55,13 +55,13 @@ export const HomePage = () => {
       newUrl.searchParams.delete('adToken');
       window.history.replaceState({}, '', newUrl.toString());
     }
-  }, [searchParams, user]);
+  }, [searchParams, user, openLoginModal]);
 
   const handleCallCourier = () => {
     if (user) {
       navigate('/orders');
     } else {
-      setIsSmsLoginModalOpen(true);
+      openLoginModal();
     }
   };
 
@@ -71,12 +71,6 @@ export const HomePage = () => {
       <Header />
       <MainSection onCallCourier={handleCallCourier} />
       <FooterSection />
-
-      {/* SMS Login Modal */}
-      <SmsLoginModal
-        isOpen={isSmsLoginModalOpen}
-        onClose={() => setIsSmsLoginModalOpen(false)}
-      />
 
     </div>
   );

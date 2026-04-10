@@ -8,16 +8,16 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator';
 import { ProfileModal } from '@/core/components/modals/ProfileModal';
-import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 import { Logo } from '@/core/components/ui';
+import { useLoginModal } from '@/core/contexts/LoginModalContext';
 
 export const Header = () => {
     const { data: user, isLoading } = useGetMe();
     const navigate = useNavigate();
     const location = useLocation();
+    const { openLoginModal } = useLoginModal();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-    const [isSmsLoginModalOpen, setIsSmsLoginModalOpen] = useState(false);
 
     const handleLogout = () => {
         // Очищаем токены из localStorage
@@ -37,7 +37,7 @@ export const Header = () => {
 
     const handleLogin = () => {
         setIsMobileMenuOpen(false);
-        setIsSmsLoginModalOpen(true);
+        openLoginModal();
     };
 
     const handleDashboard = () => {
@@ -50,7 +50,7 @@ export const Header = () => {
         if (user) {
             navigate('/orders');
         } else {
-            setIsSmsLoginModalOpen(true);
+            openLoginModal();
         }
     };
 
@@ -430,11 +430,6 @@ export const Header = () => {
                 />
             ) : null}
 
-            {/* SMS Login Modal */}
-            <SmsLoginModal
-                isOpen={isSmsLoginModalOpen}
-                onClose={() => setIsSmsLoginModalOpen(false)}
-            />
         </header>
     );
 };

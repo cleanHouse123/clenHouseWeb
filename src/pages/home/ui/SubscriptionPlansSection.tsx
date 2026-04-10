@@ -7,8 +7,8 @@ import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan } from '@/modules/subscriptions/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { PaymentModal } from '@/modules/subscriptions/components/PaymentModal';
-import { SmsLoginModal } from '@/core/components/modals/SmsLoginModal';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLoginModal } from '@/core/contexts/LoginModalContext';
 import { isAxiosError } from 'axios';
 import { SubscriptionPlanCard } from '@/modules/subscriptions/components/SubscriptionPlanCard';
 import { toast } from 'sonner';
@@ -25,11 +25,11 @@ export const SubscriptionPlansSection: React.FC = () => {
   const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscription } = useCreateSubscriptionByPlan();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { openLoginModal } = useLoginModal();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<SubscriptionPlan | null>(null);
   const {
@@ -60,7 +60,13 @@ export const SubscriptionPlansSection: React.FC = () => {
         newSearchParams.set('subscriptionType', plan.type);
         setSearchParams(newSearchParams);
 
-        setIsLoginModalOpen(true);
+        openLoginModal({
+          onClosed: () => {
+            const next = new URLSearchParams(window.location.search);
+            next.delete('subscriptionType');
+            setSearchParams(next);
+          },
+        });
         return;
       }
 
@@ -105,20 +111,12 @@ export const SubscriptionPlansSection: React.FC = () => {
         console.error('API Error:', errorMessage);
       }
     }
-  }, [user, isLoadingUser, searchParams, setSearchParams, createSubscriptionByPlan, isLoadingAddresses, hasSupportableAddress, navigate]);
+  }, [user, isLoadingUser, searchParams, setSearchParams, createSubscriptionByPlan, isLoadingAddresses, hasSupportableAddress, navigate, openLoginModal]);
 
   const handleClosePaymentModal = () => {
     setIsPaymentModalOpen(false);
     setSelectedPlan(null);
     setPaymentUrl(null);
-  };
-
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false);
-    // Убираем параметр subscriptionType из URL при закрытии модального окна
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.delete('subscriptionType');
-    setSearchParams(newSearchParams);
   };
 
   const handleAddressModalClose = () => {
@@ -252,10 +250,6 @@ export const SubscriptionPlansSection: React.FC = () => {
         />
       )}
 
-      <SmsLoginModal
-        isOpen={isLoginModalOpen}
-        onClose={handleCloseLoginModal}
-      />
       <AddressModal
         isOpen={isAddressModalOpen}
         onClose={handleAddressModalClose}

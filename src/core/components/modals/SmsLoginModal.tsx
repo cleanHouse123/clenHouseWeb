@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +7,7 @@ import { Input } from '@/core/components/ui/inputs/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/core/components/ui/inputs/input-otp';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
+import { Label } from '@/core/components/ui/label';
 import { useSendSms } from '@/modules/auth/hooks/useSendSms';
 import { useVerifySms } from '@/modules/auth/hooks/useVerifySms';
 import { Phone, ArrowLeft, Shield, MessageCircle, Mail, User } from 'lucide-react';
@@ -162,15 +163,23 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             code: '',
         },
     });
-    const registerForm = useForm<RegistrationFormData>({
-        resolver: zodResolver(registrationSchema),
-        defaultValues: {
-            name: '',
-            email: '',
-            phoneNumber: '',
-            password: '',
-        },
-    });
+    const [regName, setRegName] = useState('');
+    const [regEmail, setRegEmail] = useState('');
+    const [regPhone, setRegPhone] = useState('');
+    const [regPassword, setRegPassword] = useState('');
+    const [regFieldErrors, setRegFieldErrors] = useState<
+        Partial<Record<keyof RegistrationFormData, string>>
+    >({});
+    const regFieldsId = useId();
+
+    const resetRegisterFields = () => {
+        setRegName('');
+        setRegEmail('');
+        setRegPhone('');
+        setRegPassword('');
+        setRegFieldErrors({});
+    };
+
     const emailLoginForm = useForm<EmailLoginFormData>({
         resolver: zodResolver(emailLoginSchema),
         defaultValues: {
@@ -323,6 +332,34 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const submitRegisterForm = () => {
+        setRegFieldErrors({});
+        const data = {
+            name: regName,
+            email: regEmail,
+            phoneNumber: regPhone,
+            password: regPassword,
+        };
+        const parsed = registrationSchema.safeParse(data);
+        if (!parsed.success) {
+            const next: Partial<Record<keyof RegistrationFormData, string>> = {};
+            for (const issue of parsed.error.issues) {
+                const key = issue.path[0];
+                if (
+                    key === 'name' ||
+                    key === 'email' ||
+                    key === 'phoneNumber' ||
+                    key === 'password'
+                ) {
+                    next[key] = issue.message;
+                }
+            }
+            setRegFieldErrors(next);
+            return;
+        }
+        void handleRegisterSubmit(parsed.data);
     };
 
     const handleEmailLoginSubmit = async (data: EmailLoginFormData) => {
@@ -498,7 +535,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
         setIsTelegramLoading(false);
         phoneForm.reset();
         codeForm.reset();
-        registerForm.reset();
+        resetRegisterFields();
         emailLoginForm.reset();
         onClose();
     };
@@ -526,7 +563,14 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     }, [isOpen]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleClose}>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                if (!open) {
+                    handleClose();
+                }
+            }}
+        >
             <DialogContent className="!w-full !max-w-sm sm:!max-w-md !mx-auto md:!max-w-md lg:!max-w-md xl:!max-w-md">
                 <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
                     <div className="flex items-center justify-between">
@@ -623,14 +667,14 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                             <Phone className="h-4 w-4" />
                                                             Номер телефона
                                                         </FormLabel>
-                                                        <FormControl>
-                                                            <div className="relative">
-                                                                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                                                        <div className="relative">
+                                                            <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                                            <FormControl>
                                                                 <Input
                                                                     {...field}
                                                                     type="text"
                                                                     placeholder="+7 (999) 999-99-99"
-                                                                    className="pl-10"
+                                                                    className="relative z-10 pl-10"
                                                                     autoComplete="tel"
                                                                     maxLength={18}
                                                                     inputMode="numeric"
@@ -683,8 +727,8 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                                         e.preventDefault();
                                                                     }}
                                                                 />
-                                                            </div>
-                                                        </FormControl>
+                                                            </FormControl>
+                                                        </div>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
@@ -741,6 +785,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                             setHasError(false);
                                             phoneForm.reset();
                                             codeForm.reset();
+                                            resetRegisterFields();
                                         }}
                                     >
                                         Нет аккаунта? Зарегистрироваться
@@ -849,6 +894,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                 setAuthMode('register');
                                                 setStep('phone');
                                                 emailLoginForm.reset();
+                                                resetRegisterFields();
                                             }}
                                         >
                                             Нет аккаунта? Зарегистрироваться
@@ -857,127 +903,155 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                 </Form>
                             )
                         ) : (
-                            <Form {...registerForm}>
-                                <form className="space-y-4" noValidate>
-                                    <FormField
-                                        control={registerForm.control}
-                                        name="name"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-sm font-medium flex items-center gap-2">
-                                                    <User className="h-4 w-4" />
-                                                    Имя
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input {...field} placeholder="Введите имя" autoComplete="name" />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={registerForm.control}
-                                        name="email"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-sm font-medium flex items-center gap-2">
-                                                    <Mail className="h-4 w-4" />
-                                                    Email
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        {...field}
-                                                        type="text"
-                                                        placeholder="example@mail.com"
-                                                        autoComplete="email"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={registerForm.control}
-                                        name="phoneNumber"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-sm font-medium flex items-center gap-2">
-                                                    <Phone className="h-4 w-4" />
-                                                    Номер телефона
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        {...field}
-                                                        type="text"
-                                                        placeholder="+7 (999) 999-99-99"
-                                                        autoComplete="tel"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={registerForm.control}
-                                        name="password"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-sm font-medium">
-                                                    Пароль
-                                                </FormLabel>
-                                                <FormControl>
-                                                        <Input
-                                                            {...field}
-                                                            type="password"
-                                                            placeholder="Введите пароль"
-                                                            autoComplete="new-password"
-                                                        />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <Button
-                                        type="button"
-                                        className="w-full"
-                                        disabled={isLoading}
-                                        onMouseDown={async (e) => {
-                                            e.preventDefault();
-                                            const validationResult = await registerForm.trigger();
-                                            if (validationResult) {
-                                                registerForm.handleSubmit(handleRegisterSubmit)();
-                                            }
-                                        }}
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor={`${regFieldsId}-name`}
+                                        className="text-sm font-medium flex items-center gap-2"
                                     >
-                                        {isLoading ? (
-                                            <div className="flex items-center justify-center">
-                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
-                                                Регистрация...
-                                            </div>
-                                        ) : (
-                                            'Зарегистрироваться'
-                                        )}
-                                    </Button>
+                                        <User className="h-4 w-4" />
+                                        Имя
+                                    </Label>
+                                    <Input
+                                        id={`${regFieldsId}-name`}
+                                        value={regName}
+                                        onChange={(e) => setRegName(e.target.value)}
+                                        placeholder="Введите имя"
+                                        autoComplete="name"
+                                    />
+                                    {regFieldErrors.name ? (
+                                        <p className="text-sm font-medium text-destructive">
+                                            {regFieldErrors.name}
+                                        </p>
+                                    ) : null}
+                                </div>
 
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        className="w-full"
-                                        onClick={() => {
-                                            setAuthMode('login');
-                                            setLoginMethod('email');
-                                            setStep('phone');
-                                            registerForm.reset();
-                                        }}
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor={`${regFieldsId}-email`}
+                                        className="text-sm font-medium flex items-center gap-2"
                                     >
-                                        Войти по почте и паролю
-                                    </Button>
-                                </form>
-                            </Form>
+                                        <Mail className="h-4 w-4" />
+                                        Email
+                                    </Label>
+                                    <Input
+                                        id={`${regFieldsId}-email`}
+                                        value={regEmail}
+                                        onChange={(e) => setRegEmail(e.target.value)}
+                                        type="text"
+                                        inputMode="email"
+                                        autoCapitalize="none"
+                                        autoCorrect="off"
+                                        spellCheck={false}
+                                        placeholder="example@mail.com"
+                                        autoComplete="email"
+                                    />
+                                    {regFieldErrors.email ? (
+                                        <p className="text-sm font-medium text-destructive">
+                                            {regFieldErrors.email}
+                                        </p>
+                                    ) : null}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label
+                                        htmlFor={`${regFieldsId}-phone`}
+                                        className="text-sm font-medium flex items-center gap-2"
+                                    >
+                                        <Phone className="h-4 w-4" />
+                                        Номер телефона
+                                    </Label>
+                                    <Input
+                                        id={`${regFieldsId}-phone`}
+                                        value={regPhone}
+                                        onChange={(e) =>
+                                            setRegPhone(formatPhoneNumber(e.target.value))
+                                        }
+                                        onBlur={(e) =>
+                                            setRegPhone(formatPhoneNumber(e.target.value))
+                                        }
+                                        type="tel"
+                                        inputMode="tel"
+                                        placeholder="+7 (999) 999-99-99"
+                                        autoComplete="tel"
+                                        maxLength={18}
+                                    />
+                                    {regFieldErrors.phoneNumber ? (
+                                        <p className="text-sm font-medium text-destructive">
+                                            {regFieldErrors.phoneNumber}
+                                        </p>
+                                    ) : null}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor={`${regFieldsId}-password`} className="text-sm font-medium">
+                                        Пароль
+                                    </Label>
+                                    <Input
+                                        id={`${regFieldsId}-password`}
+                                        value={regPassword}
+                                        onChange={(e) => setRegPassword(e.target.value)}
+                                        type="password"
+                                        placeholder="Введите пароль"
+                                        autoComplete="new-password"
+                                    />
+                                    {regFieldErrors.password ? (
+                                        <p className="text-sm font-medium text-destructive">
+                                            {regFieldErrors.password}
+                                        </p>
+                                    ) : null}
+                                </div>
+
+                                <Button
+                                    type="button"
+                                    className="w-full"
+                                    disabled={isLoading}
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        const parsed = registrationSchema.safeParse({
+                                            name: regName,
+                                            email: regEmail,
+                                            phoneNumber: regPhone,
+                                            password: regPassword,
+                                        });
+                                        if (!parsed.success) {
+                                            const fe = parsed.error.flatten().fieldErrors;
+                                            setRegFieldErrors({
+                                                name: fe.name?.[0],
+                                                email: fe.email?.[0],
+                                                phoneNumber: fe.phoneNumber?.[0],
+                                                password: fe.password?.[0],
+                                            });
+                                            return;
+                                        }
+                                        setRegFieldErrors({});
+                                        void handleRegisterSubmit(parsed.data);
+                                    }}
+                                >
+                                    {isLoading ? (
+                                        <div className="flex items-center justify-center">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
+                                            Регистрация...
+                                        </div>
+                                    ) : (
+                                        'Зарегистрироваться'
+                                    )}
+                                </Button>
+
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="w-full"
+                                    onClick={() => {
+                                        setAuthMode('login');
+                                        setLoginMethod('email');
+                                        setStep('phone');
+                                        resetRegisterFields();
+                                    }}
+                                >
+                                    Войти по почте и паролю
+                                </Button>
+                            </div>
                         )
                     ) : (
                         <Form {...codeForm}>

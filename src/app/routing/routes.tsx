@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { createBrowserRouter } from "react-router-dom";
 import { AppLayout } from "@/core/components/layout/AppLayout";
 import { RouterErrorPage } from "@/core/components/error";
+import { RootRouteLayout } from "./RootRouteLayout";
 
 // Динамические импорты для code splitting
 const HomePage = lazy(() => import("@/pages/home").then(module => ({ default: module.HomePage })));
@@ -21,13 +22,14 @@ const ErrorTestPage = lazy(() => import("@/pages/error-test").then(module => ({ 
 const routes = [
   {
     path: "/",
-    element: <HomePage />,
+    element: <RootRouteLayout />,
     errorElement: <RouterErrorPage />,
-  },
-  // {
-  //   path: "login",
-  //   element: <LoginPage />,
-  // },
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+        errorElement: <RouterErrorPage />,
+      },
   {
     path: "dashboard",
     element: (
@@ -114,18 +116,23 @@ const routes = [
     ),
     errorElement: <RouterErrorPage />,
   },
+    ],
+  },
 ];
 
 if (process.env.NODE_ENV === 'development') {
-  routes.push({
-    path: "error-test",
-    element: (
-      <AppLayout>
-        <ErrorTestPage />
-      </AppLayout>
-    ),
-    errorElement: <RouterErrorPage />,
-  });
+  const root = routes[0];
+  if (root && "children" in root && root.children) {
+    root.children.push({
+      path: "error-test",
+      element: (
+        <AppLayout>
+          <ErrorTestPage />
+        </AppLayout>
+      ),
+      errorElement: <RouterErrorPage />,
+    });
+  }
 }
 
 export const router = createBrowserRouter(routes, {
