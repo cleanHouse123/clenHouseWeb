@@ -12,7 +12,9 @@ class WebSocketService {
   private isOrderConnected = false;
 
   private getWebSocketUrl(type: "subscription" | "order"): string {
-    const baseUrl = import.meta.env.VITE_API_URL;
+    const baseUrl =
+      import.meta.env.VITE_API_URL ||
+      "https://cleanhouse123-cleanhouseapi-f5cc.twc1.net/";
     const wsPort = import.meta.env.VITE_WS_PORT || "3000";
 
     // Убираем протокол и добавляем порт
@@ -37,7 +39,7 @@ class WebSocketService {
     try {
       const baseUrl =
         import.meta.env.VITE_API_URL ||
-        "https://cleanhouse123-cleanhouseapi-4d55.twc1.net";
+        "https://cleanhouse123-cleanhouseapi-f5cc.twc1.net/";
       const response = await fetch(`${baseUrl}/payment-status/${paymentId}`);
 
       if (!response.ok) {
@@ -62,7 +64,7 @@ class WebSocketService {
     try {
       const baseUrl =
         import.meta.env.VITE_API_URL ||
-        "https://cleanhouse123-cleanhouseapi-4d55.twc1.net";
+        "https://cleanhouse123-cleanhouseapi-f5cc.twc1.net/";
       const response = await fetch(
         `${baseUrl}/payment-status/${paymentId}/type`
       );

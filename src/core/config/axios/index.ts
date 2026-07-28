@@ -1,17 +1,17 @@
 import { toast } from "sonner";
 import axios from "axios";
 
+const baseURL =
+  import.meta.env.VITE_API_URL ||
+  "https://cleanhouse123-cleanhouseapi-f5cc.twc1.net/";
+
 export const axiosInstance = axios.create({
-  // baseURL: "https://cleanhouse123-cleanhouseapi-4d55.twc1.net/",
-  // baseURL: "http://localhost:4000/",
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL,
   withCredentials: false,
 });
 
 export const axiosPublic = axios.create({
-  // baseURL: "https://cleanhouse123-cleanhouseapi-4d55.twc1.net/",
-  baseURL: import.meta.env.VITE_API_URL,
-  // baseURL: "http://localhost:4000/",
+  baseURL,
   withCredentials: false,
 });
   
