@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Dialog, DialogContent } from "@/core/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/core/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -69,14 +69,14 @@ const AddressStepHeader = ({ step }: { step: Step }) => (
         <MapPin className="h-4 w-4 sm:h-5 text-white" />
       </div>
       <div>
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+        <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">
           {step === "unsupported" ? "Адрес вне зоны обслуживания" : "Проверка адреса"}
-        </h2>
-        <p className="text-sm text-gray-600">
+        </DialogTitle>
+        <DialogDescription className="text-sm text-gray-600">
           {step === "unsupported"
             ? "Выберите другой адрес, чтобы продолжить"
             : "Укажите адрес для проверки доступности доставки"}
-        </p>
+        </DialogDescription>
       </div>
     </div>
   </div>

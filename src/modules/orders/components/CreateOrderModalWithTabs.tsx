@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/core/components/ui/button/button';
-import { Dialog, DialogContent } from '@/core/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/core/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/core/components/ui/form';
 import { Textarea } from '@/core/components/ui/inputs/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/inputs/select';
@@ -19,6 +19,8 @@ import { OrderFormData } from '../types';
 import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { AddressModal, AddressModalData } from './AddressModal';
 import { useWorkTime } from '@/modules/work-time/hooks/useWorkTime';
+import { useOrderPrice } from '@/modules/price';
+import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 // Tabs removed as only single order form is used now
 // import { Tabs } from '@/core/components/ui/tabs';
 // import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
@@ -50,6 +52,33 @@ const createOrderSchema = z.object({
 });
 
 type CreateOrderFormData = z.infer<typeof createOrderSchema>;
+
+const getPackageWord = (count: number) => {
+    const lastTwoDigits = count % 100;
+    const lastDigit = count % 10;
+
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+        return 'пакетов';
+    }
+
+    if (lastDigit === 1) {
+        return 'пакет';
+    }
+
+    if (lastDigit >= 2 && lastDigit <= 4) {
+        return 'пакета';
+    }
+
+    return 'пакетов';
+};
+
+const getPackagePriceLabel = (count: number) => {
+    if (count === 2) {
+        return '2 пакета по 60 л';
+    }
+
+    return `${count} ${getPackageWord(count)}`;
+};
 
 interface CreateOrderModalProps {
     isOpen: boolean;
@@ -118,6 +147,42 @@ export const CreateOrderModalWithTabs = ({
         control: form.control,
         name: 'paymentMethod',
     });
+
+    const watchedNumberPackages = useWatch({
+        control: form.control,
+        name: 'numberPackages',
+    });
+    const selectedPackages = typeof watchedNumberPackages === 'number' && Number.isFinite(watchedNumberPackages) && watchedNumberPackages > 0
+        ? watchedNumberPackages
+        : 2;
+    const {
+        orderPrice,
+        isLoading: isPriceLoading,
+        error: orderPriceError,
+    } = useOrderPrice({
+        numberPackages: selectedPackages,
+        addressId: addressData?.addressId,
+    });
+    const isSubscriptionPayment = paymentMethod === 'subscription';
+    const totalPriceText = isSubscriptionPayment
+        ? 'По подписке'
+        : isPriceLoading
+            ? 'Считаем...'
+            : orderPriceError
+                ? 'Цена недоступна'
+                : orderPrice
+                    ? `${kopecksToRublesNumber(orderPrice.priceInKopecks)} ₽`
+                    : '—';
+    const totalPriceHint = isSubscriptionPayment
+        ? 'Списывается 1 заказ'
+        : `${selectedPackages} ${getPackageWord(selectedPackages)}`;
+    const selectedPackagePriceDescription = isPriceLoading
+        ? `Считаем стоимость: ${getPackagePriceLabel(selectedPackages)}`
+        : orderPriceError
+            ? `Не удалось рассчитать цену для ${getPackagePriceLabel(selectedPackages)}`
+            : orderPrice
+                ? `Разово: ${getPackagePriceLabel(selectedPackages)} — ${kopecksToRublesNumber(orderPrice.priceInKopecks)} ₽${selectedPackages === 2 ? ' (один вынос)' : ''}`
+                : 'Стоимость обновится после расчёта';
 
     // По подписке 1 заказ соответствует 2 пакетам
     useEffect(() => {
@@ -229,12 +294,12 @@ export const CreateOrderModalWithTabs = ({
                             <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
                         <div>
-                            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                            <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">
                                 Создать заказ
-                            </h2>
-                            <p className="text-sm text-gray-600">
+                            </DialogTitle>
+                            <DialogDescription className="text-sm text-gray-600">
                                 Заполните форму для создания нового заказа
-                            </p>
+                            </DialogDescription>
                         </div>
                     </div>
                 </div>
@@ -244,7 +309,7 @@ export const CreateOrderModalWithTabs = ({
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6 pr-8 pb-4 mb-4 custom-scrollbar">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
+                        <form id="create-order-form" onSubmit={form.handleSubmit(handleSubmit, (errors) => {
                             console.log('errors', errors);
                         })} className="space-y-6">
                             {/* Subscription Status */}
@@ -528,7 +593,7 @@ export const CreateOrderModalWithTabs = ({
                                             <CreditCard className="h-4 w-4" />
                                             Способ оплаты
                                         </FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Выберите способ оплаты" />
@@ -595,13 +660,13 @@ export const CreateOrderModalWithTabs = ({
                                                 <SelectContent>
                                                     {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
                                                         <SelectItem key={num} value={String(num)}>
-                                                            {num} {num === 1 ? 'пакет' : num < 5 ? 'пакета' : 'пакетов'}
+                                                            {num} {getPackageWord(num)}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
                                             <p className="text-sm text-muted-foreground mt-1">
-                                                Разово: 1 пакет — 149 ₽; 2 пакета по 60 л — 199 ₽ (один вынос)
+                                                {selectedPackagePriceDescription}
                                             </p>
                                             <FormMessage />
                                         </FormItem>
@@ -729,14 +794,52 @@ export const CreateOrderModalWithTabs = ({
                                 )}
                             />
 
-                            {/* Submit Button */}
-                            <div className="flex justify-end pt-4">
-                                <Button type="submit" disabled={isLoading || !addressData} className="min-w-[120px]">
-                                    {isLoading ? 'Создание...' : 'Создать заказ'}
-                                </Button>
-                            </div>
                         </form>
                     </Form>
+                </div>
+
+                <div className="flex-shrink-0 border-t border-gray-100 bg-white px-6 py-4 pr-8 rounded-b-[24px]">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                        <div
+                            className={cn(
+                                'flex min-h-[58px] w-full items-center justify-between gap-4 rounded-lg border px-4 py-3 sm:w-auto sm:min-w-[220px]',
+                                isSubscriptionPayment
+                                    ? 'border-green-200 bg-green-50'
+                                    : 'border-orange-200 bg-orange-50'
+                            )}
+                        >
+                            <div className="min-w-0">
+                                <p className={cn(
+                                    'text-xs font-medium',
+                                    isSubscriptionPayment ? 'text-green-700' : 'text-orange-700'
+                                )}>
+                                    К оплате
+                                </p>
+                                <p className={cn(
+                                    'truncate font-semibold text-gray-900',
+                                    orderPriceError && !isSubscriptionPayment ? 'text-sm' : 'text-xl'
+                                )}>
+                                    {totalPriceText}
+                                </p>
+                            </div>
+                            <div className={cn(
+                                'shrink-0 rounded-full px-3 py-1 text-xs font-medium',
+                                isSubscriptionPayment
+                                    ? 'bg-white text-green-700'
+                                    : 'bg-white text-orange-700'
+                            )}>
+                                {totalPriceHint}
+                            </div>
+                        </div>
+                        <Button
+                            form="create-order-form"
+                            type="submit"
+                            disabled={isLoading || !addressData}
+                            className="min-w-[120px] sm:min-h-[58px]"
+                        >
+                            {isLoading ? 'Создание...' : 'Создать заказ'}
+                        </Button>
+                    </div>
                 </div>
 
                 <AddressModal
