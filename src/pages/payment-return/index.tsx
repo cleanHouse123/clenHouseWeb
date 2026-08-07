@@ -8,6 +8,23 @@ import { AppLayout } from '@/core/components/layout/AppLayout';
 
 type PaymentStatus = 'processing' | 'success' | 'error';
 
+const getSafeReturnPath = (value: string | null) => {
+    if (!value) return '/dashboard';
+
+    try {
+        const decoded = decodeURIComponent(value);
+        if (decoded.startsWith('/') && !decoded.startsWith('//')) {
+            return decoded;
+        }
+    } catch {
+        if (value.startsWith('/') && !value.startsWith('//')) {
+            return value;
+        }
+    }
+
+    return '/dashboard';
+};
+
 export const PaymentReturnPage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -19,6 +36,9 @@ export const PaymentReturnPage = () => {
 
     const paymentId = searchParams.get('paymentId');
     const paymentType = searchParams.get('type') || sessionStorage.getItem('paymentType') || 'order';
+    const returnPathRef = useRef(
+        getSafeReturnPath(searchParams.get('returnUrl') || sessionStorage.getItem('returnUrl'))
+    );
 
     useEffect(() => {
         if (!paymentId) {
@@ -63,9 +83,9 @@ export const PaymentReturnPage = () => {
                         });
                     }
 
-                    // Перенаправляем на dashboard через 3 секунды
+                    // Возвращаем туда, откуда пользователь ушел на оплату.
                     setTimeout(() => {
-                        navigate('/dashboard');
+                        navigate(returnPathRef.current);
                     }, 3000);
                     return;
                 } else if (payment.status === 'failed' || payment.status === 'canceled') {
@@ -74,13 +94,12 @@ export const PaymentReturnPage = () => {
                     setError('Платеж не был завершен');
                     hasRedirectedRef.current = true;
 
-                    // Перенаправляем на dashboard через 3 секунды
                     toast.error('Оплата не прошла', {
                         description: 'Платеж не был завершен',
                         duration: 3000,
                     });
                     setTimeout(() => {
-                        navigate('/dashboard');
+                        navigate(returnPathRef.current);
                     }, 3000);
                     return;
                 }
@@ -103,7 +122,7 @@ export const PaymentReturnPage = () => {
                         duration: 3000,
                     });
                     setTimeout(() => {
-                        navigate('/dashboard');
+                        navigate(returnPathRef.current);
                     }, 2000);
                     return;
                 }
@@ -165,16 +184,16 @@ export const PaymentReturnPage = () => {
                                 }
                             </p>
                             <p className="text-gray-600 mb-4 animate-in slide-in-from-right duration-700">
-                                Вы будете перенаправлены на главную страницу через несколько секунд...
+                                Вы будете перенаправлены обратно через несколько секунд...
                             </p>
                             <div className="flex justify-center mb-4">
                                 <Loader2 className="h-6 w-6 text-green-500 animate-spin" />
                             </div>
                             <Button
-                                onClick={() => navigate('/dashboard')}
+                                onClick={() => navigate(returnPathRef.current)}
                                 className="mt-4 animate-in fade-in duration-1000"
                             >
-                                Перейти на главную
+                                Вернуться
                             </Button>
                         </div>
                     )}
@@ -192,10 +211,10 @@ export const PaymentReturnPage = () => {
                                 {error || 'К сожалению, произошла ошибка при обработке платежа.'}
                             </p>
                             <Button
-                                onClick={() => navigate('/dashboard')}
+                                onClick={() => navigate(returnPathRef.current)}
                                 className="w-full animate-in fade-in duration-1000"
                             >
-                                Вернуться на главную
+                                Вернуться
                             </Button>
                         </div>
                     )}

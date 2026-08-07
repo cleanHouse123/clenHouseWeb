@@ -10,6 +10,15 @@ import {
 } from "../types";
 import { AxiosResponse } from "axios";
 
+const buildWebPaymentReturnUrl = () => {
+  if (typeof window === "undefined") return undefined;
+
+  const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const url = new URL("/payment/result", window.location.origin);
+  url.searchParams.set("returnUrl", currentPath || "/subscriptions");
+  return url.toString();
+};
+
 export const subscriptionApi = {
   // Получить подписку пользователя по subscriptionId
   getUserSubscription: async (
@@ -62,12 +71,14 @@ export const subscriptionApi = {
   createSubscriptionPayment: async (
     subscriptionId: string,
     subscriptionType: "monthly" | "yearly",
-    planId: string
+    planId: string,
+    returnUrl = buildWebPaymentReturnUrl()
   ): Promise<PaymentLinkResponse> => {
     const response = await axiosInstance.post("/subscriptions/payment/create", {
       subscriptionId,
       subscriptionType,
       planId,
+      ...(returnUrl && { returnUrl }),
     });
     return response.data;
   },

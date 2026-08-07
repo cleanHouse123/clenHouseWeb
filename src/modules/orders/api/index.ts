@@ -7,6 +7,15 @@ import {
   UpdateOrderStatusDto,
 } from "../types";
 
+const buildWebPaymentReturnUrl = () => {
+  if (typeof window === "undefined") return undefined;
+
+  const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const url = new URL("/payment/result", window.location.origin);
+  url.searchParams.set("returnUrl", currentPath || "/dashboard");
+  return url.toString();
+};
+
 export const ordersApi = {
   // Создать заказ
   createOrder: async (data: CreateOrderDto): Promise<OrderResponseDto> => {
@@ -90,7 +99,8 @@ export const ordersApi = {
   // Создать ссылку на оплату
   createPaymentLink: async (
     orderId: string,
-    amount: number
+    amount: number,
+    returnUrl = buildWebPaymentReturnUrl()
   ): Promise<{
     paymentUrl: string;
     paymentId: string;
@@ -99,6 +109,7 @@ export const ordersApi = {
     const response = await axiosInstance.post("/orders/payment/create", {
       orderId,
       amount,
+      ...(returnUrl && { returnUrl }),
     });
     return response.data;
   },
