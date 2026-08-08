@@ -18,6 +18,7 @@ const ContactsPage = lazy(() => import("@/pages/contacts").then(module => ({ def
 const CouriersPage = lazy(() => import("@/pages/couriers").then(module => ({ default: module.CouriersPage })));
 const SubscriptionsPage = lazy(() => import("@/pages/subscriptions").then(module => ({ default: module.SubscriptionsPage })));
 const ErrorTestPage = lazy(() => import("@/pages/error-test").then(module => ({ default: module.ErrorTestPage })));
+const TelegramAuthMobilePage = lazy(() => import("@/pages/telegram-auth-mobile").then(module => ({ default: module.TelegramAuthMobilePage })));
 
 const routes = [
   {
@@ -78,6 +79,11 @@ const routes = [
   {
     path: "payment/result",
     element: <PaymentReturnPage />,
+    errorElement: <RouterErrorPage />,
+  },
+  {
+    path: "telegram-auth-mobile",
+    element: <TelegramAuthMobilePage />,
     errorElement: <RouterErrorPage />,
   },
   {
