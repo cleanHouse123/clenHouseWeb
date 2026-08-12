@@ -7,6 +7,7 @@ import {
   PaymentLinkResponse,
   SubscriptionPlan,
   SubscriptionStatus,
+  CouponValidationResult,
 } from "../types";
 import { AxiosResponse } from "axios";
 
@@ -62,12 +63,27 @@ export const subscriptionApi = {
   createSubscriptionPayment: async (
     subscriptionId: string,
     subscriptionType: "monthly" | "yearly",
-    planId: string
+    planId: string,
+    couponCode?: string
   ): Promise<PaymentLinkResponse> => {
     const response = await axiosInstance.post("/subscriptions/payment/create", {
       subscriptionId,
       subscriptionType,
       planId,
+      ...(couponCode ? { couponCode } : {}),
+    });
+    return response.data;
+  },
+
+  // Проверить промокод и получить итоговую цену (превью, без резервирования)
+  validateCoupon: async (params: {
+    code: string;
+    planId: string;
+  }): Promise<CouponValidationResult> => {
+    const response = await axiosInstance.post("/coupons/validate", {
+      code: params.code,
+      scope: "subscription",
+      planId: params.planId,
     });
     return response.data;
   },
@@ -137,12 +153,14 @@ export const subscriptionApi = {
   // Создать платеж с планом подписки (обновленная функция)
   createPaymentWithPlan: async (
     subscriptionId: string,
-    plan: SubscriptionPlan
+    plan: SubscriptionPlan,
+    couponCode?: string
   ): Promise<PaymentLinkResponse> => {
     return subscriptionApi.createSubscriptionPayment(
       subscriptionId,
       plan.type as "monthly" | "yearly",
-      plan.id
+      plan.id,
+      couponCode
     );
   },
 };

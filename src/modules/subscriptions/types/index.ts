@@ -152,3 +152,10 @@ export interface SubscriptionPlanFormData {
   popular: boolean;
   ordersLimit?: number; // -1 = безлимит, null/undefined = не установлен
 }
+
+export interface CouponValidationResult {
+  valid: true;
+  baseAmount: number; // копейки
+  finalAmount: number; // копейки
+  discountAmount: number; // копейки
+}

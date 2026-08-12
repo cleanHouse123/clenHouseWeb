@@ -27,6 +27,7 @@ export const SubscriptionsPage = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState('');
 
   const { data: user, isLoading: isLoadingUser } = useGetMe();
   const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
@@ -56,12 +57,28 @@ export const SubscriptionsPage = () => {
 
       setSelectedPlan(plan);
 
+      const trimmedCoupon = couponCode.trim();
+
+      // Если введён промокод — проверяем его заранее, чтобы показать скидку
+      // и поймать ошибку до создания подписки/платежа.
+      if (trimmedCoupon) {
+        const preview = await subscriptionApi.validateCoupon({
+          code: trimmedCoupon,
+          planId: plan.id,
+        });
+        toast.success('Промокод применён', {
+          description: `Цена со скидкой: ${(preview.finalAmount / 100).toLocaleString('ru-RU')} ₽`,
+          duration: 4000,
+        });
+      }
+
       const subscriptionResult = await createSubscriptionByPlan(plan.id);
 
       const paymentData = await subscriptionApi.createSubscriptionPayment(
         subscriptionResult.id,
         plan.type,
-        plan.id
+        plan.id,
+        trimmedCoupon || undefined
       );
 
       if (paymentData.status === 'success' && !paymentData.paymentUrl) {
@@ -260,6 +277,24 @@ export const SubscriptionsPage = () => {
           <h2 className="text-xl font-semibold text-gray-900">
             Оформить подписку
           </h2>
+        </div>
+
+        <div className="max-w-md">
+          <label htmlFor="couponCode" className="block text-sm font-medium text-gray-700 mb-1">
+            Промокод
+          </label>
+          <input
+            id="couponCode"
+            type="text"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value)}
+            placeholder="Введите промокод (необязательно)"
+            autoCapitalize="characters"
+            className="w-full rounded-[12px] border border-gray-200 px-4 py-3 text-base outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Скидка применится при оформлении подписки.
+          </p>
         </div>
 
         <div className={`grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :
