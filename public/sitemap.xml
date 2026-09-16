@@ -6,7 +6,7 @@
   
   <!-- Главная страница -->
   <url>
-    <loc>https://cleandom.ru/</loc>
+    <loc>https://xn--80ad4adfbofbt7f.xn--p1ai/</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -14,7 +14,7 @@
   
   <!-- Дашборд -->
   <url>
-    <loc>https://cleandom.ru/dashboard</loc>
+    <loc>https://xn--80ad4adfbofbt7f.xn--p1ai/dashboard</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -22,7 +22,7 @@
   
   <!-- Заказы -->
   <url>
-    <loc>https://cleandom.ru/orders</loc>
+    <loc>https://xn--80ad4adfbofbt7f.xn--p1ai/orders</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -30,7 +30,7 @@
   
   <!-- Подписки -->
   <url>
-    <loc>https://cleandom.ru/subscriptions</loc>
+    <loc>https://xn--80ad4adfbofbt7f.xn--p1ai/subscriptions</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -38,7 +38,7 @@
   
   <!-- Контакты -->
   <url>
-    <loc>https://cleandom.ru/contacts</loc>
+    <loc>https://xn--80ad4adfbofbt7f.xn--p1ai/contacts</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -46,7 +46,7 @@
   
   <!-- Политика конфиденциальности -->
   <url>
-    <loc>https://cleandom.ru/privacy-policy</loc>
+    <loc>https://xn--80ad4adfbofbt7f.xn--p1ai/privacy-policy</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
@@ -54,7 +54,7 @@
   
   <!-- Условия использования -->
   <url>
-    <loc>https://cleandom.ru/terms-of-service</loc>
+    <loc>https://xn--80ad4adfbofbt7f.xn--p1ai/terms-of-service</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
