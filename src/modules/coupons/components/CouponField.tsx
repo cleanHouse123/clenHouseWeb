@@ -40,9 +40,10 @@ export const CouponField = ({
         onReset();
     };
 
-    // Промокод вытесняет автоскидку «первый заказ за 1 ₽»: бывает невыгоден
-    const isWorseThanAutoDiscount =
-        preview !== null && preview.priceWithoutCoupon < preview.finalAmount;
+    // Бэкенд применяет ту скидку, что выгоднее клиенту. Если выиграла
+    // авто-скидка «первый заказ за 1 ₽», промокод остаётся неизрасходованным.
+    const autoDiscountWins =
+        preview !== null && preview.priceWithoutCoupon <= preview.finalAmount;
 
     if (appliedCode && (preview || summary)) {
         return (
@@ -51,12 +52,15 @@ export const CouponField = ({
                     <p className="flex min-w-0 items-center gap-2 text-sm text-green-800">
                         <Check className="h-4 w-4 shrink-0" />
                         <span className="truncate">
-                            {summary ?? (
-                                <>
-                                    Промокод {appliedCode} применён, −
-                                    {formatKopecks(preview!.discountAmount)}
-                                </>
-                            )}
+                            {summary ??
+                                (autoDiscountWins ? (
+                                    <>Промокод {appliedCode} принят</>
+                                ) : (
+                                    <>
+                                        Промокод {appliedCode} применён, −
+                                        {formatKopecks(preview!.discountAmount)}
+                                    </>
+                                ))}
                         </span>
                     </p>
                     <button
@@ -68,11 +72,11 @@ export const CouponField = ({
                     </button>
                 </div>
 
-                {preview && isWorseThanAutoDiscount && (
+                {preview && autoDiscountWins && (
                     <p className="text-xs text-orange-700">
-                        Без промокода этот заказ стоит{" "}
-                        {formatKopecks(preview!.priceWithoutCoupon)} — скидка на первый
-                        заказ выгоднее.
+                        Скидка на первый заказ выгоднее, поэтому применили её —{" "}
+                        {formatKopecks(preview.priceWithoutCoupon)}. Промокод
+                        останется у вас.
                     </p>
                 )}
             </div>
