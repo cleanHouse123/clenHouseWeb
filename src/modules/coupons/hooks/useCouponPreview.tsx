@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { couponApi, CouponPreview, ValidateCouponParams } from "../api";
 
 const getErrorMessage = (error: unknown): string => {
@@ -71,6 +71,39 @@ export const useCouponPreview = (
         },
         [params]
     );
+
+    // Цена зависит от количества пакетов и адреса: когда они меняются,
+    // старое превью врёт, поэтому пересчитываем его для уже применённого кода.
+    const paramsKey = JSON.stringify(params);
+    const lastParamsKey = useRef(paramsKey);
+
+    useEffect(() => {
+        if (lastParamsKey.current === paramsKey) return;
+        lastParamsKey.current = paramsKey;
+
+        if (!appliedCode) return;
+
+        let cancelled = false;
+        void (async () => {
+            try {
+                const result = await couponApi.validate({
+                    ...params,
+                    code: appliedCode,
+                });
+                if (!cancelled) setPreview(result);
+            } catch (err) {
+                if (cancelled) return;
+                // Код перестал подходить под новые параметры — снимаем его
+                setPreview(null);
+                setAppliedCode(null);
+                setError(getErrorMessage(err));
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [paramsKey, appliedCode, params]);
 
     return { appliedCode, preview, error, isChecking, apply, reset };
 };

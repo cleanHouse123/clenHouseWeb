@@ -63,3 +63,18 @@ export const formatPrice = (
 
   return `${Math.round(rubles)}₽`;
 };
+
+/**
+ * Форматирует сумму в копейках для показа клиенту.
+ * Копейки выводятся только когда они есть: 15920 → «159,20 ₽», 19900 → «199 ₽».
+ * Нужно там, где сумма может быть не целой в рублях — например после скидки по промокоду.
+ */
+export const formatKopecks = (priceInKopecks: number): string => {
+  const rubles = priceInKopecks / 100;
+  const hasKopecks = priceInKopecks % 100 !== 0;
+
+  return `${rubles.toLocaleString('ru-RU', {
+    minimumFractionDigits: hasKopecks ? 2 : 0,
+    maximumFractionDigits: 2,
+  })} ₽`;
+};

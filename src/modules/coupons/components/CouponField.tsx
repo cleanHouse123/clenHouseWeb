@@ -3,11 +3,8 @@ import { Check, Tag, X } from "lucide-react";
 import { Button } from "@/core/components/ui/button/button";
 import { Input } from "@/core/components/ui/inputs/input";
 import { cn } from "@/core/lib/utils";
-import { kopecksToRublesNumber } from "@/core/utils/priceUtils";
+import { formatKopecks } from "@/core/utils/priceUtils";
 import type { CouponPreview } from "../api";
-
-const formatRubles = (kopecks: number): string =>
-    `${kopecksToRublesNumber(kopecks).toLocaleString("ru-RU")} ₽`;
 
 interface CouponFieldProps {
     appliedCode: string | null;
@@ -57,7 +54,7 @@ export const CouponField = ({
                             {summary ?? (
                                 <>
                                     Промокод {appliedCode} применён, −
-                                    {formatRubles(preview!.discountAmount)}
+                                    {formatKopecks(preview!.discountAmount)}
                                 </>
                             )}
                         </span>
@@ -74,7 +71,7 @@ export const CouponField = ({
                 {preview && isWorseThanAutoDiscount && (
                     <p className="text-xs text-orange-700">
                         Без промокода этот заказ стоит{" "}
-                        {formatRubles(preview!.priceWithoutCoupon)} — скидка на первый
+                        {formatKopecks(preview!.priceWithoutCoupon)} — скидка на первый
                         заказ выгоднее.
                     </p>
                 )}
