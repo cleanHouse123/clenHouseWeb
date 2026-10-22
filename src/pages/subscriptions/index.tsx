@@ -10,6 +10,8 @@ import {
 } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan, SubscriptionStatus } from '@/modules/subscriptions/types';
+import { CouponField, couponApi, type CouponPreview } from '@/modules/coupons';
+import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 import { usePaymentWebSocket } from '@/modules/subscriptions/hooks/usePaymentWebSocket';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import { useSubscriptionPlans } from '@/modules/subscriptions/hooks/useSubscriptionPlans';
@@ -27,6 +29,11 @@ export const SubscriptionsPage = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
+  // Промокод проверяется по каждому тарифу: он может действовать не на все
+  const [couponCode, setCouponCode] = useState<string | null>(null);
+  const [couponPreviews, setCouponPreviews] = useState<Record<string, CouponPreview>>({});
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
 
   const { data: user, isLoading: isLoadingUser } = useGetMe();
   const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
@@ -61,7 +68,8 @@ export const SubscriptionsPage = () => {
       const paymentData = await subscriptionApi.createSubscriptionPayment(
         subscriptionResult.id,
         plan.type,
-        plan.id
+        plan.id,
+        couponPreviews[plan.id] ? couponCode ?? undefined : undefined
       );
 
       if (paymentData.status === 'success' && !paymentData.paymentUrl) {
@@ -165,7 +173,8 @@ export const SubscriptionsPage = () => {
       const paymentData = await subscriptionApi.createSubscriptionPayment(
         subscriptionId,
         subscriptionType as 'monthly' | 'yearly',
-        plan.id
+        plan.id,
+        couponPreviews[plan.id] ? couponCode ?? undefined : undefined
       );
 
       setSelectedPlan(plan);
@@ -190,6 +199,50 @@ export const SubscriptionsPage = () => {
       //   duration: 5000,
       // });
     }
+  };
+
+  const applyCoupon = async (code: string, availablePlans: SubscriptionPlan[]) => {
+    setIsCheckingCoupon(true);
+    setCouponError(null);
+
+    const results = await Promise.allSettled(
+      availablePlans.map((plan) =>
+        couponApi
+          .validate({ code, scope: 'subscription', planId: plan.id })
+          .then((preview) => ({ planId: plan.id, preview }))
+      )
+    );
+
+    const applied: Record<string, CouponPreview> = {};
+    results.forEach((result) => {
+      if (result.status === 'fulfilled') {
+        applied[result.value.planId] = result.value.preview;
+      }
+    });
+
+    setIsCheckingCoupon(false);
+
+    if (Object.keys(applied).length === 0) {
+      const firstRejection = results.find((r) => r.status === 'rejected') as
+        | PromiseRejectedResult
+        | undefined;
+      const message = (firstRejection?.reason as {
+        response?: { data?: { message?: string } };
+      })?.response?.data?.message;
+      setCouponCode(null);
+      setCouponPreviews({});
+      setCouponError(message || 'Промокод не подходит ни к одному тарифу');
+      return;
+    }
+
+    setCouponCode(code);
+    setCouponPreviews(applied);
+  };
+
+  const resetCoupon = () => {
+    setCouponCode(null);
+    setCouponPreviews({});
+    setCouponError(null);
   };
 
   const handleDeleteSubscription = async (subscriptionId: string) => {
@@ -260,6 +313,31 @@ export const SubscriptionsPage = () => {
           <h2 className="text-xl font-semibold text-gray-900">
             Оформить подписку
           </h2>
+        </div>
+
+        <div className="mb-4">
+          <CouponField
+            appliedCode={couponCode}
+            preview={null}
+            summary={
+              <span>
+                Промокод {couponCode}:{' '}
+                {subscriptionPlans
+                  .filter((plan) => couponPreviews[plan.id])
+                  .map(
+                    (plan) =>
+                      `${plan.name} — ${kopecksToRublesNumber(
+                        couponPreviews[plan.id].finalAmount
+                      )} ₽`
+                  )
+                  .join(', ')}
+              </span>
+            }
+            error={couponError}
+            isChecking={isCheckingCoupon}
+            onApply={(code) => void applyCoupon(code, subscriptionPlans)}
+            onReset={resetCoupon}
+          />
         </div>
 
         <div className={`grid gap-4 ${subscriptionPlans.length === 1 ? 'grid-cols-1' :

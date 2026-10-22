@@ -167,11 +167,12 @@ export const useCreateSubscriptionByPlan = () => {
 
 export const useCreatePaymentLink = () => {
     return useMutation({
-        mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; planId: string }) =>
+        mutationFn: (data: { subscriptionId: string; subscriptionType: 'monthly' | 'yearly'; planId: string; couponCode?: string }) =>
             subscriptionApi.createSubscriptionPayment(
                 data.subscriptionId,
                 data.subscriptionType,
-                data.planId
+                data.planId,
+                data.couponCode
             ),
         onSuccess: (response) => {
             // Если подписка активирована бесплатно

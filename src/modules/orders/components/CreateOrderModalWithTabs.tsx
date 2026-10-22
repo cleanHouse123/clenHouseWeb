@@ -22,6 +22,7 @@ import { useWorkTime } from '@/modules/work-time/hooks/useWorkTime';
 import { useOrderPrice } from '@/modules/price';
 import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 import { LegalConsents } from '@/core/components/legal/LegalConsents';
+import { CouponField, useCouponPreview } from '@/modules/coupons';
 // Tabs removed as only single order form is used now
 // import { Tabs } from '@/core/components/ui/tabs';
 // import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
@@ -167,15 +168,28 @@ export const CreateOrderModalWithTabs = ({
         addressId: addressData?.addressId,
     });
     const isSubscriptionPayment = paymentMethod === 'subscription';
+
+    // Промокод применяется только к разовой оплате: по подписке списывается заказ, а не деньги
+    const coupon = useCouponPreview({
+        scope: 'order',
+        numberPackages: selectedPackages,
+        addressId: addressData?.addressId,
+        address: addressData?.addressId ? undefined : addressData?.address,
+        addressDetails: addressData?.addressDetails,
+    });
+    const discountedPriceInKopecks = coupon.preview?.finalAmount ?? null;
+
     const totalPriceText = isSubscriptionPayment
         ? 'По подписке'
         : isPriceLoading
             ? 'Считаем...'
             : orderPriceError
                 ? 'Цена недоступна'
-                : orderPrice
-                    ? `${kopecksToRublesNumber(orderPrice.priceInKopecks)} ₽`
-                    : '—';
+                : discountedPriceInKopecks !== null
+                    ? `${kopecksToRublesNumber(discountedPriceInKopecks)} ₽`
+                    : orderPrice
+                        ? `${kopecksToRublesNumber(orderPrice.priceInKopecks)} ₽`
+                        : '—';
     const totalPriceHint = isSubscriptionPayment
         ? 'Списывается 1 заказ'
         : `${selectedPackages} ${getPackageWord(selectedPackages)}`;
@@ -198,6 +212,7 @@ export const CreateOrderModalWithTabs = ({
         if (!isOpen) {
             setAddressData(null);
             setOfferAccepted(false);
+            coupon.reset();
             form.reset();
         }
     }, [isOpen, form]);
@@ -233,12 +248,15 @@ export const CreateOrderModalWithTabs = ({
             paymentMethod: data.paymentMethod,
             numberPackages: data.numberPackages,
             coordinates: addressData.coordinates,
+            ...(coupon.appliedCode &&
+                !isSubscriptionPayment && { couponCode: coupon.appliedCode }),
         };
 
         onSubmit(orderData);
 
         setAddressData(null);
         setOfferAccepted(false);
+        coupon.reset();
         form.reset();
     };
 
@@ -804,6 +822,18 @@ export const CreateOrderModalWithTabs = ({
                 </div>
 
                 <div className="flex-shrink-0 border-t border-gray-100 bg-white px-6 py-4 pr-8 rounded-b-[24px]">
+                    {!isSubscriptionPayment && (
+                        <CouponField
+                            appliedCode={coupon.appliedCode}
+                            preview={coupon.preview}
+                            error={coupon.error}
+                            isChecking={coupon.isChecking}
+                            onApply={(code) => void coupon.apply(code)}
+                            onReset={coupon.reset}
+                            className="mb-3"
+                        />
+                    )}
+
                     <LegalConsents
                         variant="order"
                         value={{ terms: offerAccepted, personalData: true, marketing: false }}
