@@ -73,6 +73,8 @@ export interface CreateOrderDto {
     geo_lat: string;
     geo_lon: string;
   };
+  /** Промокод, применённый при оформлении */
+  couponCode?: string;
 }
 
 // Update Order Status DTO
@@ -112,6 +114,8 @@ export interface OrderFormData {
     geo_lat: string;
     geo_lon: string;
   };
+  /** Промокод, применённый при оформлении */
+  couponCode?: string;
 }
 
 // Order Status Badge Props
