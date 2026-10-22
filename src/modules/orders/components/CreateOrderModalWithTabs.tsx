@@ -20,7 +20,7 @@ import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscripti
 import { AddressModal, AddressModalData } from './AddressModal';
 import { useWorkTime } from '@/modules/work-time/hooks/useWorkTime';
 import { useOrderPrice } from '@/modules/price';
-import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
+import { kopecksToRublesNumber, formatKopecks } from '@/core/utils/priceUtils';
 import { LegalConsents } from '@/core/components/legal/LegalConsents';
 import { CouponField, useCouponPreview } from '@/modules/coupons';
 // Tabs removed as only single order form is used now
@@ -186,7 +186,7 @@ export const CreateOrderModalWithTabs = ({
             : orderPriceError
                 ? 'Цена недоступна'
                 : discountedPriceInKopecks !== null
-                    ? `${kopecksToRublesNumber(discountedPriceInKopecks)} ₽`
+                    ? formatKopecks(discountedPriceInKopecks)
                     : orderPrice
                         ? `${kopecksToRublesNumber(orderPrice.priceInKopecks)} ₽`
                         : '—';

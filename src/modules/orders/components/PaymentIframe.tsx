@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button';
 import { CreditCard, CheckCircle, ExternalLink } from 'lucide-react';
-import { useOrderPrice } from '@/modules/price';
-import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
+import { formatKopecks } from '@/core/utils/priceUtils';
 
 interface PaymentIframeProps {
     isOpen: boolean;
@@ -11,8 +10,8 @@ interface PaymentIframeProps {
     paymentUrl: string;
     paymentId?: string;
     userId?: string;
-    numberPackages?: number;
-    addressId?: string;
+    /** Сумма заказа в копейках — именно её спишет YooKassa */
+    amountInKopecks?: number;
     onSuccess?: () => void;
     onError?: (error: string) => void;
 }
@@ -22,15 +21,10 @@ export const PaymentIframe = ({
     onClose,
     paymentUrl,
     paymentId,
-    numberPackages,
-    addressId,
+    amountInKopecks,
     onError
 }: PaymentIframeProps) => {
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const { orderPrice, isLoading } = useOrderPrice({
-        numberPackages: numberPackages ?? 2,
-        addressId,
-    });
 
     // Обработка прямого перенаправления на оплату
     const handlePaymentRedirect = () => {
@@ -118,7 +112,7 @@ export const PaymentIframe = ({
                             </div>
                             <div className="flex items-center gap-2">
                                 <span>
-                                    Стоимость: {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '—')}₽
+                                    Стоимость: {amountInKopecks !== undefined ? formatKopecks(amountInKopecks) : '—'}
                                 </span>
                             </div>
                         </div>
