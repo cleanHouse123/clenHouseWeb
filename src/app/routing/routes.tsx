@@ -12,8 +12,11 @@ const DashboardPage = lazy(() => import("@/pages/dashboard").then(module => ({ d
 const OrdersPage = lazy(() => import("@/pages/orders").then(module => ({ default: module.OrdersPage })));
 const ScheduledOrdersPage = lazy(() => import("@/pages/scheduled-orders").then(module => ({ default: module.ScheduledOrdersPage })));
 const PaymentReturnPage = lazy(() => import("@/pages/payment-return").then(module => ({ default: module.PaymentReturnPage })));
-const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy").then(module => ({ default: module.PrivacyPolicyPage })));
-const TermsOfServicePage = lazy(() => import("@/pages/terms-of-service").then(module => ({ default: module.TermsOfServicePage })));
+const PrivacyPolicyPage = lazy(() => import("@/pages/legal").then(module => ({ default: module.PrivacyPolicyPage })));
+const TermsOfServicePage = lazy(() => import("@/pages/legal").then(module => ({ default: module.TermsOfServicePage })));
+const OfferPage = lazy(() => import("@/pages/legal").then(module => ({ default: module.OfferPage })));
+const ConsentPersonalDataPage = lazy(() => import("@/pages/legal").then(module => ({ default: module.ConsentPersonalDataPage })));
+const ConsentMarketingPage = lazy(() => import("@/pages/legal").then(module => ({ default: module.ConsentMarketingPage })));
 const ContactsPage = lazy(() => import("@/pages/contacts").then(module => ({ default: module.ContactsPage })));
 const CouriersPage = lazy(() => import("@/pages/couriers").then(module => ({ default: module.CouriersPage })));
 const SubscriptionsPage = lazy(() => import("@/pages/subscriptions").then(module => ({ default: module.SubscriptionsPage })));
@@ -87,10 +90,37 @@ const routes = [
     errorElement: <RouterErrorPage />,
   },
   {
+    path: "offer",
+    element: (
+      <AppLayout>
+        <OfferPage />
+      </AppLayout>
+    ),
+    errorElement: <RouterErrorPage />,
+  },
+  {
     path: "privacy-policy",
     element: (
       <AppLayout>
         <PrivacyPolicyPage />
+      </AppLayout>
+    ),
+    errorElement: <RouterErrorPage />,
+  },
+  {
+    path: "consent-personal-data",
+    element: (
+      <AppLayout>
+        <ConsentPersonalDataPage />
+      </AppLayout>
+    ),
+    errorElement: <RouterErrorPage />,
+  },
+  {
+    path: "consent-marketing",
+    element: (
+      <AppLayout>
+        <ConsentMarketingPage />
       </AppLayout>
     ),
     errorElement: <RouterErrorPage />,

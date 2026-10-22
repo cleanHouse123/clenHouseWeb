@@ -3,14 +3,19 @@ import { router } from './routing/routes'
 import { useWindowHeight } from '@/core/hooks/ui/useWindowHeight'
 import { PWAInstallPrompt } from '@/core/components/ui/PWAInstallPrompt'
 import { Toaster } from 'sonner'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
-import { useYandexMetrika } from '@/core/hooks/useYandexMetrika'
+import { CookieConsentBanner } from '@/core/components/legal/CookieConsentBanner'
+import { initAnalyticsFromStoredConsent } from '@/core/lib/cookieConsent'
 import { ErrorBoundary } from '@/core/components/error'
 
 function App() {
     useWindowHeight();
-    useYandexMetrika();
+
+    // Аналитика подключается только если пользователь ранее согласился на cookie
+    useEffect(() => {
+        initAnalyticsFromStoredConsent();
+    }, []);
 
     return (
         <ErrorBoundary>
@@ -18,6 +23,7 @@ function App() {
                 <RouterProvider router={router} />
             </Suspense>
             <PWAInstallPrompt />
+            <CookieConsentBanner />
             <Toaster
                 position="top-right"
                 expand={true}

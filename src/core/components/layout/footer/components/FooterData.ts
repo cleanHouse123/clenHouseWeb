@@ -1,3 +1,5 @@
+import { legalDocumentsList } from "@/pages/legal/documents";
+
 export const footerLinks = {
   main: [
     { text: "Контакты", href: "/contacts" },
@@ -9,10 +11,11 @@ export const footerLinks = {
   ],
 };
 
-export const footerLegalLinks = [
-  { text: "Политика обработки персональных данных", href: "/privacy-policy" },
-  { text: "Пользовательское соглашение", href: "/terms-of-service" },
-];
+// Оферта, политика и согласия должны быть доступны со всех страниц сайта
+export const footerLegalLinks = legalDocumentsList.map((document) => ({
+  text: document.shortTitle,
+  href: document.path,
+}));
 
 export const footerContact = {
   title: "Связаться с нами:",

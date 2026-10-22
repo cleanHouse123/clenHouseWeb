@@ -106,6 +106,16 @@ export const authApi = {
     return response.data;
   },
 
+  // Фиксация согласий пользователя (оферта, обработка ПДн, рекламная рассылка)
+  saveConsents: async (data: {
+    terms: boolean;
+    personalData: boolean;
+    marketing: boolean;
+    revision?: string;
+  }): Promise<void> => {
+    await axiosInstance.post("/user/me/consents", data);
+  },
+
   // Обновление текущего пользователя
   updateMe: async (data: { phone?: string; name?: string; email?: string }): Promise<{ message: string; user: User }> => {
     const response = await axiosInstance.patch("/user/me", data);

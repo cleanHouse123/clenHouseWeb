@@ -67,6 +67,8 @@ export const Header = () => {
         { key: 'subscription', label: 'Подписка', href: '#subscription' },
         { key: 'faq', label: 'FAQ', href: '#faq' },
         { key: 'couriers', label: 'Для курьеров', href: '/couriers' },
+        { key: 'offer', label: 'Оферта', href: '/offer' },
+        { key: 'privacy-policy', label: 'Политика', href: '/privacy-policy' },
     ];
 
     const handleScrollToSection = (href: string) => {

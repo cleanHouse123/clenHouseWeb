@@ -21,6 +21,7 @@ import { AddressModal, AddressModalData } from './AddressModal';
 import { useWorkTime } from '@/modules/work-time/hooks/useWorkTime';
 import { useOrderPrice } from '@/modules/price';
 import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
+import { LegalConsents } from '@/core/components/legal/LegalConsents';
 // Tabs removed as only single order form is used now
 // import { Tabs } from '@/core/components/ui/tabs';
 // import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
@@ -109,6 +110,8 @@ export const CreateOrderModalWithTabs = ({
     console.log(maxTime);
 
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+    // Акцепт оферты до перехода к оплате заказа
+    const [offerAccepted, setOfferAccepted] = useState(false);
 
     // Hooks для работы с расписаниями (закомментировано, т.к. табы удалены)
     // const { data: scheduledOrders, isLoading: isLoadingSchedules } = useMySchedules();
@@ -194,6 +197,7 @@ export const CreateOrderModalWithTabs = ({
     useEffect(() => {
         if (!isOpen) {
             setAddressData(null);
+            setOfferAccepted(false);
             form.reset();
         }
     }, [isOpen, form]);
@@ -205,7 +209,7 @@ export const CreateOrderModalWithTabs = ({
     };
 
     const handleSubmit = (data: CreateOrderFormData) => {
-        if (!addressData) {
+        if (!addressData || !offerAccepted) {
             return;
         }
 
@@ -234,6 +238,7 @@ export const CreateOrderModalWithTabs = ({
         onSubmit(orderData);
 
         setAddressData(null);
+        setOfferAccepted(false);
         form.reset();
     };
 
@@ -799,6 +804,13 @@ export const CreateOrderModalWithTabs = ({
                 </div>
 
                 <div className="flex-shrink-0 border-t border-gray-100 bg-white px-6 py-4 pr-8 rounded-b-[24px]">
+                    <LegalConsents
+                        variant="order"
+                        value={{ terms: offerAccepted, personalData: true, marketing: false }}
+                        onChange={(next) => setOfferAccepted(next.terms)}
+                        className="mb-3"
+                    />
+
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                         <div
                             className={cn(
@@ -834,7 +846,7 @@ export const CreateOrderModalWithTabs = ({
                         <Button
                             form="create-order-form"
                             type="submit"
-                            disabled={isLoading || !addressData}
+                            disabled={isLoading || !addressData || !offerAccepted}
                             className="min-w-[120px] sm:min-h-[58px]"
                         >
                             {isLoading ? 'Создание...' : 'Создать заказ'}

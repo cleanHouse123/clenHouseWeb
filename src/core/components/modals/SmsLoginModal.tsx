@@ -21,6 +21,8 @@ import {
     SavedAuthCredentials,
     saveSavedAuthCredentials,
 } from '@/modules/auth/utils/saved-auth';
+import { LegalConsents, useLegalConsents } from '@/core/components/legal/LegalConsents';
+import { LEGAL_REVISION } from '@/pages/legal/documents';
 
 // Функция для жесткого форматирования номера телефона
 const formatPhoneNumber = (value: string): string => {
@@ -141,6 +143,28 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const [isTelegramLoading, setIsTelegramLoading] = useState(false);
     const codeInputRef = useRef<HTMLInputElement>(null);
     const [searchParams] = useSearchParams();
+
+    // Согласия даются до передачи персональных данных (телефон, почта, имя)
+    const {
+        consents,
+        setConsents,
+        resetConsents,
+        hasRequired: hasRequiredConsents,
+    } = useLegalConsents();
+
+    // Фиксируем дату и состав согласий сразу после успешной авторизации
+    const persistConsents = () => {
+        authApi
+            .saveConsents({
+                terms: consents.terms,
+                personalData: consents.personalData,
+                marketing: consents.marketing,
+                revision: LEGAL_REVISION,
+            })
+            .catch((error) => {
+                console.error('Не удалось сохранить согласия пользователя:', error);
+            });
+    };
 
     const { mutateAsync: sendSms, isPending: isSendingSms } = useSendSms();
     const { mutateAsync: verifySms, isPending: isVerifyingSms } = useVerifySms();
@@ -304,6 +328,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
 
             localStorage.setItem('accessToken', result.accessToken);
             localStorage.setItem('refreshToken', result.refreshToken);
+            persistConsents();
 
             rememberCredentials({
                 method: 'email',
@@ -372,6 +397,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
 
             localStorage.setItem('accessToken', result.accessToken);
             localStorage.setItem('refreshToken', result.refreshToken);
+            persistConsents();
 
             rememberCredentials({
                 method: 'email',
@@ -420,6 +446,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                 // Сохраняем токены в localStorage
                 localStorage.setItem('accessToken', result.accessToken);
                 localStorage.setItem('refreshToken', result.refreshToken);
+                persistConsents();
                 localStorage.removeItem('adToken');
 
                 rememberCredentials({
@@ -476,6 +503,15 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     };
 
     const handleTelegramAuth = async (user: Record<string, unknown>) => {
+        if (!hasRequiredConsents) {
+            toast.error('Нужно принять условия', {
+                description:
+                    'Отметьте согласие с офертой и согласие на обработку персональных данных',
+                duration: 5000,
+            });
+            return;
+        }
+
         setIsTelegramLoading(true);
         try {
             const adToken = localStorage.getItem('adToken');
@@ -488,6 +524,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             // Сохраняем токены в localStorage
             localStorage.setItem('accessToken', result.accessToken);
             localStorage.setItem('refreshToken', result.refreshToken);
+            persistConsents();
             localStorage.removeItem('adToken');
 
             // Инвалидируем кэш пользователя для обновления данных
@@ -533,6 +570,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
         setIsSubmitting(false);
         setDevCode('');
         setIsTelegramLoading(false);
+        resetConsents();
         phoneForm.reset();
         codeForm.reset();
         resetRegisterFields();
@@ -617,6 +655,12 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                 </DialogHeader>
 
                 <div className="px-6 pb-6 space-y-6">
+                    {step === 'phone' && (
+                        <div className="rounded-lg border border-border bg-gray-50 p-3">
+                            <LegalConsents value={consents} onChange={setConsents} />
+                        </div>
+                    )}
+
                     {step === 'phone' ? (
                         authMode === 'login' ? (
                             loginMethod === 'sms' ? (
@@ -627,7 +671,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                             variant="outline"
                                             className="w-full"
                                             onClick={handleQuickLogin}
-                                            disabled={isQuickLoginPending}
+                                            disabled={isQuickLoginPending || !hasRequiredConsents}
                                         >
                                             {`Войти как ${getQuickLoginLabel(savedCredentials.login)}`}
                                         </Button>
@@ -737,7 +781,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                             <Button
                                                 type="button"
                                                 className="w-full"
-                                                disabled={isLoading || isSendingSms || isTelegramLoading}
+                                                disabled={isLoading || isSendingSms || isTelegramLoading || !hasRequiredConsents}
                                                 onMouseDown={async (e) => {
                                                     e.preventDefault();
                                                     const validationResult = await phoneForm.trigger();
@@ -856,7 +900,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                                 variant="outline"
                                                 className="w-full"
                                                 onClick={handleQuickLogin}
-                                                disabled={isQuickLoginPending}
+                                                disabled={isQuickLoginPending || !hasRequiredConsents}
                                             >
                                                 {`Войти как ${getQuickLoginLabel(savedCredentials.login)}`}
                                             </Button>
@@ -865,7 +909,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                         <Button
                                             type="button"
                                             className="w-full"
-                                            disabled={isLoading}
+                                            disabled={isLoading || !hasRequiredConsents}
                                             onMouseDown={async (e) => {
                                                 e.preventDefault();
                                                 const validationResult = await emailLoginForm.trigger();
@@ -1005,7 +1049,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                 <Button
                                     type="button"
                                     className="w-full"
-                                    disabled={isLoading}
+                                    disabled={isLoading || !hasRequiredConsents}
                                     onMouseDown={(e) => {
                                         e.preventDefault();
                                         const parsed = registrationSchema.safeParse({
@@ -1173,7 +1217,7 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                     </Button>
 
                                     <p className="text-xs text-muted-foreground text-center">
-                                        Вы соглашаетесь с политикой конфиденциальности и условиями использования
+                                        Условия оферты и согласие на обработку персональных данных приняты на предыдущем шаге
                                     </p>
                                 </div>
                             </div>
