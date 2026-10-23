@@ -96,6 +96,30 @@ export const useUpdateOrderStatus = () => {
 };
 
 // Отменить заказ
+// Клиент отменяет свой заказ
+export const useCancelOwnOrder = () => {
+    const queryClient = useQueryClient();
+    const { data: user } = useGetMe();
+
+    return useMutation({
+        mutationFn: (id: string) => ordersApi.cancelOwnOrder(id),
+        onSuccess: (data) => {
+            toast.success('Заказ отменён', {
+                description: `Заказ #${data.id.slice(-8)} отменён. Если он был оплачен, оператор свяжется с вами по возврату`,
+                duration: 5000,
+            });
+
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            queryClient.invalidateQueries({ queryKey: ['order', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['customer-orders', user?.userId] });
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message || 'Не удалось отменить заказ';
+            toast.error('Ошибка', { description: errorMessage, duration: 5000 });
+        },
+    });
+};
+
 export const useCancelOrder = () => {
     const queryClient = useQueryClient();
     const { data: user } = useGetMe();

@@ -1,25 +1,36 @@
-import { Calendar, MapPin, Clock, CreditCard, Package } from 'lucide-react';
+import { Calendar, MapPin, Clock, CreditCard, Package, X } from 'lucide-react';
 import { OrderResponseDto } from '@/modules/orders/types';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateShort, formatTime } from '@/core/utils/dateUtils';
 import { OrderStatusBadge } from '@/modules/orders/components/OrderStatusBadge';
 import { Button } from '@/core/components/ui/button/button';
-import { kopecksToRubles } from '@/core/utils/priceUtils';
+import { formatKopecks } from '@/core/utils/priceUtils';
 
 interface OrderCardProps {
     order: OrderResponseDto;
     onClick: (order: OrderResponseDto) => void;
     onPay?: (order: OrderResponseDto) => void;
+    onCancel?: (order: OrderResponseDto) => void;
     showBorder?: boolean;
 }
 
-export const OrderCard = ({ order, onClick, onPay, showBorder = true }: OrderCardProps) => {
+/** Пока курьер не выехал, клиент может отменить заказ сам */
+const CANCELABLE_STATUSES = ['new', 'paid', 'assigned'];
+
+export const OrderCard = ({ order, onClick, onPay, onCancel, showBorder = true }: OrderCardProps) => {
     const { locale } = useLocale();
 
     const handlePayClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // Предотвращаем всплытие события клика по карточке
         onPay?.(order);
     };
+
+    const handleCancelClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onCancel?.(order);
+    };
+
+    const canCancel = CANCELABLE_STATUSES.includes(order.status);
 
 
     return (
@@ -79,7 +90,7 @@ export const OrderCard = ({ order, onClick, onPay, showBorder = true }: OrderCar
                 <div className="bg-white border flex flex-col justify-center border-gray-200 rounded-[12px] p-3 mb-4 flex-shrink-0">
                     <div className="text-xs text-gray-500 mb-1">Стоимость</div>
                     <div className="text-lg font-bold text-orange-500">
-                        {kopecksToRubles(order.price)}₽
+                        {formatKopecks(order.price)}
                     </div>
                 </div>
             </div>
@@ -88,6 +99,17 @@ export const OrderCard = ({ order, onClick, onPay, showBorder = true }: OrderCar
             <div className="flex flex-row justify-between gap-2 items-center">
                 <OrderStatusBadge status={order.status} />
                 <div className="flex items-center gap-2">
+                    {canCancel && onCancel && (
+                        <Button
+                            onClick={handleCancelClick}
+                            size="sm"
+                            variant="outline"
+                            className="text-xs px-3 py-1 h-7"
+                        >
+                            <X className="h-3 w-3 mr-1" />
+                            Отменить
+                        </Button>
+                    )}
                     {order.status === 'new' && onPay && (
                         <Button
                             onClick={handlePayClick}

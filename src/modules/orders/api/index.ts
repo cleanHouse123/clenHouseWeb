@@ -81,6 +81,12 @@ export const ordersApi = {
     return response.data;
   },
 
+  // Клиент отменяет свой заказ
+  cancelOwnOrder: async (id: string): Promise<OrderResponseDto> => {
+    const response = await axiosInstance.patch(`/orders/${id}/cancel-by-customer`);
+    return response.data;
+  },
+
   // Обновить статус заказа
   updateOrderStatus: async (
     id: string,
