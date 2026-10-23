@@ -17,7 +17,8 @@ import {
 } from 'lucide-react';
 import { useLocale } from '@/core/feauture/locale/useLocale';
 import { formatDateTime, formatDateRelativeLocal } from '@/core/utils/dateUtils';
-import { kopecksToRubles } from '@/core/utils/priceUtils';
+import { formatKopecks } from '@/core/utils/priceUtils';
+import { isPaidBySubscription } from '@/modules/orders/utils/payment';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -102,8 +103,17 @@ export const OrderDetailsModal = ({
 
                             </div>
                             <div className="text-left sm:text-right">
-                                <div className="text-xl sm:text-2xl font-bold text-primary">{kopecksToRubles(order.price)}₽</div>
-                                <div className="text-xs sm:text-sm ">Стоимость</div>
+                                {isPaidBySubscription(order) ? (
+                                    <>
+                                        <div className="text-base sm:text-lg font-bold text-primary">Оплачено подпиской</div>
+                                        <div className="text-xs sm:text-sm ">Вынос списан с лимита</div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="text-xl sm:text-2xl font-bold text-primary">{formatKopecks(order.price)}</div>
+                                        <div className="text-xs sm:text-sm ">Стоимость</div>
+                                    </>
+                                )}
                             </div>
                         </div>
 

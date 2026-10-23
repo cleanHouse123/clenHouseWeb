@@ -5,6 +5,7 @@ import { formatDateShort, formatTime } from '@/core/utils/dateUtils';
 import { OrderStatusBadge } from '@/modules/orders/components/OrderStatusBadge';
 import { Button } from '@/core/components/ui/button/button';
 import { formatKopecks } from '@/core/utils/priceUtils';
+import { isPaidBySubscription } from '@/modules/orders/utils/payment';
 
 interface OrderCardProps {
     order: OrderResponseDto;
@@ -90,7 +91,9 @@ export const OrderCard = ({ order, onClick, onPay, onCancel, showBorder = true }
                 <div className="bg-white border flex flex-col justify-center border-gray-200 rounded-[12px] p-3 mb-4 flex-shrink-0">
                     <div className="text-xs text-gray-500 mb-1">Стоимость</div>
                     <div className="text-lg font-bold text-orange-500">
-                        {formatKopecks(order.price)}
+                        {isPaidBySubscription(order)
+                            ? 'Оплачено подпиской'
+                            : formatKopecks(order.price)}
                     </div>
                 </div>
             </div>
