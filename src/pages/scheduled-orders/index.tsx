@@ -13,7 +13,6 @@ import {
 } from '@/modules/scheduled-orders/hooks/useScheduledOrders';
 import { ScheduledOrderFormData } from '@/modules/scheduled-orders/types';
 import { useCreateOrderModal, CreateOrderProvider } from '@/core/contexts/CreateOrderContext';
-import { useEffect } from 'react';
 
 const ScheduledOrdersContent = () => {
   const navigate = useNavigate();
@@ -134,13 +133,6 @@ const ScheduledOrdersContent = () => {
 };
 
 export const ScheduledOrdersPage = () => {
-  const navigate = useNavigate();
-
-  // временный редирект на dashboard
-  useEffect(() => {
-    navigate('/dashboard', { replace: true });
-  }, [navigate]);
-
   return (
     <CreateOrderProvider onOrderCreated={() => window.location.reload()}>
       <ScheduledOrdersContent />
