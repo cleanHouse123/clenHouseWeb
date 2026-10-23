@@ -117,12 +117,15 @@ export const subscriptionApi = {
     return response.data;
   },
 
-  // Удалить подписку
-  deleteSubscription: async (
+  /**
+   * Отказ от подписки. Не удаление: подписка остаётся со всей историей,
+   * иначе возврат по пункту 6.7 Оферты не из чего считать
+   */
+  cancelSubscription: async (
     subscriptionId: string
-  ): Promise<{ message: string }> => {
-    const response = await axiosInstance.delete(
-      `/subscriptions/${subscriptionId}`
+  ): Promise<UserSubscription> => {
+    const response = await axiosInstance.patch(
+      `/subscriptions/${subscriptionId}/cancel-by-customer`
     );
     return response.data;
   },

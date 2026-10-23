@@ -16,6 +16,8 @@ import {
     AlertDialogTitle,
 } from '@/core/components/ui/alert-dialog';
 import { formatKopecks } from '@/core/utils/priceUtils';
+import { isPaidBySubscription } from '@/modules/orders/utils/payment';
+import { PICKUP_RETURN_HOURS, willReturnPickup } from '@/modules/orders/utils/pickupReturn';
 import { OrderStatus, OrderResponseDto } from '@/modules/orders/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import {
@@ -116,6 +118,18 @@ const OrdersContent = () => {
         { value: 'done', label: 'Завершенные' },
         { value: 'canceled', label: 'Отмененные' },
     ];
+
+    // Что человек потеряет при отмене: по подписке — сам вынос, если до
+    // него меньше трёх часов; за деньги — вопрос возврата
+    const cancelNotice = !orderToCancel
+        ? ''
+        : isPaidBySubscription(orderToCancel)
+            ? willReturnPickup(orderToCancel.scheduledAt)
+                ? 'Вынос вернётся в подписку — вы сможете заказать его заново.'
+                : `До выноса меньше ${PICKUP_RETURN_HOURS} часов, поэтому он спишется с подписки и не вернётся.`
+            : orderToCancel.status === 'new'
+                ? 'Заказ не оплачен, отмена ни к чему не обязывает.'
+                : `Заказ оплачен на ${formatKopecks(orderToCancel.price)}. После отмены оператор свяжется с вами по возврату — по оферте он делается в течение 10 дней.`;
 
     return (
         <div className="min-h-screen ">
@@ -266,9 +280,7 @@ const OrdersContent = () => {
                             Отменить заказ #{orderToCancel?.id.slice(-8)}?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            {orderToCancel?.status === 'new'
-                                ? 'Заказ не оплачен, отмена ни к чему не обязывает.'
-                                : `Заказ оплачен на ${orderToCancel ? formatKopecks(orderToCancel.price) : ''}. После отмены оператор свяжется с вами по возврату — по оферте он делается в течение 10 дней.`}
+                            {cancelNotice}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
