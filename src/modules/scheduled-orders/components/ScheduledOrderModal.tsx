@@ -190,6 +190,11 @@ export const ScheduledOrderModal = ({
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6"
             >
+            {/*
+              Адрес у существующего расписания не меняется: для другого адреса
+              заводится другое расписание из оформления заказа
+            */}
+            <div className="hidden">
             {/* Адрес */}
             <FormField
               control={form.control}
@@ -326,6 +331,7 @@ export const ScheduledOrderModal = ({
                   </FormItem>
                 )}
               />
+            </div>
             </div>
 
             {/* Описание */}

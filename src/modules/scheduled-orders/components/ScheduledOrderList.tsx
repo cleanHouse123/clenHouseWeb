@@ -13,19 +13,13 @@ export const ScheduledOrderList = ({
   onEdit,
   onDelete,
   onToggleActive,
-  onCreate,
+  onCreateOrder,
   showActions = true
 }: ScheduledOrderListProps) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<ScheduledOrderFormData | undefined>();
   const [editingOrderId, setEditingOrderId] = useState<string | undefined>();
   const { transformDtoToFormData } = useScheduledOrderFormUtils();
-
-  const handleCreate = () => {
-    setEditingOrder(undefined);
-    setEditingOrderId(undefined);
-    setIsCreateModalOpen(true);
-  };
 
   const handleEdit = (scheduledOrder: ScheduledOrderResponseDto) => {
     const formData = transformDtoToFormData(scheduledOrder);
@@ -35,12 +29,8 @@ export const ScheduledOrderList = ({
   };
 
   const handleSubmit = (data: ScheduledOrderFormData) => {
-    if (editingOrder && editingOrderId) {
-      // Редактирование существующего расписания
+    if (editingOrderId) {
       onEdit?.(editingOrderId, data);
-    } else {
-      // Создание нового расписания
-      onCreate?.(data);
     }
     setIsCreateModalOpen(false);
     setEditingOrder(undefined);
@@ -79,14 +69,14 @@ export const ScheduledOrderList = ({
             Нет расписаний
           </h3>
           <p className="text-gray-600 mb-4">
-            Создайте расписание для автоматического создания заказов
+            Оформите заказ и отметьте «Повторять этот вынос» — расписание появится здесь
           </p>
-          <Button 
-            onClick={handleCreate} 
+          <Button
+            onClick={onCreateOrder}
             className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white mx-auto"
           >
             <Plus className="h-4 w-4" />
-            Создать первое расписание
+            Оформить заказ
           </Button>
         </div>
       ) : (
@@ -110,7 +100,7 @@ export const ScheduledOrderList = ({
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
         editData={editingOrder}
-        title={editingOrder ? 'Редактировать расписание' : 'Создать расписание'}
+        title="Редактировать расписание"
       />
     </div>
   );

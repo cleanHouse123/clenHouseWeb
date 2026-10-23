@@ -45,6 +45,10 @@ export interface ScheduledOrderResponseDto {
 // Create Scheduled Order DTO
 export interface CreateScheduledOrderDto {
   address: string;
+  /** Сохранённый адрес клиента: к нему привяжутся заказы по расписанию */
+  addressId?: string;
+  /** Вынос на startDate уже оформлен — расписание начнётся со следующего */
+  firstPickupAlreadyOrdered?: boolean;
   addressDetails?: {
     building?: number;
     buildingBlock?: string;
@@ -109,7 +113,8 @@ export interface ScheduledOrderListProps {
   onEdit?: (id: string, data: ScheduledOrderFormData) => void;
   onDelete?: (id: string) => void;
   onToggleActive?: (id: string, isActive: boolean) => void;
-  onCreate?: (data: ScheduledOrderFormData) => void;
+  /** Расписание заводится из оформления заказа — отсюда только открываем его */
+  onCreateOrder?: () => void;
   showActions?: boolean;
 }
 

@@ -6,6 +6,8 @@ import { useUserSubscription } from '@/modules/subscriptions/hooks/useSubscripti
 import { OrderFormData } from '@/modules/orders/types';
 import { toast } from 'sonner';
 import { CreateOrderModalWithTabs } from '@/modules/orders/components/CreateOrderModalWithTabs';
+import { useCreateScheduledOrder } from '@/modules/scheduled-orders/hooks/useScheduledOrders';
+import { moscowTimeOf } from '@/modules/scheduled-orders/utils/moscowTime';
 import { formatTime } from '@/core/utils/dateUtils';
 
 interface CreateOrderContextType {
@@ -29,6 +31,7 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
     const [paymentAmount, setPaymentAmount] = useState<number | undefined>(undefined);
     const { mutateAsync: createOrder, isPending: isCreatingOrder } = useCreateOrder();
     const { mutateAsync: createOrderPayment } = useCreateOrderPayment();
+    const { mutateAsync: createScheduledOrder } = useCreateScheduledOrder();
     const { data: user } = useGetMe();
     const { data: userSubscription } = useUserSubscription();
 
@@ -57,6 +60,29 @@ export const CreateOrderProvider = ({ children, onOrderCreated }: CreateOrderPro
             console.log('Coordinates in orderData:', orderData.coordinates);
 
             const order = await createOrder(orderData);
+
+            // Расписание заводится отдельным запросом: заказ уже создан, и
+            // если повтор не сохранится, терять из-за этого заказ нельзя
+            if (data.repeat && order.scheduledAt) {
+                try {
+                    await createScheduledOrder({
+                        address: data.address,
+                        ...(data.addressId && { addressId: data.addressId }),
+                        ...(data.addressDetails && { addressDetails: data.addressDetails }),
+                        frequency: data.repeat.frequency,
+                        ...(data.repeat.daysOfWeek && { daysOfWeek: data.repeat.daysOfWeek }),
+                        preferredTime: moscowTimeOf(order.scheduledAt),
+                        startDate: order.scheduledAt,
+                        // этот вынос человек только что заказал вручную
+                        firstPickupAlreadyOrdered: true,
+                    });
+                } catch {
+                    toast.error('Повтор не сохранён', {
+                        description: 'Заказ создан, но расписание завести не удалось. Попробуйте на странице «Расписания».',
+                        duration: 7000,
+                    });
+                }
+            }
 
             // Формируем сообщение с временем выноса
             const scheduledTimeText = order.scheduledAt 
