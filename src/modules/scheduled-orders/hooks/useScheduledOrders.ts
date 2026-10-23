@@ -10,8 +10,6 @@ import {
 import { 
   createUTCDateOnly, 
   createLocalDateOnly, 
-  convertLocalTimeToUTC, 
-  convertUTCTimeToLocal 
 } from '@/core/utils/dateUtils';
 
 // Query keys
@@ -147,7 +145,8 @@ export const useScheduledOrderFormUtils = () => {
       description: formData.description,
       notes: formData.notes,
       frequency: formData.frequency,
-      preferredTime: formData.preferredTime ? convertLocalTimeToUTC(formData.preferredTime) : undefined,
+      // время выноса хранится по Москве и не переводится в UTC
+      preferredTime: formData.preferredTime || undefined,
       daysOfWeek: formData.daysOfWeek,
       startDate: createUTCDateOnly(formData.startDate),
       endDate: formData.endDate ? createUTCDateOnly(formData.endDate) : undefined,
@@ -166,7 +165,7 @@ export const useScheduledOrderFormUtils = () => {
       description: dto.description,
       notes: dto.notes,
       frequency: dto.frequency,
-      preferredTime: dto.preferredTime ? convertUTCTimeToLocal(dto.preferredTime) : undefined,
+      preferredTime: dto.preferredTime || undefined,
       daysOfWeek: dto.daysOfWeek,
       startDate: createLocalDateOnly(typeof dto.startDate === 'string' ? dto.startDate : dto.startDate.toISOString()),
       endDate: dto.endDate ? createLocalDateOnly(typeof dto.endDate === 'string' ? dto.endDate : dto.endDate.toISOString()) : undefined,
