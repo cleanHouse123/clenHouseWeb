@@ -198,23 +198,23 @@ export const useCreatePaymentLink = () => {
     });
 };
 
-export const useDeleteSubscription = () => {
+export const useCancelSubscription = () => {
     const queryClient = useQueryClient();
     const { data: user } = useGetMe();
 
     return useMutation({
         mutationFn: (subscriptionId: string) =>
-            subscriptionApi.deleteSubscription(subscriptionId),
-        onSuccess: (data) => {
-            toast.success('Подписка удалена!', {
-                description: data.message,
-                duration: 4000,
+            subscriptionApi.cancelSubscription(subscriptionId),
+        onSuccess: () => {
+            toast.success('Подписка отменена', {
+                description: 'Оператор свяжется с вами по возврату — по оферте он делается в течение 10 дней',
+                duration: 6000,
             });
             // Обновляем подписку пользователя
             queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
         },
         onError: (error: Error) => {
-            const errorMessage = isAxiosError(error) ? error.response?.data?.message || 'Ошибка удаления подписки' : 'Ошибка удаления подписки';
+            const errorMessage = isAxiosError(error) ? error.response?.data?.message || 'Не удалось отменить подписку' : 'Не удалось отменить подписку';
             toast.error('Ошибка', {
                 description: errorMessage,
                 duration: 5000,

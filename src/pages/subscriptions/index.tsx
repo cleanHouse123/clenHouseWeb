@@ -6,7 +6,7 @@ import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
 import {
   useUserSubscription,
   useCreateSubscriptionByPlan,
-  useDeleteSubscription
+  useCancelSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan, SubscriptionStatus } from '@/modules/subscriptions/types';
@@ -38,7 +38,7 @@ export const SubscriptionsPage = () => {
   const { data: user, isLoading: isLoadingUser } = useGetMe();
   const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
   const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
-  const { mutateAsync: deleteSubscription } = useDeleteSubscription();
+  const { mutateAsync: cancelSubscription } = useCancelSubscription();
   const { data: plans, isLoading: isLoadingPlans, error: plansError } = useSubscriptionPlans();
   const {
     data: userAddresses,
@@ -252,9 +252,9 @@ export const SubscriptionsPage = () => {
 
   const handleDeleteSubscription = async (subscriptionId: string) => {
     try {
-      await deleteSubscription(subscriptionId);
+      await cancelSubscription(subscriptionId);
     } catch (error) {
-      console.error('Ошибка при удалении подписки:', error);
+      console.error('Ошибка при отмене подписки:', error);
     }
   };
 
