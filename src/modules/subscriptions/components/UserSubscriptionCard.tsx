@@ -4,7 +4,7 @@ import { Badge } from '@/core/components/ui/badge';
 import { Button } from '@/core/components/ui/button/button';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { UserSubscription } from '../types';
-import { DeleteSubscriptionModal } from './DeleteSubscriptionModal';
+import { CancelSubscriptionModal } from './CancelSubscriptionModal';
 import { OrdersInfo } from './OrdersInfo';
 import { kopecksToRubles } from '../utils/priceUtils';
 import { formatDateOnly, isExpiringSoon } from '@/core/utils/dateUtils';
@@ -13,11 +13,12 @@ import { formatDateOnly, isExpiringSoon } from '@/core/utils/dateUtils';
 interface UserSubscriptionCardProps {
     userSubscription: UserSubscription;
     onPay?: (subscriptionId: string) => void;
-    onDelete?: (subscriptionId: string) => void;
+    /** Отказ от подписки: удаления больше нет, подписка остаётся в истории */
+    onCancel?: (subscriptionId: string) => void;
 }
 
-export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: UserSubscriptionCardProps) => {
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel }: UserSubscriptionCardProps) => {
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
     const getStatusIcon = () => {
         switch (userSubscription.status) {
@@ -75,19 +76,19 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
         return isExpiringSoon(userSubscription.endDate);
     };
 
-    const handleDeleteClick = () => {
-        setIsDeleteModalOpen(true);
+    const handleCancelClick = () => {
+        setIsCancelModalOpen(true);
     };
 
-    const handleConfirmDelete = () => {
-        if (onDelete) {
-            onDelete(userSubscription.id);
+    const handleConfirmCancel = () => {
+        if (onCancel) {
+            onCancel(userSubscription.id);
         }
-        setIsDeleteModalOpen(false);
+        setIsCancelModalOpen(false);
     };
 
-    const handleCancelDelete = () => {
-        setIsDeleteModalOpen(false);
+    const handleCloseCancelModal = () => {
+        setIsCancelModalOpen(false);
     };
 
     return (
@@ -180,7 +181,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                     )}
 
                     {/* Кнопка удаления для активных подписок */}
-                    {userSubscription.status === 'active' && onDelete && (
+                    {userSubscription.status === 'active' && onCancel && (
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -190,13 +191,13 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                                     </span>
                                 </div>
                                 <Button
-                                    onClick={handleDeleteClick}
+                                    onClick={handleCancelClick}
                                     size="sm"
                                     variant="primary"
                                     className="bg-orange-600 hover:bg-orange-700"
                                 >
                                     <XCircle className="h-4 w-4 mr-2" />
-                                    Удалить
+                                    Отказаться
                                 </Button>
                             </div>
                         </div>
@@ -215,10 +216,10 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onDelete }: User
                 </CardContent>
             </Card>
 
-            <DeleteSubscriptionModal
-                isOpen={isDeleteModalOpen}
-                onClose={handleCancelDelete}
-                onConfirm={handleConfirmDelete}
+            <CancelSubscriptionModal
+                isOpen={isCancelModalOpen}
+                onClose={handleCloseCancelModal}
+                onConfirm={handleConfirmCancel}
                 subscriptionType={userSubscription.type}
             />
         </>

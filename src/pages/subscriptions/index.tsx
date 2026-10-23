@@ -250,7 +250,7 @@ export const SubscriptionsPage = () => {
     setCouponError(null);
   };
 
-  const handleDeleteSubscription = async (subscriptionId: string) => {
+  const handleCancelSubscription = async (subscriptionId: string) => {
     try {
       await cancelSubscription(subscriptionId);
     } catch (error) {
@@ -401,7 +401,7 @@ export const SubscriptionsPage = () => {
         <UserSubscriptionCard
           userSubscription={userSubscription}
           onPay={handlePayExistingSubscription}
-          onDelete={handleDeleteSubscription}
+          onCancel={handleCancelSubscription}
         />
       </div>
     )
