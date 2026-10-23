@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/core/components/ui/button/button';
 import { AlertTriangle, XCircle } from 'lucide-react';
 
-interface DeleteSubscriptionModalProps {
+interface CancelSubscriptionModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
@@ -10,13 +10,13 @@ interface DeleteSubscriptionModalProps {
     subscriptionType?: 'monthly' | 'yearly';
 }
 
-export const DeleteSubscriptionModal = ({
+export const CancelSubscriptionModal = ({
     isOpen,
     onClose,
     onConfirm,
     isLoading = false,
     subscriptionType = 'monthly'
-}: DeleteSubscriptionModalProps) => {
+}: CancelSubscriptionModalProps) => {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-md">
