@@ -8,21 +8,21 @@ export const frequencyOptions: FrequencyOption[] = [
     label: 'Ежедневно',
     description: 'Каждый день',
   },
-  // {
-  //   value: ScheduleFrequency.EVERY_OTHER_DAY,
-  //   label: 'Через день',
-  //   description: 'Каждый второй день',
-  // },
+  {
+    value: ScheduleFrequency.EVERY_OTHER_DAY,
+    label: 'Через день',
+    description: 'Каждый второй день',
+  },
   {
     value: ScheduleFrequency.WEEKLY,
     label: 'Еженедельно',
     description: 'Один раз в неделю',
   },
-  // {
-  //   value: ScheduleFrequency.CUSTOM,
-  //   label: 'Настраиваемое',
-  //   description: 'Выберите дни недели',
-  // },
+  {
+    value: ScheduleFrequency.CUSTOM,
+    label: 'Свои дни',
+    description: 'Выберите дни недели',
+  },
 ];
 
 // Опции дней недели
