@@ -10,6 +10,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -414,7 +415,7 @@ export const ScheduledOrderModal = ({
                 name="preferredTime"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Предпочтительное время</FormLabel>
+                    <FormLabel>Время выноса</FormLabel>
                     <FormControl>
                       <TimePicker
                         value={field.value}
@@ -422,6 +423,9 @@ export const ScheduledOrderModal = ({
                         placeholder="Выберите время"
                       />
                     </FormControl>
+                    <FormDescription>
+                      По московскому времени. Если не выбрать — 10:00
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
