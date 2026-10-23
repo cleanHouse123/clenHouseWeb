@@ -4,7 +4,18 @@ import { motion } from 'framer-motion';
 import { Button } from '@/core/components/ui/button/button';
 import { OrderDetailsModal } from '@/modules/orders/components';
 import { OrderCard } from '@/pages/dashboard/components/OrderCard';
-import { useCustomerOrders, useCreateOrderPayment } from '@/modules/orders/hooks/useOrders';
+import { useCustomerOrders, useCreateOrderPayment, useCancelOwnOrder } from '@/modules/orders/hooks/useOrders';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/core/components/ui/alert-dialog';
+import { formatKopecks } from '@/core/utils/priceUtils';
 import { OrderStatus, OrderResponseDto } from '@/modules/orders/types';
 import { useGetMe } from '@/modules/auth/hooks/useGetMe';
 import {
@@ -19,6 +30,8 @@ const OrdersContent = () => {
     const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [selectedOrder, setSelectedOrder] = useState<OrderResponseDto | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [orderToCancel, setOrderToCancel] = useState<OrderResponseDto | null>(null);
+    const { mutateAsync: cancelOwnOrder, isPending: isCanceling } = useCancelOwnOrder();
 
     const {
         data: customerOrders,
@@ -224,6 +237,7 @@ const OrdersContent = () => {
                                         order={order}
                                         onClick={handleOrderClick}
                                         onPay={handlePayOrder}
+                                        onCancel={setOrderToCancel}
                                         showBorder={false}
                                     />
                                 ))}
@@ -241,6 +255,42 @@ const OrdersContent = () => {
                 userId={user?.userId}
                 onPaymentSuccess={handlePaymentSuccess}
             />
+
+            <AlertDialog
+                open={!!orderToCancel}
+                onOpenChange={(open) => !open && setOrderToCancel(null)}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Отменить заказ #{orderToCancel?.id.slice(-8)}?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {orderToCancel?.status === 'new'
+                                ? 'Заказ не оплачен, отмена ни к чему не обязывает.'
+                                : `Заказ оплачен на ${orderToCancel ? formatKopecks(orderToCancel.price) : ''}. После отмены оператор свяжется с вами по возврату — по оферте он делается в течение 10 дней.`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isCanceling}>
+                            Не отменять
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={isCanceling}
+                            onClick={async () => {
+                                if (!orderToCancel) return;
+                                try {
+                                    await cancelOwnOrder(orderToCancel.id);
+                                } finally {
+                                    setOrderToCancel(null);
+                                }
+                            }}
+                        >
+                            {isCanceling ? 'Отменяем...' : 'Отменить заказ'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };

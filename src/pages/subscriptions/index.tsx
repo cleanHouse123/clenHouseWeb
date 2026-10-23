@@ -52,6 +52,11 @@ export const SubscriptionsPage = () => {
     (item) => item.isSupportableArea
   );
 
+  // Пока грузятся профиль и адреса, оформление молча ничего не делало:
+  // клик проваливался в проверки и выходил без единого сообщения
+  const isSubscriptionActionBlocked =
+    isCreatingSubscriptionByPlan || isLoadingUser || isLoadingAddresses;
+
   const proceedSubscription = async (id: string) => {
     try {
       const plans = await subscriptionApi.getSubscriptionPlansWithPrices();
@@ -350,14 +355,19 @@ export const SubscriptionsPage = () => {
             <SubscriptionPlanCard
               key={plan.id}
               plan={plan}
+              discountedPriceInKopecks={couponPreviews[plan.id]?.finalAmount}
               action={
                 <Button
                   size="sm"
                   className="bg-[#FF5D00] hover:opacity-90 text-[14px] py-2 px-4"
                   onClick={() => handleSelectSubscription(plan.id)}
-                  disabled={isCreatingSubscriptionByPlan}
+                  disabled={isSubscriptionActionBlocked}
                 >
-                  {isCreatingSubscriptionByPlan ? 'Обработка...' : 'Оформить'}
+                  {isCreatingSubscriptionByPlan
+                    ? 'Обработка...'
+                    : isSubscriptionActionBlocked
+                      ? 'Загрузка...'
+                      : 'Оформить'}
                 </Button>
               }
             />

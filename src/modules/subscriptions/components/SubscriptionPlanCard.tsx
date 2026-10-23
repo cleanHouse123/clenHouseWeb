@@ -7,6 +7,8 @@ interface SubscriptionPlanCardProps {
     plan: SubscriptionPlan;
     action: React.ReactNode;
     className?: string;
+    /** Цена с применённым промокодом, в копейках */
+    discountedPriceInKopecks?: number;
 }
 
 function formatRubles(kopecks: number) {
@@ -14,7 +16,8 @@ function formatRubles(kopecks: number) {
     return `${rubles} ₽`;
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, action, className = '' }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, action, className = '', discountedPriceInKopecks }) => {
+    const hasCouponPrice = discountedPriceInKopecks !== undefined;
     // Определяем финальную цену для отображения
     const displayPrice = plan.finalPriceInRubles !== undefined
         ? plan.finalPriceInRubles
@@ -88,7 +91,16 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             <div className="flex flex-col gap-3 mt-6">
                 <div className="flex flex-row items-center justify-between gap-3">
                     <div className="flex flex-col">
-                        {isFree ? (
+                        {hasCouponPrice ? (
+                            <div className="flex items-center gap-2">
+                                <span className="text-[18px] sm:text-[20px] md:text-[22px] lg:text-[24px] font-medium font-onest leading-[1.2] text-[#000]">
+                                    {formatRubles(discountedPriceInKopecks)}
+                                </span>
+                                <span className="text-[14px] sm:text-[15px] line-through text-gray-400">
+                                    {basePrice} ₽
+                                </span>
+                            </div>
+                        ) : isFree ? (
                             <>
                                 <div className="flex items-center gap-2">
                                     <span className="inline-flex items-center px-2 py-1 rounded text-white text-[12px] sm:text-[13px] font-medium bg-[#387C32]">
