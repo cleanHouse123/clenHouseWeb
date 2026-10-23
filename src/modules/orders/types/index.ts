@@ -116,6 +116,15 @@ export interface OrderFormData {
   };
   /** Промокод, применённый при оформлении */
   couponCode?: string;
+  /** Повторять этот вынос: расписание заводится следом за заказом */
+  repeat?: OrderRepeat;
+}
+
+/** Как повторять вынос. Адрес и время берутся из самого заказа */
+export interface OrderRepeat {
+  frequency: 'daily' | 'every_other_day' | 'weekly' | 'custom';
+  /** Для frequency = custom: дни недели, 0 — воскресенье */
+  daysOfWeek?: number[];
 }
 
 // Order Status Badge Props

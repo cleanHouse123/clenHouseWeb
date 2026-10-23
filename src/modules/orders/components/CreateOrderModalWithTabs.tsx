@@ -23,6 +23,12 @@ import { useOrderPrice } from '@/modules/price';
 import { kopecksToRublesNumber, formatKopecks } from '@/core/utils/priceUtils';
 import { LegalConsents } from '@/core/components/legal/LegalConsents';
 import { CouponField, useCouponPreview } from '@/modules/coupons';
+import { RepeatPickupField } from './RepeatPickupField';
+import { OrderRepeat } from '../types';
+
+/** «Свои дни» без выбранных дней — расписание, которое никогда не сработает */
+const isRepeatReady = (repeat: OrderRepeat): boolean =>
+    repeat.frequency !== 'custom' || (repeat.daysOfWeek?.length ?? 0) > 0;
 // Tabs removed as only single order form is used now
 // import { Tabs } from '@/core/components/ui/tabs';
 // import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
@@ -113,6 +119,8 @@ export const CreateOrderModalWithTabs = ({
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
     // Акцепт оферты до перехода к оплате заказа
     const [offerAccepted, setOfferAccepted] = useState(false);
+    const [repeatEnabled, setRepeatEnabled] = useState(false);
+    const [repeat, setRepeat] = useState<OrderRepeat>({ frequency: 'weekly' });
 
     // Hooks для работы с расписаниями (закомментировано, т.к. табы удалены)
     // const { data: scheduledOrders, isLoading: isLoadingSchedules } = useMySchedules();
@@ -156,6 +164,14 @@ export const CreateOrderModalWithTabs = ({
         control: form.control,
         name: 'numberPackages',
     });
+    const watchedScheduledDate = useWatch({
+        control: form.control,
+        name: 'scheduledDate',
+    });
+    const watchedScheduledTime = useWatch({
+        control: form.control,
+        name: 'scheduledTime',
+    });
     const selectedPackages = typeof watchedNumberPackages === 'number' && Number.isFinite(watchedNumberPackages) && watchedNumberPackages > 0
         ? watchedNumberPackages
         : 2;
@@ -168,6 +184,10 @@ export const CreateOrderModalWithTabs = ({
         addressId: addressData?.addressId,
     });
     const isSubscriptionPayment = paymentMethod === 'subscription';
+    // повтор включён, но настроен не до конца — молча терять расписание нельзя
+    const repeatBlocksSubmit =
+        repeatEnabled &&
+        (!(watchedScheduledDate && watchedScheduledTime) || !isRepeatReady(repeat));
 
     // Промокод применяется только к разовой оплате: по подписке списывается заказ, а не деньги
     const coupon = useCouponPreview({
@@ -250,12 +270,16 @@ export const CreateOrderModalWithTabs = ({
             coordinates: addressData.coordinates,
             ...(coupon.appliedCode &&
                 !isSubscriptionPayment && { couponCode: coupon.appliedCode }),
+            // расписание заводится следом за заказом и наследует его адрес и время
+            ...(repeatEnabled && scheduledAt && isRepeatReady(repeat) && { repeat }),
         };
 
         onSubmit(orderData);
 
         setAddressData(null);
         setOfferAccepted(false);
+        setRepeatEnabled(false);
+        setRepeat({ frequency: 'weekly' });
         coupon.reset();
         form.reset();
     };
@@ -817,6 +841,17 @@ export const CreateOrderModalWithTabs = ({
                                 )}
                             />
 
+                            {hasActiveSubscription && (
+                                <RepeatPickupField
+                                    enabled={repeatEnabled}
+                                    onEnabledChange={setRepeatEnabled}
+                                    value={repeat}
+                                    onChange={setRepeat}
+                                    pickupTime={watchedScheduledDate && watchedScheduledTime ? watchedScheduledTime : undefined}
+                                    remainingOrders={remainingOrders}
+                                />
+                            )}
+
                         </form>
                     </Form>
                 </div>
@@ -876,7 +911,7 @@ export const CreateOrderModalWithTabs = ({
                         <Button
                             form="create-order-form"
                             type="submit"
-                            disabled={isLoading || !addressData || !offerAccepted}
+                            disabled={isLoading || !addressData || !offerAccepted || repeatBlocksSubmit}
                             className="min-w-[120px] sm:min-h-[58px]"
                         >
                             {isLoading ? 'Создание...' : 'Создать заказ'}

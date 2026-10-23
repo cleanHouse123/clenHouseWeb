@@ -4,7 +4,6 @@ import { ChevronRight, Calendar } from 'lucide-react';
 import { ScheduledOrderList } from '@/modules/scheduled-orders/components/ScheduledOrderList';
 import {
   useActivateScheduledOrder,
-  useCreateScheduledOrder,
   useDeactivateScheduledOrder,
   useDeleteScheduledOrder,
   useMySchedules,
@@ -20,17 +19,11 @@ const ScheduledOrdersContent = () => {
   
   // Hooks для работы с расписаниями
   const { data: scheduledOrders, isLoading: isLoadingSchedules } = useMySchedules();
-  const createScheduledOrderMutation = useCreateScheduledOrder();
   const updateScheduledOrderMutation = useUpdateScheduledOrder();
   const deleteScheduledOrderMutation = useDeleteScheduledOrder();
   const activateScheduledOrderMutation = useActivateScheduledOrder();
   const deactivateScheduledOrderMutation = useDeactivateScheduledOrder();
   const { transformFormDataToDto } = useScheduledOrderFormUtils();
-
-  const handleCreateSchedule = (data: ScheduledOrderFormData) => {
-    const dto = transformFormDataToDto(data);
-    createScheduledOrderMutation.mutate(dto);
-  };
 
   const handleEditSchedule = (id: string, data: ScheduledOrderFormData) => {
     const dto = transformFormDataToDto(data);
@@ -98,10 +91,10 @@ const ScheduledOrdersContent = () => {
                 <div className="gap-[10px] bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-2xl p-4 h-[99px] flex flex-row justify-between transition-all duration-300 shadow-lg hover:shadow-xl">
                   <div>
                     <h3 className="text-xl sm:text-2xl font-bold text-white mb-[8px]">
-                      Создать расписание
+                      Оформить заказ
                     </h3>
                     <p className="text-orange-100 text-sm sm:text-base">
-                      Автоматические заказы
+                      Отметьте «Повторять» — появится расписание
                     </p>
                   </div>
                   <div className="flex justify-end">
@@ -122,7 +115,7 @@ const ScheduledOrdersContent = () => {
               onEdit={handleEditSchedule}
               onDelete={handleDelete}
               onToggleActive={handleToggleActive}
-              onCreate={handleCreateSchedule}
+              onCreateOrder={handleCreateOrder}
               showActions={true}
             />
           </div>
