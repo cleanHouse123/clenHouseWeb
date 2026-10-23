@@ -1,5 +1,5 @@
 import { ScheduleFrequency, FrequencyOption, DayOfWeekOption } from '../types';
-import { formatDateOnly, toDate, convertUTCTimeToLocal } from '@/core/utils/dateUtils';
+import { formatDateOnly, toDate } from '@/core/utils/dateUtils';
 
 // Опции частоты
 export const frequencyOptions: FrequencyOption[] = [
@@ -66,8 +66,8 @@ export const formatScheduleDescription = (
   }
 
   if (preferredTime) {
-    const localTime = convertUTCTimeToLocal(preferredTime);
-    description += ` в ${localTime}`;
+    // время уже московское: бэкенд так его и хранит
+    description += ` в ${preferredTime}`;
   }
 
   return description;
@@ -198,9 +198,4 @@ export const getScheduleStatus = (
 // Форматировать дату расписания для отображения
 export const formatScheduleDate = (utcDate: string | Date): string => {
   return formatDateOnly(utcDate, 'ru');
-};
-
-// Форматировать время расписания для отображения
-export const formatScheduleTime = (utcTimeString: string): string => {
-  return convertUTCTimeToLocal(utcTimeString);
 };
