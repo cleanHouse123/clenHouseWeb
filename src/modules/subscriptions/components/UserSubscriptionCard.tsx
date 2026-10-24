@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/badge';
 import { Button } from '@/core/components/ui/button/button';
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard, PauseCircle } from 'lucide-react';
 import { UserSubscription } from '../types';
 import { CancelSubscriptionModal } from './CancelSubscriptionModal';
 import { FreezeSubscriptionModal } from './FreezeSubscriptionModal';
@@ -28,8 +28,10 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFree
         switch (userSubscription.status) {
             case 'active':
                 return <CheckCircle className="h-5 w-5 text-green-500" />;
-            case 'cancelled':
+            case 'canceled':
                 return <XCircle className="h-5 w-5 text-gray-500" />;
+            case 'frozen':
+                return <PauseCircle className="h-5 w-5 text-blue-500" />;
             case 'expired':
                 return <Clock className="h-5 w-5 text-red-500" />;
             case 'pending':
@@ -43,8 +45,10 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFree
         switch (userSubscription.status) {
             case 'active':
                 return 'bg-green-100 text-green-800 hover:bg-green-200';
-            case 'cancelled':
+            case 'canceled':
                 return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+            case 'frozen':
+                return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
             case 'expired':
                 return 'bg-red-100 text-red-800 hover:bg-red-200';
             case 'pending':
@@ -59,8 +63,10 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFree
         switch (userSubscription.status) {
             case 'active':
                 return 'Активна';
-            case 'cancelled':
-                return 'Отменена';
+            case 'canceled':
+                return 'Отказ оформлен';
+            case 'frozen':
+                return 'На паузе';
             case 'expired':
                 return 'Истекла';
             case 'pending':
@@ -184,7 +190,19 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFree
                         </div>
                     )}
 
-                    {/* Кнопка удаления для активных подписок */}
+                    {userSubscription.status === 'canceled' && (
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <p className="text-sm text-gray-800 font-medium">
+                                Отказ оформлен
+                            </p>
+                            <p className="text-xs text-gray-600 mt-1">
+                                Выносы по этой подписке больше не доступны. Оператор свяжется
+                                с вами по возврату — по оферте он занимает до 10 дней. Новую
+                                подписку можно оформить сразу.
+                            </p>
+                        </div>
+                    )}
+
                     {userSubscription.status === 'frozen' && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                             <p className="text-sm text-blue-800 font-medium">
