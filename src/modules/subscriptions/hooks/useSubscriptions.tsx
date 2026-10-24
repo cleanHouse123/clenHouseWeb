@@ -268,3 +268,17 @@ export const useCheckUniversalPaymentStatus = () => {
         },
     });
 };
+
+/**
+ * Расчёт возврата перед отказом от подписки.
+ *
+ * Считает сервер по пунктам 6.7 и 6.2 Оферты: клиент должен видеть сумму
+ * до того, как подтвердит отказ, а не узнавать её от оператора.
+ */
+export const useSubscriptionRefundPreview = (subscriptionId?: string) =>
+    useQuery({
+        queryKey: ["subscription-refund-preview", subscriptionId],
+        queryFn: () => subscriptionApi.getRefundPreview(subscriptionId as string),
+        enabled: !!subscriptionId,
+        staleTime: 0,
+    });

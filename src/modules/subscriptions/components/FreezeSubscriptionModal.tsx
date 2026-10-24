@@ -35,7 +35,10 @@ export const FreezeSubscriptionModal = ({
     const remaining = MAX_FREEZE_DAYS - freezeDaysUsed;
     const [days, setDays] = useState(Math.min(7, remaining));
 
-    const options = [3, 7, 14].filter((value) => value <= remaining);
+    // остаток меньше трёх дней не попадал ни в один вариант, и выбирать
+    // клиенту было нечего — добавляем сам остаток
+    const options = [...new Set([3, 7, 14, remaining].filter((value) => value >= 1 && value <= remaining))]
+        .sort((a, b) => a - b);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -54,6 +57,13 @@ export const FreezeSubscriptionModal = ({
                 </DialogHeader>
 
                 <div className="px-6 pb-6 space-y-4">
+                    {remaining <= 0 ? (
+                        <p className="text-sm text-gray-700">
+                            Все {MAX_FREEZE_DAYS} дней паузы за этот период уже
+                            использованы. Приостановить подписку снова можно будет в
+                            следующем периоде.
+                        </p>
+                    ) : (
                     <div>
                         <p className="text-sm text-gray-600 mb-2">На сколько дней</p>
                         <div className="flex gap-2">
@@ -70,30 +80,38 @@ export const FreezeSubscriptionModal = ({
                                     {value}
                                 </button>
                             ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
+                    {remaining > 0 && (
                     <p className="text-sm text-gray-500">
                         {remaining === MAX_FREEZE_DAYS
                             ? `Всего за период можно приостановить на ${MAX_FREEZE_DAYS} дней`
                             : `Осталось дней паузы за этот период: ${remaining}`}
                     </p>
+                    )}
 
-                    <p className="text-xs text-gray-500">
-                        Оформить паузу нужно не позднее чем за 2 дня до ближайшего выноса.
-                    </p>
+                    {remaining > 0 && (
+                        <p className="text-xs text-gray-500">
+                            Оформить паузу нужно не позднее чем за 2 дня до ближайшего
+                            выноса.
+                        </p>
+                    )}
 
                     <div className="flex gap-3 justify-end pt-1">
                         <Button variant="outline" onClick={onClose} disabled={isPending}>
-                            Отмена
+                            {remaining > 0 ? 'Отмена' : 'Понятно'}
                         </Button>
-                        <Button
-                            onClick={() => onConfirm(days)}
-                            disabled={isPending || remaining <= 0}
-                            className="bg-orange-600 hover:bg-orange-700"
-                        >
-                            Приостановить на {days} дн.
-                        </Button>
+                        {remaining > 0 && (
+                            <Button
+                                onClick={() => onConfirm(days)}
+                                disabled={isPending}
+                                className="bg-orange-600 hover:bg-orange-700"
+                            >
+                                Приостановить на {days} дн.
+                            </Button>
+                        )}
                     </div>
                 </div>
             </DialogContent>

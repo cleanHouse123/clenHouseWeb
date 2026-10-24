@@ -7,6 +7,7 @@ import {
   PaymentLinkResponse,
   SubscriptionPlan,
   SubscriptionStatus,
+  SubscriptionRefundPreview,
 } from "../types";
 import { AxiosResponse } from "axios";
 
@@ -128,6 +129,19 @@ export const subscriptionApi = {
     const response = await axiosInstance.patch(
       `/subscriptions/${subscriptionId}/freeze`,
       { days }
+    );
+    return response.data;
+  },
+
+  /**
+   * Сколько вернётся при отказе: формула пункта 6.7 с удержанием за пакеты
+   * по пункту 6.2. Считает сервер — клиент не должен повторять арифметику
+   */
+  getRefundPreview: async (
+    subscriptionId: string
+  ): Promise<SubscriptionRefundPreview> => {
+    const response = await axiosInstance.get(
+      `/subscriptions/${subscriptionId}/refund-preview`
     );
     return response.data;
   },

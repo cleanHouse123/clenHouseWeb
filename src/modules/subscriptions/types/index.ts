@@ -159,3 +159,19 @@ export interface SubscriptionPlanFormData {
   popular: boolean;
   ordersLimit?: number; // -1 = безлимит, null/undefined = не установлен
 }
+
+/** Расчёт возврата при отказе от подписки: пункты 6.7 и 6.2 Оферты */
+export interface SubscriptionRefundPreview {
+  /** Оплачено за подписку, в копейках */
+  price: number;
+  /** Сколько вернётся, в копейках: ниже нуля не уходит */
+  refundAmount: number;
+  /** Удержано за использованные выносы, в копейках */
+  usedAmount: number;
+  /** Удержано за выданные пакеты, в копейках */
+  bagsDeduction: number;
+  usedOrders: number;
+  ordersLimit: number;
+  pricePerPickup: number;
+  method: "per_pickup" | "pro_rata";
+}
