@@ -198,6 +198,32 @@ export const useCreatePaymentLink = () => {
     });
 };
 
+export const useFreezeSubscription = () => {
+    const queryClient = useQueryClient();
+    const { data: user } = useGetMe();
+
+    return useMutation({
+        mutationFn: ({ subscriptionId, days }: { subscriptionId: string; days: number }) =>
+            subscriptionApi.freezeSubscription(subscriptionId, days),
+        onSuccess: (subscription) => {
+            toast.success('Подписка приостановлена', {
+                description: subscription.frozenUntil
+                    ? `Возобновится ${new Date(subscription.frozenUntil).toLocaleDateString('ru-RU')}, срок подписки продлён`
+                    : 'Срок подписки продлён на время паузы',
+                duration: 6000,
+            });
+            queryClient.invalidateQueries({ queryKey: ['user-subscription', user?.userId] });
+        },
+        onError: (error: Error) => {
+            const errorMessage = isAxiosError(error) ? error.response?.data?.message || 'Не удалось приостановить подписку' : 'Не удалось приостановить подписку';
+            toast.error('Ошибка', {
+                description: errorMessage,
+                duration: 6000,
+            });
+        },
+    });
+};
+
 export const useCancelSubscription = () => {
     const queryClient = useQueryClient();
     const { data: user } = useGetMe();

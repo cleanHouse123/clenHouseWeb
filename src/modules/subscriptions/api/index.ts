@@ -118,6 +118,21 @@ export const subscriptionApi = {
   },
 
   /**
+   * Приостановка подписки на срок до 14 дней за период — пункт 6.4 Оферты.
+   * Подписка оживает сама, период продлевается на срок паузы
+   */
+  freezeSubscription: async (
+    subscriptionId: string,
+    days: number
+  ): Promise<UserSubscription> => {
+    const response = await axiosInstance.patch(
+      `/subscriptions/${subscriptionId}/freeze`,
+      { days }
+    );
+    return response.data;
+  },
+
+  /**
    * Отказ от подписки. Не удаление: подписка остаётся со всей историей,
    * иначе возврат по пункту 6.7 Оферты не из чего считать
    */

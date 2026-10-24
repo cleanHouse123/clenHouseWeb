@@ -15,6 +15,8 @@ export enum SubscriptionStatus {
   ACTIVE = "active",
   CANCELLED = "cancelled",
   EXPIRED = "expired",
+  /** Приостановлена клиентом, пункт 6.4 Оферты */
+  FROZEN = "frozen",
 }
 
 export interface UserSubscription {
@@ -28,6 +30,10 @@ export interface UserSubscription {
   paymentUrl?: string; // Ссылка на оплату, если подписка не оплачена
   ordersLimit?: number; // -1 = безлимит, null/undefined = не установлен
   usedOrders?: number; // количество использованных заказов
+  /** До какого момента подписка на паузе, пункт 6.4 Оферты */
+  frozenUntil?: string | null;
+  /** Сколько дней паузы израсходовано за период */
+  freezeDaysUsed?: number;
   createdAt: string;
   updatedAt: string;
 }
