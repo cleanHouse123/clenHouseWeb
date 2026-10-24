@@ -6,7 +6,8 @@ import { LoadingIndicator } from '@/core/components/ui/loading/LoadingIndicator'
 import {
   useUserSubscription,
   useCreateSubscriptionByPlan,
-  useCancelSubscription
+  useCancelSubscription,
+  useFreezeSubscription
 } from '@/modules/subscriptions/hooks/useSubscriptions';
 import { subscriptionApi } from '@/modules/subscriptions/api';
 import { SubscriptionPlan, SubscriptionStatus } from '@/modules/subscriptions/types';
@@ -39,6 +40,7 @@ export const SubscriptionsPage = () => {
   const { data: userSubscription, isLoading: isLoadingUserSubscription } = useUserSubscription();
   const { mutateAsync: createSubscriptionByPlan, isPending: isCreatingSubscriptionByPlan } = useCreateSubscriptionByPlan();
   const { mutateAsync: cancelSubscription } = useCancelSubscription();
+  const { mutateAsync: freezeSubscription } = useFreezeSubscription();
   const { data: plans, isLoading: isLoadingPlans, error: plansError } = useSubscriptionPlans();
   const {
     data: userAddresses,
@@ -250,6 +252,14 @@ export const SubscriptionsPage = () => {
     setCouponError(null);
   };
 
+  const handleFreezeSubscription = async (subscriptionId: string, days: number) => {
+    try {
+      await freezeSubscription({ subscriptionId, days });
+    } catch (error) {
+      console.error('Ошибка при приостановке подписки:', error);
+    }
+  };
+
   const handleCancelSubscription = async (subscriptionId: string) => {
     try {
       await cancelSubscription(subscriptionId);
@@ -402,6 +412,7 @@ export const SubscriptionsPage = () => {
           userSubscription={userSubscription}
           onPay={handlePayExistingSubscription}
           onCancel={handleCancelSubscription}
+          onFreeze={handleFreezeSubscription}
         />
       </div>
     )

@@ -5,6 +5,7 @@ import { Button } from '@/core/components/ui/button/button';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { UserSubscription } from '../types';
 import { CancelSubscriptionModal } from './CancelSubscriptionModal';
+import { FreezeSubscriptionModal } from './FreezeSubscriptionModal';
 import { OrdersInfo } from './OrdersInfo';
 import { kopecksToRubles } from '../utils/priceUtils';
 import { formatDateOnly, isExpiringSoon } from '@/core/utils/dateUtils';
@@ -15,10 +16,13 @@ interface UserSubscriptionCardProps {
     onPay?: (subscriptionId: string) => void;
     /** Отказ от подписки: удаления больше нет, подписка остаётся в истории */
     onCancel?: (subscriptionId: string) => void;
+    /** Приостановка на срок до 14 дней, пункт 6.4 Оферты */
+    onFreeze?: (subscriptionId: string, days: number) => void;
 }
 
-export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel }: UserSubscriptionCardProps) => {
+export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFreeze }: UserSubscriptionCardProps) => {
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
 
     const getStatusIcon = () => {
         switch (userSubscription.status) {
@@ -181,6 +185,41 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel }: User
                     )}
 
                     {/* Кнопка удаления для активных подписок */}
+                    {userSubscription.status === 'frozen' && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <p className="text-sm text-blue-800 font-medium">
+                                Подписка на паузе
+                            </p>
+                            <p className="text-xs text-blue-700 mt-1">
+                                {userSubscription.frozenUntil
+                                    ? `Возобновится ${formatDate(userSubscription.frozenUntil)}. Срок подписки продлён на время паузы`
+                                    : 'Срок подписки продлён на время паузы'}
+                            </p>
+                        </div>
+                    )}
+
+                    {userSubscription.status === 'active' && onFreeze && (
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <span className="text-sm font-medium text-gray-800">
+                                        Приостановить
+                                    </span>
+                                    <p className="text-xs text-gray-600">
+                                        До 14 дней за период, срок продлевается
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={() => setIsFreezeModalOpen(true)}
+                                    size="sm"
+                                    variant="outline"
+                                >
+                                    Пауза
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
                     {userSubscription.status === 'active' && onCancel && (
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <div className="flex items-center justify-between">
@@ -215,6 +254,16 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel }: User
                     )}
                 </CardContent>
             </Card>
+
+            <FreezeSubscriptionModal
+                isOpen={isFreezeModalOpen}
+                onClose={() => setIsFreezeModalOpen(false)}
+                onConfirm={(days) => {
+                    onFreeze?.(userSubscription.id, days);
+                    setIsFreezeModalOpen(false);
+                }}
+                freezeDaysUsed={userSubscription.freezeDaysUsed}
+            />
 
             <CancelSubscriptionModal
                 isOpen={isCancelModalOpen}
