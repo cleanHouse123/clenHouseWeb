@@ -4,8 +4,7 @@ import { toast } from 'sonner';
 import { authApi } from '../api';
 import { VerifySmsRequest } from '../types';
 import {
-    getSavedAuthCredentials,
-    saveSavedAuthCredentials,
+    saveAuthLogin,
 } from '../utils/saved-auth';
 
 export const useVerifySms = () => {
@@ -27,11 +26,9 @@ export const useVerifySms = () => {
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.refreshToken);
 
-            const existingCredentials = getSavedAuthCredentials();
-            saveSavedAuthCredentials({
+            saveAuthLogin({
                 method: 'phone',
                 login: variables.phoneNumber,
-                password: existingCredentials?.password ?? '',
             });
 
             // Удаляем adToken после успешной авторизации

@@ -17,9 +17,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { LoginButton } from '@telegram-auth/react';
 import {
-    getSavedAuthCredentials,
-    SavedAuthCredentials,
-    saveSavedAuthCredentials,
+    getSavedAuthLogin,
+    SavedAuthLogin,
+    saveAuthLogin,
 } from '@/modules/auth/utils/saved-auth';
 import { LegalConsents, useLegalConsents } from '@/core/components/legal/LegalConsents';
 import { LEGAL_REVISION } from '@/pages/legal/documents';
@@ -134,8 +134,9 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const [loginMethod, setLoginMethod] = useState<'sms' | 'email'>('email');
     const [step, setStep] = useState<'phone' | 'code'>('phone');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [savedCredentials, setSavedCredentials] =
-        useState<SavedAuthCredentials | null>(null);
+    const [savedLogin, setSavedLogin] = useState<SavedAuthLogin | null>(null);
+    /** Логин, который нужно подставить в форму входа по почте */
+    const [loginToPrefill, setLoginToPrefill] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -215,62 +216,44 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
     const isQuickLoginPending =
         isLoading || isSendingSms || isVerifyingSms || isTelegramLoading;
 
-    const rememberCredentials = (
-        payload: Omit<SavedAuthCredentials, 'updatedAt'>,
-    ) => {
-        const normalized: Omit<SavedAuthCredentials, 'updatedAt'> = {
+    /** Запоминаем, чем человек входил: логин подставится в поле */
+    const rememberLogin = (payload: Omit<SavedAuthLogin, 'updatedAt'>) => {
+        const normalized: Omit<SavedAuthLogin, 'updatedAt'> = {
             method: payload.method,
             login: payload.login.trim(),
-            password: payload.password,
         };
-        saveSavedAuthCredentials(normalized);
-        setSavedCredentials({
+        saveAuthLogin(normalized);
+        setSavedLogin({
             ...normalized,
             updatedAt: Date.now(),
         });
     };
 
-    const getSavedPassword = (): string => {
-        if (savedCredentials?.password) {
-            return savedCredentials.password;
-        }
-        return getSavedAuthCredentials()?.password ?? '';
-    };
-
-    const handleQuickLogin = async () => {
-        if (!savedCredentials || isQuickLoginPending) {
+    /**
+     * Открывает форму входа с подставленным логином. Пароль человек вводит
+     * сам: в браузере мы его не храним.
+     */
+    const handleContinueAsSaved = () => {
+        if (!savedLogin || isQuickLoginPending) {
             return;
         }
 
-        if (savedCredentials.method === 'email') {
-            if (!savedCredentials.password) {
-                toast.error('Быстрый вход недоступен', {
-                    description:
-                        'Для email входа нужен сохраненный пароль. Войдите вручную один раз.',
-                    duration: 5000,
-                });
-                return;
-            }
-
-            setAuthMode('login');
-            setLoginMethod('email');
-            setStep('phone');
-            setHasError(false);
-            emailLoginForm.setValue('email', savedCredentials.login);
-            emailLoginForm.setValue('password', savedCredentials.password);
-
-            await handleEmailLoginSubmit({
-                email: savedCredentials.login,
-                password: savedCredentials.password,
+        if (savedLogin.method !== 'email') {
+            // Вход по телефону временно отключен по бизнес-требованию.
+            toast.error('Вход по телефону отключен', {
+                description: 'Используйте вход по email и паролю.',
+                duration: 5000,
             });
             return;
         }
 
-        // Вход по телефону временно отключен по бизнес-требованию.
-        toast.error('Вход по телефону отключен', {
-            description: 'Используйте вход по email и паролю.',
-            duration: 5000,
-        });
+        setAuthMode('login');
+        setLoginMethod('email');
+        setStep('phone');
+        setHasError(false);
+        // подставляем не здесь: форма переживает смену режима и теряет
+        // значение, записанное в том же такте
+        setLoginToPrefill(savedLogin.login);
     };
 
 
@@ -330,10 +313,9 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             localStorage.setItem('refreshToken', result.refreshToken);
             persistConsents();
 
-            rememberCredentials({
+            rememberLogin({
                 method: 'email',
                 login: data.email.trim().toLowerCase(),
-                password: data.password.trim(),
             });
 
             await queryClient.invalidateQueries({ queryKey: ['me'] });
@@ -399,10 +381,9 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             localStorage.setItem('refreshToken', result.refreshToken);
             persistConsents();
 
-            rememberCredentials({
+            rememberLogin({
                 method: 'email',
                 login: data.email.trim().toLowerCase(),
-                password: data.password,
             });
 
             await queryClient.invalidateQueries({ queryKey: ['me'] });
@@ -449,10 +430,9 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                 persistConsents();
                 localStorage.removeItem('adToken');
 
-                rememberCredentials({
+                rememberLogin({
                     method: 'phone',
                     login: phoneNumber,
-                    password: getSavedPassword(),
                 });
 
                 // Инвалидируем кэш пользователя для обновления данных
@@ -597,8 +577,26 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
             return;
         }
 
-        setSavedCredentials(getSavedAuthCredentials());
+        setSavedLogin(getSavedAuthLogin());
     }, [isOpen]);
+
+    // Подстановка логина: пароль человек вводит сам, поэтому ставим на него
+    // курсор — остаётся заполнить одно поле
+    useEffect(() => {
+        if (
+            loginToPrefill === null ||
+            step !== 'phone' ||
+            loginMethod !== 'email' ||
+            authMode !== 'login'
+        ) {
+            return;
+        }
+
+        emailLoginForm.setValue('email', loginToPrefill);
+        emailLoginForm.setValue('password', '');
+        emailLoginForm.setFocus('password');
+        setLoginToPrefill(null);
+    }, [loginToPrefill, step, loginMethod, authMode, emailLoginForm]);
 
     return (
         <Dialog
@@ -665,15 +663,15 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                         authMode === 'login' ? (
                             loginMethod === 'sms' ? (
                                 <div className="space-y-4">
-                                    {savedCredentials && (
+                                    {savedLogin && (
                                         <Button
                                             type="button"
                                             variant="outline"
                                             className="w-full"
-                                            onClick={handleQuickLogin}
+                                            onClick={handleContinueAsSaved}
                                             disabled={isQuickLoginPending || !hasRequiredConsents}
                                         >
-                                            {`Войти как ${getQuickLoginLabel(savedCredentials.login)}`}
+                                            {`Продолжить как ${getQuickLoginLabel(savedLogin.login)}`}
                                         </Button>
                                     )}
 
@@ -894,15 +892,15 @@ export const SmsLoginModal = ({ isOpen, onClose }: SmsLoginModalProps) => {
                                             )}
                                         />
 
-                                        {savedCredentials?.method === 'email' && (
+                                        {savedLogin?.method === 'email' && (
                                             <Button
                                                 type="button"
                                                 variant="outline"
                                                 className="w-full"
-                                                onClick={handleQuickLogin}
+                                                onClick={handleContinueAsSaved}
                                                 disabled={isQuickLoginPending || !hasRequiredConsents}
                                             >
-                                                {`Войти как ${getQuickLoginLabel(savedCredentials.login)}`}
+                                                {`Продолжить как ${getQuickLoginLabel(savedLogin.login)}`}
                                             </Button>
                                         )}
 
