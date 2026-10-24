@@ -13,7 +13,8 @@ export interface Subscription {
 export enum SubscriptionStatus {
   PENDING = "pending",
   ACTIVE = "active",
-  CANCELLED = "cancelled",
+  /** Бэкенд пишет статус с одной «l» — расхождение ломало подпись на карточке */
+  CANCELED = "canceled",
   EXPIRED = "expired",
   /** Приостановлена клиентом, пункт 6.4 Оферты */
   FROZEN = "frozen",
