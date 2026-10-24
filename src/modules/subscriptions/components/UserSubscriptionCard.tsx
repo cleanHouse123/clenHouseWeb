@@ -288,6 +288,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFree
                 onClose={handleCloseCancelModal}
                 onConfirm={handleConfirmCancel}
                 subscriptionType={userSubscription.type}
+                subscriptionId={userSubscription.id}
             />
         </>
     );
