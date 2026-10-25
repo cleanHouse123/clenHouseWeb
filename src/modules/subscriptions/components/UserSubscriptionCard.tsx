@@ -210,7 +210,7 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFree
                             </p>
                             <p className="text-xs text-blue-700 mt-1">
                                 {userSubscription.frozenUntil
-                                    ? `Возобновится ${formatDate(userSubscription.frozenUntil)}. Срок подписки продлён на время паузы`
+                                    ? `Возобновится ${formatDate(userSubscription.frozenUntil)}, срок подписки продлён на время паузы`
                                     : 'Срок подписки продлён на время паузы'}
                             </p>
                         </div>
@@ -238,7 +238,9 @@ export const UserSubscriptionCard = ({ userSubscription, onPay, onCancel, onFree
                         </div>
                     )}
 
-                    {userSubscription.status === 'active' && onCancel && (
+                    {(userSubscription.status === 'active' ||
+                        userSubscription.status === 'frozen') &&
+                        onCancel && (
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
