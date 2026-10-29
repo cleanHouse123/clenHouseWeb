@@ -18,7 +18,7 @@ export const BenefitsSection: React.FC = () => {
             Вызов курьера за пару кликов
           </h2>
           <p className="text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] font-normal font-onest leading-[1.4] text-[rgba(0,0,0,0.7)] max-w-[645px]">
-            Мы делаем выброс мусора простым, быстрым и комфортным
+            Мы делаем вынос мусора простым, быстрым и комфортным
           </p>
         </motion.div>
 
