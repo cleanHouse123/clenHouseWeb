@@ -18,8 +18,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'ЧистоДом - Система управления',
-        short_name: 'ЧистоДом',
+        name: 'ЧистоДома — курьерская служба по выносу мусора',
+        short_name: 'ЧистоДома',
         description: 'Эффективное решение для выноса мусора',
         version: buildVersion,
         theme_color: '#000000',

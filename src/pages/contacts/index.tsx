@@ -10,7 +10,7 @@ export const ContactsPage = () => {
                         Контакты
                     </h1>
                     <p className="text-xl text-gray-600">
-                        Свяжитесь с нами для заказа услуг клининга
+                        Свяжитесь с нами, чтобы заказать вынос мусора
                     </p>
                 </div>
 
@@ -28,7 +28,7 @@ export const ContactsPage = () => {
                                 <Phone className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium">Телефон</p>
-                                    <p className="text-gray-600">8-800-775-63-65</p>
+                                    <a href="tel:+78007756365" className="text-gray-600 hover:text-gray-800 underline underline-offset-2">8-800-775-63-65</a>
                                 </div>
                             </div>
 

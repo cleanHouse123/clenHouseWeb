@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 
 export const MainLayout = () => {
 
-    useDocumentTitle("ЧистоДом")
+    useDocumentTitle("ЧистоДома")
 
     return (
         <div className="min-h-screen w-screen flex items-center justify-center bg-background">

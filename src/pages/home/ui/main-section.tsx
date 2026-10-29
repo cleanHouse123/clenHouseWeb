@@ -6,32 +6,26 @@ import { BenefitsSection } from './BenefitsSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { SubscriptionPlansSection } from './SubscriptionPlansSection';
 import { FAQSection } from './FAQSection';
-import { useOrderPrice } from '@/modules/price';
-import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 
+const TAB_TITLE = 'ЧистоДома — курьер забирает пакет у двери и в квартиру не входит';
+const SERVICE_DESCRIPTION = 'ЧистоДома — курьерская служба по выносу мусора в Санкт-Петербурге и Ленинградской области. Курьер забирает пакет у двери и доносит его до контейнера дома. В квартиру не входит.';
 
 interface MainSectionProps {
   onCallCourier: () => void;
 }
 
 export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
-  const { orderPrice, isLoading } = useOrderPrice();
-
-  // Используем цену с бэкенда или fallback на 149
-  const currentPrice = orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : 149;
-  const priceText = isLoading ? '149' : currentPrice.toString();
-
   return (
     <>
       <Helmet>
         {/* Основные SEO мета-теги */}
-        <title>ЧистоДома - Вынос мусора за {priceText}₽ | Клининговые услуги в Санкт-Петербурге</title>
-        <meta name="description" content={`ЧистоДома - современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за ${priceText}₽. Быстро, удобно, надежно. Закажите курьера онлайн!`} />
-        <meta name="keywords" content="вынос мусора, клининг, уборка, курьер, мусор, бытовые отходы, ЧистоДома, Санкт-Петербург, СПб, онлайн заказ" />
+        <title>{TAB_TITLE}</title>
+        <meta name="description" content={SERVICE_DESCRIPTION} />
+        <meta name="keywords" content="вынос мусора, курьерская служба, курьер, пакет у двери, ЧистоДома, Санкт-Петербург, Ленинградская область, СПб" />
 
         {/* Open Graph мета-теги для социальных сетей */}
-        <meta property="og:title" content={`ЧистоДома - Вынос мусора за ${priceText}₽ | Клининговые услуги в Санкт-Петербурге`} />
-        <meta property="og:description" content={`Современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за ${priceText}₽. Быстро, удобно, надежно.`} />
+        <meta property="og:title" content={TAB_TITLE} />
+        <meta property="og:description" content={SERVICE_DESCRIPTION} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://xn--80ad4adfbofbt7f.xn--p1ai" />
         <meta property="og:image" content="https://xn--80ad4adfbofbt7f.xn--p1ai/images/og-image.jpg" />
@@ -39,8 +33,8 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
 
         {/* Twitter Card мета-теги */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`ЧистоДома - Вынос мусора за ${priceText}₽ в Санкт-Петербурге`} />
-        <meta name="twitter:description" content={`Современный сервис выноса мусора и клининговых услуг в Санкт-Петербурге. Первый вынос мусора всего за ${priceText}₽.`} />
+        <meta name="twitter:title" content={TAB_TITLE} />
+        <meta name="twitter:description" content={SERVICE_DESCRIPTION} />
         <meta name="twitter:image" content="https://xn--80ad4adfbofbt7f.xn--p1ai/images/twitter-image.jpg" />
 
         {/* Дополнительные SEO мета-теги */}
@@ -56,26 +50,27 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "ЧистоДома",
-            "description": "Сервис выноса мусора и клининговых услуг в Санкт-Петербурге",
+            "description": SERVICE_DESCRIPTION,
             "url": "https://xn--80ad4adfbofbt7f.xn--p1ai",
             "logo": "https://xn--80ad4adfbofbt7f.xn--p1ai/images/logo.png",
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+7-XXX-XXX-XXXX",
-              "contactType": "customer service"
+              "telephone": "+78007756365",
+              "contactType": "customer service",
+              "areaServed": "RU"
             },
             "address": {
               "@type": "PostalAddress",
               "addressLocality": "Санкт-Петербург",
+              "addressRegion": "Санкт-Петербург",
               "addressCountry": "RU"
             },
-            "areaServed": {
-              "@type": "City",
-              "name": "Санкт-Петербург"
-            },
+            "areaServed": [
+              { "@type": "City", "name": "Санкт-Петербург" },
+              { "@type": "AdministrativeArea", "name": "Ленинградская область" }
+            ],
             "sameAs": [
-              "https://vk.com/cleanhouse",
-              "https://t.me/cleanhouse"
+              "https://t.me/chistodoma1"
             ]
           })}
         </script>
@@ -85,21 +80,16 @@ export const MainSection: React.FC<MainSectionProps> = ({ onCallCourier }) => {
             "@context": "https://schema.org",
             "@type": "Service",
             "name": "Вынос мусора в Санкт-Петербурге",
-            "description": "Услуга выноса бытового мусора в Санкт-Петербурге",
+            "description": "Курьерская служба по выносу мусора: пакет забирают у двери и доносят до контейнера дома. В квартиру не входит. Цену называют после адреса.",
             "provider": {
               "@type": "Organization",
-              "name": "ЧистоДома"
+              "name": "ЧистоДома",
+              "telephone": "+78007756365"
             },
-            "areaServed": {
-              "@type": "City",
-              "name": "Санкт-Петербург"
-            },
-            "offers": {
-              "@type": "Offer",
-              "price": priceText,
-              "priceCurrency": "RUB",
-              "description": "Первый вынос мусора со скидкой 50%"
-            }
+            "areaServed": [
+              { "@type": "City", "name": "Санкт-Петербург" },
+              { "@type": "AdministrativeArea", "name": "Ленинградская область" }
+            ]
           })}
         </script>
       </Helmet>

@@ -8,7 +8,7 @@ self.addEventListener('push', function (event) {
   console.log('[Service Worker] Push получен');
 
   let notificationData = {
-    title: 'ЧистоДом',
+    title: 'ЧистоДома',
     body: 'У вас новое уведомление',
     icon: '/favicon/android-chrome-192x192.png',
     badge: '/favicon/android-chrome-192x192.png',

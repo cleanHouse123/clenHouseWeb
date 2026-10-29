@@ -2,17 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button/button';
-import { Trash2, Clock, Shield, Star } from 'lucide-react';
-import { useOrderPrice } from '@/modules/price';
-import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
+import { Trash2, Clock, Shield } from 'lucide-react';
 
 interface PriceSectionProps {
     onCallCourier: () => void;
 }
 
 export const PriceSection: React.FC<PriceSectionProps> = ({ onCallCourier }) => {
-    const { orderPrice, isLoading } = useOrderPrice();
-
     return (
         <section className="pt-[20px] sm:pt-[30px]">
             <div className="mx-auto px-2 xs:px-4 sm:px-8 lg:px-8 max-w-6xl">
@@ -41,28 +37,11 @@ export const PriceSection: React.FC<PriceSectionProps> = ({ onCallCourier }) => 
                                         viewport={{ once: true }}
                                         className="mb-4 sm:mb-6"
                                     >
-                                        <div className="inline-flex items-center gap-1 sm:gap-2 bg-orange-100 text-orange-800 px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-current" />
-                                            <span className="hidden xs:inline">Специальное предложение</span>
-                                            <span className="xs:hidden">Скидка</span>
-                                        </div>
-
-                                        <div className="flex items-baseline justify-center lg:justify-start gap-1 sm:gap-2 mb-2">
-                                            <span className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-bold text-orange-500">
-                                                {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}
-                                            </span>
-                                            <span className="text-lg sm:text-2xl text-gray-600">₽</span>
-                                        </div>
-
-                                        <div className="flex items-center justify-center lg:justify-start gap-1 sm:gap-2 mb-3 sm:mb-4">
-                                            <span className="text-sm sm:text-lg text-gray-500 line-through">299₽</span>
-                                            <span className="bg-red-100 text-red-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-medium">
-                                                -50%
-                                            </span>
-                                        </div>
-
+                                        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                                            Цена после адреса
+                                        </h3>
                                         <p className="text-gray-600 text-sm sm:text-lg">
-                                            Разовый вынос мусора
+                                            Назовите дом. Если он подключён, покажем стоимость выноса. До адреса цифру не обещаем.
                                         </p>
                                     </motion.div>
                                 </div>
@@ -123,12 +102,7 @@ export const PriceSection: React.FC<PriceSectionProps> = ({ onCallCourier }) => 
                                     size="sm"
                                     className="bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-8 py-2 sm:py-4 text-sm sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                                 >
-                                    <span className="hidden xs:inline">
-                                        Заказать вынос мусора за {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}₽
-                                    </span>
-                                    <span className="xs:hidden">
-                                        Заказать за {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}₽
-                                    </span>
+                                    Указать адрес
                                 </Button>
 
 

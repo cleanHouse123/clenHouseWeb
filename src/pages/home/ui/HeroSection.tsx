@@ -2,16 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/core/components/ui/button/button';
 import { Card } from '@/core/components/ui/card';
-import { useOrderPrice } from '@/modules/price';
-import { kopecksToRublesNumber } from '@/core/utils/priceUtils';
 
 interface HeroSectionProps {
   onCallCourier: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
-  const { orderPrice, isLoading } = useOrderPrice();
-
   return (
     <section className="relative bg-background  pt-[102px] sm:pt-[48px] md:pt-[58px]">
       <div className="mx-auto px-4 sm:px-8 lg:px-8 mt-12 md:mt-24">
@@ -47,7 +43,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="text-[24px] sm:text-[30px] md:text-[30px] tablet:text-[30px] semi-lg:text-[33px] semi-lg2:text-[37px] lg:text-[40px] xl:text-[42px] semi-xl:text-[45px] font-medium font-onest text-[#000000] leading-[1.1em] lg:leading-[1em]"
               >
-                ЧистоДома — вынос мусора и клининговые услуги в Санкт-Петербурге
+                ЧистоДома — вынос мусора от двери до контейнера
               </motion.h1>
 
               <motion.p
@@ -56,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
                 transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
                 className="text-[16px] sm:text-[17px] md:text-[17px] tablet:text-[17px] semi-lg:text-[18px] semi-lg2:text-[19px] lg:text-[19px] xl:text-[19px] semi-xl:text-[20px] font-normal font-onest text-[rgba(0,0,0,0.7)] leading-[1.4em]"
               >
-                ЧистоДома — современная платформа для заказа клининга онлайн в Санкт-Петербурге с удобным личным кабинетом и системой подписки
+                Курьерская служба по выносу мусора в Санкт-Петербурге и Ленинградской области. Курьер забирает пакет у двери и доносит его до контейнера дома. В квартиру не входит. Цену называем после адреса.
               </motion.p>
             </div>
 
@@ -66,30 +62,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCallCourier }) => {
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
               className="flex flex-col gap-3"
             >
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full w-fit shadow-lg">
-                <span className="text-base sm:text-lg font-bold">Первый заказ</span>
-                <span className="text-2xl sm:text-3xl font-bold">1₽</span>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl sm:text-4xl font-bold text-orange-500">
-                    {isLoading ? '...' : (orderPrice ? kopecksToRublesNumber(orderPrice.priceInKopecks) : '149')}
-                  </span>
-                  <span className="text-sm sm:text-lg text-gray-600">₽</span>
-                </div>
-                <span className="text-sm sm:text-base text-gray-500 line-through">299₽</span>
-                <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs sm:text-sm font-medium">
-                  -50%
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-gray-600">Разовый вынос мусора</p>
               <Button
                 onClick={onCallCourier}
                 variant="primary"
                 size="lg"
                 className="font-onest w-full sm:w-fit hover:scale-105 transition-transform duration-200"
               >
-                Вызвать курьера
+                Указать адрес
               </Button>
             </motion.div>
 

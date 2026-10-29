@@ -137,7 +137,7 @@ export const PWAInstallPrompt: React.FC = () => {
                 {isIOS ? (
                     <>
                         <p className="text-sm text-muted-foreground">
-                            Установите ЧистоДом для быстрого доступа и работы офлайн
+                            Установите ЧистоДома для быстрого доступа и работы офлайн
                         </p>
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm">
@@ -163,7 +163,7 @@ export const PWAInstallPrompt: React.FC = () => {
                 ) : (
                     <>
                         <p className="text-sm text-muted-foreground">
-                            Установите ЧистоДом для быстрого доступа и работы офлайн
+                            Установите ЧистоДома для быстрого доступа и работы офлайн
                         </p>
                         <div className="flex gap-2">
                             <Button
