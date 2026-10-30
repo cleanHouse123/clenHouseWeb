@@ -64,7 +64,7 @@ export const CouriersPage = () => {
                                             className="gap-2"
                                         >
                                             <Download className="h-5 w-5" />
-                                            Скачать для Android (88 МБ)
+                                            Скачать для Android (69 МБ)
                                         </Button>
                                         {!showInstallInstructions && (
                                             <Button
